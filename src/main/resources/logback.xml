@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="false">
+
+    <statusListener class="ch.qos.logback.core.status.NopStatusListener"/>
+
+    <!--    <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">-->
+    <!--        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">-->
+    <!--            <level>ERROR</level>-->
+    <!--        </filter>-->
+    <!--        <layout class="ch.qos.logback.classic.PatternLayout">-->
+    <!--            <Pattern>-->
+    <!--                &lt;!&ndash; Simplified log output for less logging in production. Date/Time is added by the logging tool &ndash;&gt;-->
+    <!--                %-5level [%-20class{0}]: %msg%n%throwable-->
+    <!--            </Pattern>-->
+    <!--        </layout>-->
+    <!--    </appender>-->
+
+    <appender name="File" class="ch.qos.logback.core.FileAppender">
+        <file>${user.home}/pipeforce/log/cli.log</file>
+        <encoder>
+            <pattern>%d{MM.dd.YY HH:mm:ss} %-5level - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="ERROR">
+        <appender-ref ref="File"/>
+        <!--        <appender-ref ref="Console"/>-->
+    </root>
+
+    <logger name="com.logabit" level="INFO"/>
+
+    <!-- Disable ReflectionUtils class not found warnings for iterations -->
+    <logger name="org.reflections" level="ERROR"/>
+
+    <logger name="org.jetbrains.kotlin" level="ERROR"/>
+
+    <!-- Disable JodaTime deprecation message -->
+    <logger name="org.springframework.boot.autoconfigure.jackson" level="ERROR"/>
+
+    <!-- Disable Checkstyle/BeanUtils noisyness -->
+    <logger name="org.apache.commons.beanutils.converters" level="ERROR"/>
+
+</configuration>
