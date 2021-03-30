@@ -11,6 +11,7 @@
 
     <properties>
         <java.version>1.8</java.version>
+        <pipeforce.version>{{ctx.tag()}}</pipeforce.version>
     </properties>
 
     <dependencies>
@@ -46,9 +47,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.logabit.pipeforce.commons</groupId>
-            <artifactId>javacommons</artifactId>
-            <version>{{ctx.tag()}}</version>
+            <groupId>com.logabit.pipeforce</groupId>
+            <artifactId>pipeforce-sdk-java</artifactId>
+            <version>${pipeforce.version}</version>
         </dependency>
 
         <dependency>
