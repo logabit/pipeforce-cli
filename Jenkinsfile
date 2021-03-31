@@ -1,16 +1,7 @@
-pipeline {
-  agent {
-    docker {
-      image 'maven:3.3.3'
+podTemplate {
+    node(POD_LABEL) {
+        stage('Run shell') {
+            sh 'echo hello world'
+        }
     }
-
-  }
-  stages {
-    stage('build') {
-      steps {
-        sh 'mvn --version'
-      }
-    }
-
-  }
 }
