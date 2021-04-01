@@ -11,10 +11,10 @@ podTemplate {
 //                 dir('pipeforce-sdk-java') {
 //                     git url: 'https://github.com/logabit/pipeforce-sdk-java.git', credentialsId: 'github'
 //                 }
+                sh('echo hello from $POD_CONTAINER')
                 sh('python --version')
                 sh('mvn -version')
                 sh('java -version')
-                sh('echo hello from $POD_CONTAINER')
             }
     }
 }
