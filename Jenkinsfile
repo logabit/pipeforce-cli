@@ -12,6 +12,8 @@ podTemplate {
 //                     git url: 'https://github.com/logabit/pipeforce-sdk-java.git', credentialsId: 'github'
 //                 }
                 sh('python --version')
+                sh('mvn -version')
+                sh('java -version')
             }
     }
 }
