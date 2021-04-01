@@ -2,7 +2,7 @@ podTemplate {
     node(POD_LABEL) {
 
         container('k82-jenkins-agent') {
-            stage('Checkout') {
+            stage('Checkout2') {
                 dir('pipeforce-build') {
                     git url: 'https://github.com/logabit/pipeforce-build.git', credentialsId: 'github'
                 }
