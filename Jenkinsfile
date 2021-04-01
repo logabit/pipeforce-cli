@@ -1,8 +1,7 @@
-podTemplate {
-    node(POD_LABEL) {
+node(POD_LABEL) {
 
-        container('k82-jenkins-agent') {
-            stage('Checkout2') {
+    container('k82-jenkins-agent') {
+        stage('Checkout2') {
 //                 dir('pipeforce-build') {
 //                     git url: 'https://github.com/logabit/pipeforce-build.git', credentialsId: 'github'
 //                 }
@@ -12,8 +11,7 @@ podTemplate {
 //                 dir('pipeforce-sdk-java') {
 //                     git url: 'https://github.com/logabit/pipeforce-sdk-java.git', credentialsId: 'github'
 //                 }
-                sh('python --version')
-            }
+            sh('python --version')
         }
     }
 }
