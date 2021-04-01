@@ -1,7 +1,6 @@
 podTemplate {
     node(POD_LABEL) {
 
-        container('jre-mvn-python') {
             stage('Checkout2') {
 //                 dir('pipeforce-build') {
 //                     git url: 'https://github.com/logabit/pipeforce-build.git', credentialsId: 'github'
@@ -14,6 +13,5 @@ podTemplate {
 //                 }
                 sh('python --version')
             }
-        }
     }
 }
