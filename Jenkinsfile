@@ -14,6 +14,7 @@ podTemplate {
                 sh('python --version')
                 sh('mvn -version')
                 sh('java -version')
+                sh('echo hello from $POD_CONTAINER')
             }
     }
 }
