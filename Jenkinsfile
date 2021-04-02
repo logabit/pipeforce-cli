@@ -31,7 +31,7 @@ podTemplate(
 
             stage('Build') {
 
-                sh('echo BUILD')
+                sh('python3 ./pipeforce-build/pi-build.py build pipeforce-cli')
             }
         }
     }
