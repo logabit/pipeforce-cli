@@ -28,7 +28,7 @@ podTemplate(
                 sh('java -version')
 
 
-                // Checkout all required repos from GitHubs
+                // Checkout all required repos from GitHub
                 def repos = [
                         'pipeforce-build',
                         'pipeforce-cli',
@@ -57,9 +57,9 @@ podTemplate(
 
                 // Log important information
                 sh('ls /app')
-                sh('ls /')
-                sh('docker images') // Add list of existing Docker images into logs
-                sh('ls /home/jenkins/agent/workspace/pipeforce-cli_master')
+//                sh('ls /')
+//                sh('docker images') // Add list of existing Docker images into logs
+//                sh('ls /home/jenkins/agent/workspace/pipeforce-cli_master')
 
                 // Start PIPEFORCE build
                 dir('pipeforce-build') {
