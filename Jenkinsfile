@@ -30,16 +30,16 @@ podTemplate(
                 sh('ls pipeforce-build')
 
                 dir('pipeforce-build') {
-                    git branch: '$GIT_BRANCH', url: 'https://github.com/logabit/pipeforce-build.git', credentialsId: 'github'
+                    git label: 'Checkout pipeforce-build', branch: '$GIT_BRANCH', url: 'https://github.com/logabit/pipeforce-build.git', credentialsId: 'github'
                 }
                 dir('pipeforce-cli') {
-                    git branch: '$GIT_BRANCH', url: 'https://github.com/logabit/pipeforce-cli.git', credentialsId: 'github'
+                    git label: 'Checkout pipeforce-cli', branch: '$GIT_BRANCH', url: 'https://github.com/logabit/pipeforce-cli.git', credentialsId: 'github'
                 }
                 dir('pipeforce-sdk-java') {
-                    git branch: '$GIT_BRANCH', url: 'https://github.com/logabit/pipeforce-sdk-java.git', credentialsId: 'github'
+                    git label: 'Checkout pipeforce-sdk-java', branch: '$GIT_BRANCH', url: 'https://github.com/logabit/pipeforce-sdk-java.git', credentialsId: 'github'
                 }
             }
-    
+
             stage('Build') {
 
                 sh('pip3 install -r pipeforce-build/requirements.txt')
