@@ -32,13 +32,14 @@ podTemplate(
 
             stage('Build') {
                 sh('ls')
+                sh('ls /home/jenkins/agent/workspace')
                 sh('ls /home/jenkins/agent/workspace/pipeforce-cli_master')
                 sh('ls /home/jenkins/agent/workspace/pipeforce-cli_master/pipeforce-build')
-                sh('ls /home/jenkins/agent/workspace/pipeforce-cli_master/pipeforce-build/pipeforce-cli')
-                sh('ls /home/jenkins/agent/workspace/pipeforce-cli_master/pipeforce-build/pipeforce-cli@tmp')
-                sh('ls /home/jenkins/agent/workspace/pipeforce-cli_master/pipeforce-build/pipeforce-build@tmp')
-                sh('ls /home/jenkins/agent/workspace/pipeforce-cli_master/pipeforce-build/pipeforce-build')
-                sh('cd pipeforce-build; python3 pi-build.py build pipeforce-cli')
+
+                dir('pipeforce-build') {
+                    sh('ls')
+                    sh('python3 pi-build.py build pipeforce-cli')
+                }
             }
         }
     }
