@@ -58,21 +58,21 @@ podTemplate(
 
                 // Log important information
                 sh('ls /app')
-                sh(' mvn help:effective-settings ')
-//                sh('ls /')
-//                sh('docker images') // Add list of existing Docker images into logs
-//                sh('ls /home/jenkins/agent/workspace/pipeforce-cli_master')
 
                 // Start PIPEFORCE build
                 dir('pipeforce-build') {
-//                    sh('ls /home')
-//                    sh('ls /home/root')
                     sh('python3 pi-build.py build,containerize pipeforce-service-hub ' +
                             '-p build_home=/home/jenkins/agent/workspace/pipeforce-cli_master')
-                    sh('ls /home')
                 }
+            }
 
-                // TODO Refer from inside
+            stage('Deploy') {
+
+                // Start PIPEFORCE build
+                dir('pipeforce-build') {
+                    sh('python3 pi-build.py deploy pipeforce-service-hub ' +
+                            '-p build_home=/home/jenkins/agent/workspace/pipeforce-cli_master')
+                }
             }
         }
     }
