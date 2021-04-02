@@ -30,7 +30,7 @@ podTemplate(
                 sh('ls')
                 sh('ls pipeforce-build')
 
-                def modules = [
+                def repos = [
                         'pipeforce-build',
                         'pipeforce-cli',
                         'pipeforce-defaults',
@@ -47,9 +47,9 @@ podTemplate(
                         'pipeforce-tools',
                 ]
 
-                for (String module : modules) {
-                    dir(module) {
-                        git branch: '$GIT_BRANCH', url: 'https://github.com/logabit/' + module + '.git', credentialsId: 'github'
+                for (String repo : repos) {
+                    dir(repo) {
+                        git branch: '$GIT_BRANCH', url: 'https://github.com/logabit/' + repo + '.git', credentialsId: 'github'
                     }
                 }
 
