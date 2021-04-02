@@ -10,7 +10,7 @@ podTemplate(
         ],
         volumes: [
                 hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock'),
-                persistentVolumeClaim(claimName: 'pvc-build-m2-repo', mountPath: '/home/developer/.m2'),
+                persistentVolumeClaim(claimName: 'pvc-build-m2-repo', mountPath: '/root/.m2'),
         ],
         workspaceVolume: persistentVolumeClaimWorkspaceVolume(claimName: 'pvc-build-jenkins', readOnly: false),
 ) {
