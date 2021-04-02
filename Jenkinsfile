@@ -47,6 +47,7 @@ podTemplate(
                 ]
 
                 for (String repo : repos) {
+                    // TODO Optimize here to do next step only in case sources have changed
                     dir(repo) {
                         git branch: '$GIT_BRANCH', url: 'https://github.com/logabit/' + repo + '.git', credentialsId: 'github'
                     }
@@ -63,8 +64,8 @@ podTemplate(
 
                 // Start PIPEFORCE build
                 dir('pipeforce-build') {
-                    sh('ls /home')
-                    sh('ls /home/root')
+//                    sh('ls /home')
+//                    sh('ls /home/root')
                     sh('python3 pi-build.py containerize pipeforce-service-hub ' +
                             '-p build_home=/home/jenkins/agent/workspace/pipeforce-cli_master')
                     sh('ls /home')
