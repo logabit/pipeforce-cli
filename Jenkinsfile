@@ -70,8 +70,8 @@ podTemplate(
                 sh('docker images') // Add list of existing Docker images into logs
 //                sh('pip3 install -r pipeforce-build/requirements.txt')
 
-                dir('pipeforce-service-hub') {
-                    sh('python3 pi-build.py containerize pipeforce-hub ' +
+                dir('pipeforce-build') {
+                    sh('python3 pi-build.py containerize pipeforce-service-hub ' +
                             '-p build_home=/home/jenkins/agent/workspace/pipeforce-cli_master')
                 }
             }
