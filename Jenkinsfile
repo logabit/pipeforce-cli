@@ -1,15 +1,15 @@
 #!groovy
 podTemplate(
         containers: [
-                containerTemplate(name: 'java', image: 'openkbs/jre-mvn-py3:latest', ttyEnabled: true, command: 'cat')
+                containerTemplate(name: 'jdk-mvn-py', image: 'openkbs/jre-mvn-py3:latest', ttyEnabled: true, command: 'cat')
         ]
 ) {
 
     node(POD_LABEL) {
 
-        stage('Checkout2') {
+        container('jdk-mvn-py') {
 
-            container('java') {
+            stage('Checkout') {
 
                 sh('echo Running container: $POD_CONTAINER')
                 sh('python3 --version')
@@ -26,6 +26,12 @@ podTemplate(
                     git url: 'https://github.com/logabit/pipeforce-sdk-java.git', credentialsId: 'github'
                 }
 
+                sh('pip install -r pipeforce-build/requirements.txt')
+            }
+
+            stage('Build') {
+
+                sh('echo BUILD')
             }
         }
     }
