@@ -44,6 +44,7 @@ podTemplate(
             stage('Build') {
 
                 sh('ls /app')
+                sh('kubectl config view')
 //                sh('pip3 install -r pipeforce-build/requirements.txt')
 
 //                dir('pipeforce-build') {
