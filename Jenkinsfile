@@ -1,7 +1,7 @@
 #!groovy
 properties([
         parameters([
-                string(name: 'BRANCH', defaultValue: 'master', description: 'The branch to do the modules build.', )
+                string(name: 'GIT_BRANCH', defaultValue: 'master', description: 'The branch to do the modules build.', )
         ])
 ])
 podTemplate(
@@ -29,15 +29,15 @@ podTemplate(
                 sh('ls')
                 sh('ls pipeforce-build')
 
-//                dir('pipeforce-build') {
-//                    git url: 'https://github.com/logabit/pipeforce-build.git', credentialsId: 'github'
-//                }
-//                dir('pipeforce-cli') {
-//                    git url: 'https://github.com/logabit/pipeforce-cli.git', credentialsId: 'github'
-//                }
-//                dir('pipeforce-sdk-java') {
-//                    git url: 'https://github.com/logabit/pipeforce-sdk-java.git', credentialsId: 'github'
-//                }
+                dir('pipeforce-build') {
+                    git branch: $GIT_BRANCH, url: 'https://github.com/logabit/pipeforce-build.git', credentialsId: 'github'
+                }
+                dir('pipeforce-cli') {
+                    git branch: $GIT_BRANCH, url: 'https://github.com/logabit/pipeforce-cli.git', credentialsId: 'github'
+                }
+                dir('pipeforce-sdk-java') {
+                    git branch: $GIT_BRANCH, url: 'https://github.com/logabit/pipeforce-sdk-java.git', credentialsId: 'github'
+                }
             }
 
             stage('Build') {
