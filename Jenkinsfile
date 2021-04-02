@@ -39,10 +39,10 @@ podTemplate(
                     git branch: '$GIT_BRANCH', url: 'https://github.com/logabit/pipeforce-sdk-java.git', credentialsId: 'github'
                 }
             }
-
+    
             stage('Build') {
 
-                sh('pip install -r pipeforce-build/requirements.txt')
+                sh('pip3 install -r pipeforce-build/requirements.txt')
 
 //                dir('pipeforce-build') {
 //                    sh('python3 pi-build.py build pipeforce-cli ' +
