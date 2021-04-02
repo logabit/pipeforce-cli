@@ -58,6 +58,7 @@ podTemplate(
 
                 // Log important information
                 sh('ls /app')
+                sh(' mvn help:effective-settings ')
 //                sh('ls /')
 //                sh('docker images') // Add list of existing Docker images into logs
 //                sh('ls /home/jenkins/agent/workspace/pipeforce-cli_master')
