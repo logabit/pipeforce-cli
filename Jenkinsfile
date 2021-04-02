@@ -11,7 +11,6 @@ podTemplate(
         volumes: [
                 hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock'),
                 persistentVolumeClaim(claimName: 'pvc-build-m2-repo', mountPath: '/home/developer/.m2'),
-                persistentVolumeClaim(claimName: 'pvc-build-python3-repo', mountPath: '/home/developer/.m2')
         ],
         workspaceVolume: persistentVolumeClaimWorkspaceVolume(claimName: 'pvc-build-jenkins', readOnly: false),
 ) {
@@ -22,14 +21,14 @@ podTemplate(
 
             stage('Checkout') {
 
-                sh('echo Running container: $POD_CONTAINER, DEPLOY_ENV: $DEPLOY_ENV')
+                // Log important information
+                sh('echo Running container: $POD_CONTAINER, GIT_BRANCH: $GIT_BRANCH')
                 sh('python3 --version')
                 sh('mvn -version')
                 sh('java -version')
 
-                sh('ls')
-                sh('ls pipeforce-build')
 
+                // Checkout all required repos from GitHubs
                 def repos = [
                         'pipeforce-build',
                         'pipeforce-cli',
@@ -52,28 +51,26 @@ podTemplate(
                         git branch: '$GIT_BRANCH', url: 'https://github.com/logabit/' + repo + '.git', credentialsId: 'github'
                     }
                 }
-
-//                dir('pipeforce-cli') {
-//                    git branch: '$GIT_BRANCH', url: 'https://github.com/logabit/pipeforce-cli.git', credentialsId: 'github'
-//                }
-//                dir('pipeforce-sdk-java') {
-//                    git branch: '$GIT_BRANCH', url: 'https://github.com/logabit/pipeforce-sdk-java.git', credentialsId: 'github'
-//                }
-//                dir('pipeforce-hub') {
-//                    git branch: '$GIT_BRANCH', url: 'https://github.com/logabit/pipeforce-hub.git', credentialsId: 'github'
-//                }
             }
 
             stage('Build') {
 
+                // Log important information
                 sh('ls /app')
+                sh('ls /')
                 sh('docker images') // Add list of existing Docker images into logs
-//                sh('pip3 install -r pipeforce-build/requirements.txt')
+                sh('ls /home/jenkins/agent/workspace/pipeforce-cli_master')
 
+                // Start PIPEFORCE build
                 dir('pipeforce-build') {
+                    sh('ls /home')
+                    sh('ls /home/root')
                     sh('python3 pi-build.py containerize pipeforce-service-hub ' +
                             '-p build_home=/home/jenkins/agent/workspace/pipeforce-cli_master')
+                    sh('ls /home')
                 }
+
+                // TODO Refer from inside
             }
         }
     }
