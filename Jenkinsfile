@@ -1,7 +1,8 @@
 #!groovy
 properties([
         parameters([
-                string(name: 'GIT_BRANCH', defaultValue: 'master', description: 'The branch to do the modules build.',)
+                string(name: 'GIT_BRANCH', defaultValue: 'master', description: 'The branch of modules to checkout.'),
+                string(name: 'NAMESPACE', defaultValue: 'dev', description: 'The K8s namespace to install PIPEFORCE into.')
         ])
 ])
 podTemplate(
@@ -70,7 +71,7 @@ podTemplate(
 
                 // Start PIPEFORCE build
                 dir('pipeforce-build') {
-                    sh('python3 pi-build.py deploy pipeforce-service-hub ' +
+                    sh('python3 pi-build.py deploy $NAMESPACE:pipeforce-service-hub ' +
                             '-p build_home=/home/jenkins/agent/workspace/pipeforce-cli_master')
                 }
             }
