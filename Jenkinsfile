@@ -21,6 +21,9 @@ podTemplate(
                 sh('mvn -version')
                 sh('java -version')
 
+                sh('ls')
+                sh('ls pipeforce-build')
+
                 dir('pipeforce-build') {
                     git url: 'https://github.com/logabit/pipeforce-build.git', credentialsId: 'github'
                 }
