@@ -43,6 +43,7 @@ podTemplate(
 
             stage('Build') {
 
+                sh('ls /app')
 //                sh('pip3 install -r pipeforce-build/requirements.txt')
 
 //                dir('pipeforce-build') {
