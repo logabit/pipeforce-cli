@@ -44,7 +44,7 @@ podTemplate(
                         'pipeforce-service-redis',
                         'pipeforce-service-reporting',
                         'pipeforce-service-workflow',
-                        'pipeforce-service-tools',
+                        'pipeforce-tools',
                 ]
 
                 for (String module : modules) {
