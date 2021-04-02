@@ -1,4 +1,9 @@
 #!groovy
+properties([
+        parameters([
+                string(name: 'DEPLOY_ENV', defaultValue: 'TESTING', description: 'The target environment', )
+        ])
+])
 podTemplate(
         containers: [
                 containerTemplate(name: 'jdk-mvn-py', image: 'openkbs/jre-mvn-py3:latest', ttyEnabled: true, command: 'cat')
@@ -33,13 +38,14 @@ podTemplate(
                 dir('pipeforce-sdk-java') {
                     git url: 'https://github.com/logabit/pipeforce-sdk-java.git', credentialsId: 'github'
                 }
-
-                sh('pip install -r pipeforce-build/requirements.txt')
             }
 
             stage('Build') {
 
                 dir('pipeforce-build') {
+
+                    sh('pip install -r pipeforce-build/requirements.txt')
+
                     sh('python3 pi-build.py build pipeforce-cli ' +
                             '-p build_home=/home/jenkins/agent/workspace/pipeforce-cli_master')
                 }
