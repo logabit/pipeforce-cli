@@ -3,7 +3,10 @@ podTemplate(
         containers: [
                 containerTemplate(name: 'jdk-mvn-py', image: 'openkbs/jre-mvn-py3:latest', ttyEnabled: true, command: 'cat')
         ],
-        volumes: [hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock')]
+        volumes: [
+                hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock'),
+                persistentVolumeClaim(claimName: 'pvc-build-m2-repo', mountPath: '/home/developer/.m2')
+        ]
 ) {
 
     node(POD_LABEL) {
@@ -31,13 +34,8 @@ podTemplate(
             }
 
             stage('Build') {
-                sh('ls')
-                sh('ls /home/jenkins/agent/workspace')
-                sh('ls /home/jenkins/agent/workspace/pipeforce-cli_master')
-                sh('ls /home/jenkins/agent/workspace/pipeforce-cli_master/pipeforce-build')
 
                 dir('pipeforce-build') {
-                    sh('ls')
                     sh('python3 pi-build.py build pipeforce-cli ' +
                             '-p build_home=/home/jenkins/agent/workspace/pipeforce-cli_master')
                 }
