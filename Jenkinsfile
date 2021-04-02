@@ -1,7 +1,7 @@
 #!groovy
 properties([
         parameters([
-                string(name: 'DEPLOY_ENV', defaultValue: 'TESTING', description: 'The target environment', )
+                string(name: 'BRANCH', defaultValue: 'master', description: 'The branch to do the modules build.', )
         ])
 ])
 podTemplate(
@@ -21,7 +21,7 @@ podTemplate(
 
             stage('Checkout') {
 
-                sh('echo Running container: $POD_CONTAINER')
+                sh('echo Running container: $POD_CONTAINER, DEPLOY_ENV: $DEPLOY_ENV')
                 sh('python3 --version')
                 sh('mvn -version')
                 sh('java -version')
@@ -29,26 +29,25 @@ podTemplate(
                 sh('ls')
                 sh('ls pipeforce-build')
 
-                dir('pipeforce-build') {
-                    git url: 'https://github.com/logabit/pipeforce-build.git', credentialsId: 'github'
-                }
-                dir('pipeforce-cli') {
-                    git url: 'https://github.com/logabit/pipeforce-cli.git', credentialsId: 'github'
-                }
-                dir('pipeforce-sdk-java') {
-                    git url: 'https://github.com/logabit/pipeforce-sdk-java.git', credentialsId: 'github'
-                }
+//                dir('pipeforce-build') {
+//                    git url: 'https://github.com/logabit/pipeforce-build.git', credentialsId: 'github'
+//                }
+//                dir('pipeforce-cli') {
+//                    git url: 'https://github.com/logabit/pipeforce-cli.git', credentialsId: 'github'
+//                }
+//                dir('pipeforce-sdk-java') {
+//                    git url: 'https://github.com/logabit/pipeforce-sdk-java.git', credentialsId: 'github'
+//                }
             }
 
             stage('Build') {
 
-                dir('pipeforce-build') {
+                sh('pip install -r pipeforce-build/requirements.txt')
 
-                    sh('pip install -r pipeforce-build/requirements.txt')
-
-                    sh('python3 pi-build.py build pipeforce-cli ' +
-                            '-p build_home=/home/jenkins/agent/workspace/pipeforce-cli_master')
-                }
+//                dir('pipeforce-build') {
+//                    sh('python3 pi-build.py build pipeforce-cli ' +
+//                            '-p build_home=/home/jenkins/agent/workspace/pipeforce-cli_master')
+//                }
             }
         }
     }
