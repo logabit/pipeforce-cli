@@ -2,7 +2,8 @@
 podTemplate(
         containers: [
                 containerTemplate(name: 'jdk-mvn-py', image: 'openkbs/jre-mvn-py3:latest', ttyEnabled: true, command: 'cat')
-        ]
+        ],
+        volumes: [hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock')]
 ) {
 
     node(POD_LABEL) {
@@ -31,6 +32,12 @@ podTemplate(
 
             stage('Build') {
                 sh('ls')
+                sh('ls /home/jenkins/agent/workspace/pipeforce-cli_master')
+                sh('ls /home/jenkins/agent/workspace/pipeforce-cli_master/pipeforce-build')
+                sh('ls /home/jenkins/agent/workspace/pipeforce-cli_master/pipeforce-build/pipeforce-cli')
+                sh('ls /home/jenkins/agent/workspace/pipeforce-cli_master/pipeforce-build/pipeforce-cli@tmp')
+                sh('ls /home/jenkins/agent/workspace/pipeforce-cli_master/pipeforce-build/pipeforce-build@tmp')
+                sh('ls /home/jenkins/agent/workspace/pipeforce-cli_master/pipeforce-build/pipeforce-build')
                 sh('cd pipeforce-build; python3 pi-build.py build pipeforce-cli')
             }
         }
