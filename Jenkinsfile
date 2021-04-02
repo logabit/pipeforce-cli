@@ -67,7 +67,7 @@ podTemplate(
                 dir('pipeforce-build') {
 //                    sh('ls /home')
 //                    sh('ls /home/root')
-                    sh('python3 pi-build.py containerize pipeforce-service-hub ' +
+                    sh('python3 pi-build.py build,containerize pipeforce-service-hub ' +
                             '-p build_home=/home/jenkins/agent/workspace/pipeforce-cli_master')
                     sh('ls /home')
                 }
