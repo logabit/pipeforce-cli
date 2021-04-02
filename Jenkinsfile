@@ -1,8 +1,9 @@
-podTemplate {
-
+podTemplate(
     containers: [
-                     containerTemplate(name: 'java', image: 'openkbs/jre-mvn-py3:latest', ttyEnabled: true, command: 'cat')
-                ]
+        containerTemplate(name: 'java', image: 'openkbs/jre-mvn-py3:latest', ttyEnabled: true, command: 'cat')
+    ]
+    ){
+
     node(POD_LABEL) {
 
             stage('Checkout2') {
