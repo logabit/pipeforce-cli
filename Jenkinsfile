@@ -25,6 +25,7 @@ podTemplate(
             stage('Checkout') {
 
                 sh('docker images')
+                sh('kubectl get pods -n build')
 //                // Log important information
 //                sh('echo Running container: $POD_CONTAINER, GIT_BRANCH: $GIT_BRANCH')
 //                sh('python3 --version')
