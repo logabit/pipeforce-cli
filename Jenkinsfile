@@ -7,6 +7,7 @@ properties([
         ])
 ])
 podTemplate(
+        serviceAccount: 'pipeforce-apps-manager-build-sa',
         containers: [
                 containerTemplate(name: 'pipeforce-buildbox', image: 'pipeforce-build:latest', ttyEnabled: true, command: 'cat')
         ],
