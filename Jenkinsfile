@@ -24,57 +24,58 @@ podTemplate(
 
             stage('Checkout') {
 
-                // Log important information
-                sh('echo Running container: $POD_CONTAINER, GIT_BRANCH: $GIT_BRANCH')
-                sh('python3 --version')
-                sh('mvn -version')
-                sh('java -version')
-
-                // Checkout all required repos from GitHub
-                def repos = [
-                        'pipeforce-build',
-                        'pipeforce-cli',
-                        'pipeforce-defaults',
-                        'pipeforce-sdk-java',
-                        'pipeforce-service-drive',
-                        'pipeforce-service-hub',
-                        'pipeforce-service-iam',
-                        'pipeforce-service-onlyoffice',
-                        'pipeforce-service-portal',
-                        'pipeforce-service-postgres',
-                        'pipeforce-service-redis',
-                        'pipeforce-service-reporting',
-                        'pipeforce-service-workflow',
-                        'pipeforce-tools',
-                ]
-
-                for (String repo : repos) {
-                    // TODO Optimize here to do next step only in case sources have changed
-                    dir(repo) {
-                        git branch: '$GIT_BRANCH', url: 'https://github.com/logabit/' + repo + '.git', credentialsId: 'github'
-                    }
-                }
+                sh('docker images')
+//                // Log important information
+//                sh('echo Running container: $POD_CONTAINER, GIT_BRANCH: $GIT_BRANCH')
+//                sh('python3 --version')
+//                sh('mvn -version')
+//                sh('java -version')
+//
+//                // Checkout all required repos from GitHub
+//                def repos = [
+//                        'pipeforce-build',
+//                        'pipeforce-cli',
+//                        'pipeforce-defaults',
+//                        'pipeforce-sdk-java',
+//                        'pipeforce-service-drive',
+//                        'pipeforce-service-hub',
+//                        'pipeforce-service-iam',
+//                        'pipeforce-service-onlyoffice',
+//                        'pipeforce-service-portal',
+//                        'pipeforce-service-postgres',
+//                        'pipeforce-service-redis',
+//                        'pipeforce-service-reporting',
+//                        'pipeforce-service-workflow',
+//                        'pipeforce-tools',
+//                ]
+//
+//                for (String repo : repos) {
+//                    // TODO Optimize here to do next step only in case sources have changed
+//                    dir(repo) {
+//                        git branch: '$GIT_BRANCH', url: 'https://github.com/logabit/' + repo + '.git', credentialsId: 'github'
+//                    }
+//                }
             }
 
-            stage('Build') {
-
-                sh('ls /app')
-
-                dir('pipeforce-build') {
-                    sh('python3 pi-build.py build,containerize pipeforce-service-hub -p ' +
-                            'build_home=/home/jenkins/agent/workspace/pipeforce-cli_master,' +
-                            'skip_phase=$skip_phase')
-                }
-            }
-
-            stage('Deploy') {
-
-                dir('pipeforce-build') {
-                    sh('python3 pi-build.py deploy $namespace:pipeforce-service-hub -p ' +
-                            'build_home=/home/jenkins/agent/workspace/pipeforce-cli_master,' +
-                            'skip_phase=$skip_phase')
-                }
-            }
+//            stage('Build') {
+//
+//                sh('ls /app')
+//
+//                dir('pipeforce-build') {
+//                    sh('python3 pi-build.py build,containerize pipeforce-service-hub -p ' +
+//                            'build_home=/home/jenkins/agent/workspace/pipeforce-cli_master,' +
+//                            'skip_phase=$skip_phase')
+//                }
+//            }
+//
+//            stage('Deploy') {
+//
+//                dir('pipeforce-build') {
+//                    sh('python3 pi-build.py deploy $namespace:pipeforce-service-hub -p ' +
+//                            'build_home=/home/jenkins/agent/workspace/pipeforce-cli_master,' +
+//                            'skip_phase=$skip_phase')
+//                }
+//            }
         }
     }
 }
