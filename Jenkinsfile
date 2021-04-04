@@ -33,30 +33,30 @@ podTemplate(
                 sh('mvn -version')
                 sh('java -version')
 
-//                // Checkout all required repos from GitHub
-//                def repos = [
-//                        'pipeforce-build',
-//                        'pipeforce-cli',
-//                        'pipeforce-defaults',
-//                        'pipeforce-sdk-java',
-//                        'pipeforce-service-drive',
-//                        'pipeforce-service-hub',
-//                        'pipeforce-service-iam',
-//                        'pipeforce-service-onlyoffice',
-//                        'pipeforce-service-portal',
-//                        'pipeforce-service-postgres',
-//                        'pipeforce-service-redis',
-//                        'pipeforce-service-reporting',
-//                        'pipeforce-service-workflow',
-//                        'pipeforce-tools',
-//                ]
-//
-//                for (String repo : repos) {
-//                    // TODO Optimize here to do next step only in case sources have changed
-//                    dir(repo) {
-//                        git branch: '$GIT_BRANCH', url: 'https://github.com/logabit/' + repo + '.git', credentialsId: 'github'
-//                    }
-//                }
+                // Checkout all required repos from GitHub
+                def repos = [
+                        'pipeforce-build',
+                        'pipeforce-cli',
+                        'pipeforce-defaults',
+                        'pipeforce-sdk-java',
+                        'pipeforce-service-drive',
+                        'pipeforce-service-hub',
+                        'pipeforce-service-iam',
+                        'pipeforce-service-onlyoffice',
+                        'pipeforce-service-portal',
+                        'pipeforce-service-postgres',
+                        'pipeforce-service-redis',
+                        'pipeforce-service-reporting',
+                        'pipeforce-service-workflow',
+                        'pipeforce-tools',
+                ]
+
+                for (String repo : repos) {
+                    // TODO Optimize here to do next step only in case sources have changed
+                    dir(repo) {
+                        git branch: '$GIT_BRANCH', url: 'https://github.com/logabit/' + repo + '.git', credentialsId: 'github'
+                    }
+                }
             }
 
             stage('Build') {
