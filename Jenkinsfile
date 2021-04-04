@@ -63,22 +63,22 @@ podTemplate(
 
                 sh('ls /app')
 
-//                dir('pipeforce-build') {
-//                    sh('python3 pi-build.py build,containerize pipeforce-service-hub -p ' +
-//                            'build_home=/home/jenkins/agent/workspace/pipeforce-cli_master,' +
-//                            'skip_phase=$skip_phase')
-//                }
+                dir('pipeforce-build') {
+                    sh('python3 pi-build.py build,containerize pipeforce-service-hub -p ' +
+                            'build_home=/home/jenkins/agent/workspace/pipeforce-cli_master,' +
+                            'skip_phase=$skip_phase')
+                }
             }
 
-//            stage('Cleanup') {
-//
-//                dir('pipeforce-build') {
-//                    sh('ls')
-//                    sh('python3 pi-build.py cleanup $namespace:* -p ' +
-//                            'build_home=/home/jenkins/agent/workspace/pipeforce-cli_master,' +
-//                            'skip_phase=$skip_phase')
-//                }
-//            }
+            stage('Cleanup') {
+
+                dir('pipeforce-build') {
+                    sh('ls')
+                    sh('python3 pi-build.py cleanup $namespace:* -p ' +
+                            'build_home=/home/jenkins/agent/workspace/pipeforce-cli_master,' +
+                            'skip_phase=$skip_phase')
+                }
+            }
 
             stage('Deploy') {
 
@@ -88,6 +88,11 @@ podTemplate(
                             'build_home=/home/jenkins/agent/workspace/pipeforce-cli_master,' +
                             'skip_phase=$skip_phase')
                 }
+            }
+
+            stage('Test') {
+
+                sh('echo TODO TESTING HERE')
             }
         }
     }
