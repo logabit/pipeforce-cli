@@ -73,6 +73,7 @@ podTemplate(
             stage('Deploy') {
 
                 dir('pipeforce-build') {
+                    sh('ls')
                     sh('python3 pi-build.py deploy $namespace:pipeforce-service-hub -p ' +
                             'build_home=/home/jenkins/agent/workspace/pipeforce-cli_master,' +
                             'skip_phase=$skip_phase')
