@@ -27,12 +27,12 @@ podTemplate(
                 sh('docker images')
                 sh('kubectl get pods -n build')
                 sh('kubectl get pods -n default')
-//                // Log important information
-//                sh('echo Running container: $POD_CONTAINER, GIT_BRANCH: $GIT_BRANCH')
-//                sh('python3 --version')
-//                sh('mvn -version')
-//                sh('java -version')
-//
+                // Log important information
+                sh('echo Running container: $POD_CONTAINER, GIT_BRANCH: $GIT_BRANCH')
+                sh('python3 --version')
+                sh('mvn -version')
+                sh('java -version')
+
 //                // Checkout all required repos from GitHub
 //                def repos = [
 //                        'pipeforce-build',
@@ -59,25 +59,25 @@ podTemplate(
 //                }
             }
 
-//            stage('Build') {
-//
-//                sh('ls /app')
-//
+            stage('Build') {
+
+                sh('ls /app')
+
 //                dir('pipeforce-build') {
 //                    sh('python3 pi-build.py build,containerize pipeforce-service-hub -p ' +
 //                            'build_home=/home/jenkins/agent/workspace/pipeforce-cli_master,' +
 //                            'skip_phase=$skip_phase')
 //                }
-//            }
-//
-//            stage('Deploy') {
-//
-//                dir('pipeforce-build') {
-//                    sh('python3 pi-build.py deploy $namespace:pipeforce-service-hub -p ' +
-//                            'build_home=/home/jenkins/agent/workspace/pipeforce-cli_master,' +
-//                            'skip_phase=$skip_phase')
-//                }
-//            }
+            }
+
+            stage('Deploy') {
+
+                dir('pipeforce-build') {
+                    sh('python3 pi-build.py deploy $namespace:pipeforce-service-hub -p ' +
+                            'build_home=/home/jenkins/agent/workspace/pipeforce-cli_master,' +
+                            'skip_phase=$skip_phase')
+                }
+            }
         }
     }
 }
