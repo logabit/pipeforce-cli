@@ -2,7 +2,7 @@
 properties([
         parameters([
                 string(name: 'GIT_BRANCH', defaultValue: 'master', description: 'The branch of modules to checkout.'),
-                string(name: 'namespace', defaultValue: 'dev', description: 'The K8s namespace to install PIPEFORCE into.'),
+                string(name: 'namespace', defaultValue: 'latest', description: 'The K8s namespace to install PIPEFORCE into.'),
                 string(name: 'skip_phase', defaultValue: '', description: 'Comma separated list of phases to skip [render,build,test,containerize,deploy].'),
         ])
 ])
@@ -69,6 +69,16 @@ podTemplate(
 //                            'skip_phase=$skip_phase')
 //                }
             }
+
+//            stage('Cleanup') {
+//
+//                dir('pipeforce-build') {
+//                    sh('ls')
+//                    sh('python3 pi-build.py cleanup $namespace:* -p ' +
+//                            'build_home=/home/jenkins/agent/workspace/pipeforce-cli_master,' +
+//                            'skip_phase=$skip_phase')
+//                }
+//            }
 
             stage('Deploy') {
 
