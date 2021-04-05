@@ -11,7 +11,7 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <pipeforce.version>{{ctx.tag()}}</pipeforce.version>
+        <pipeforce.version>1.0.0-SNAPSHOT</pipeforce.version>
     </properties>
 
     <dependencies>
