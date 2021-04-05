@@ -38,17 +38,24 @@ podTemplate(
                         'pipeforce-build',
                         'pipeforce-cli',
                         'pipeforce-defaults',
+                        'pipeforce-job-drivecron',
+                        'pipeforce-job-splitpvc',
+                        'pipeforce-job-users3to-6',
+                        'pipeforce-preset-basic',
+                        'pipeforce-preset-global',
                         'pipeforce-sdk-java',
                         'pipeforce-service-drive',
                         'pipeforce-service-hub',
                         'pipeforce-service-iam',
+                        'pipeforce-service-messaging',
                         'pipeforce-service-onlyoffice',
+                        'pipeforce-service-pipestudio',
                         'pipeforce-service-portal',
                         'pipeforce-service-postgres',
                         'pipeforce-service-redis',
                         'pipeforce-service-reporting',
                         'pipeforce-service-workflow',
-                        'pipeforce-tools',
+                        'pipeforce-tools'
                 ]
 
                 for (String repo : repos) {
