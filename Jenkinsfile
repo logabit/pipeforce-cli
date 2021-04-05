@@ -61,11 +61,13 @@ podTemplate(
 
             stage('Build') {
 
-                rev = sh('git rev-parse HEAD')
-                sh('echo revision: $rev')
-                sh('ls /app')
 
                 dir('pipeforce-build') {
+
+                    rev = sh('git rev-parse HEAD')
+                    sh('echo revision: $rev')
+                    sh('ls /app')
+
                     sh('python3 pi-build.py build,containerize pipeforce-service-hub -p ' +
                             'build_home=/home/jenkins/agent/workspace/pipeforce-cli_master,' +
                             'skip_phase=$skip_phase')
