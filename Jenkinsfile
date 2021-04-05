@@ -40,7 +40,7 @@ podTemplate(
                         'pipeforce-defaults',
                         'pipeforce-job-drivecron',
                         'pipeforce-job-splitpvc',
-                        'pipeforce-job-users3to-6',
+                        'pipeforce-job-users3to6',
                         'pipeforce-preset-basic',
                         'pipeforce-preset-global',
                         'pipeforce-sdk-java',
