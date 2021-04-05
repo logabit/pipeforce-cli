@@ -61,6 +61,8 @@ podTemplate(
 
             stage('Build') {
 
+                rev = sh('git rev-parse HEAD')
+                sh('echo revision: $rev')
                 sh('ls /app')
 
                 dir('pipeforce-build') {
@@ -70,30 +72,30 @@ podTemplate(
                 }
             }
 
-            stage('Cleanup') {
-
-                dir('pipeforce-build') {
-                    sh('ls')
-                    sh('python3 pi-build.py cleanup $namespace:* -p ' +
-                            'build_home=/home/jenkins/agent/workspace/pipeforce-cli_master,' +
-                            'skip_phase=$skip_phase')
-                }
-            }
-
-            stage('Deploy') {
-
-                dir('pipeforce-build') {
-                    sh('ls')
-                    sh('python3 pi-build.py deploy $namespace:pipeforce-service-hub -p ' +
-                            'build_home=/home/jenkins/agent/workspace/pipeforce-cli_master,' +
-                            'skip_phase=$skip_phase')
-                }
-            }
-
-            stage('Test') {
-
-                sh('echo TODO TESTING HERE')
-            }
+//            stage('Cleanup') {
+//
+//                dir('pipeforce-build') {
+//                    sh('ls')
+//                    sh('python3 pi-build.py cleanup $namespace:* -p ' +
+//                            'build_home=/home/jenkins/agent/workspace/pipeforce-cli_master,' +
+//                            'skip_phase=$skip_phase')
+//                }
+//            }
+//
+//            stage('Deploy') {
+//
+//                dir('pipeforce-build') {
+//                    sh('ls')
+//                    sh('python3 pi-build.py deploy $namespace:pipeforce-service-hub -p ' +
+//                            'build_home=/home/jenkins/agent/workspace/pipeforce-cli_master,' +
+//                            'skip_phase=$skip_phase')
+//                }
+//            }
+//
+//            stage('Test') {
+//
+//                sh('echo TODO TESTING HERE')
+//            }
         }
     }
 }
