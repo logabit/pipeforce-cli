@@ -42,6 +42,7 @@ podTemplate(
                         'pipeforce-job-splitpvc',
                         'pipeforce-job-users3to6',
                         'pipeforce-preset-basic',
+                        'pipeforce-preset-enterprise',
                         'pipeforce-preset-global',
                         'pipeforce-sdk-java',
                         'pipeforce-service-drive',
