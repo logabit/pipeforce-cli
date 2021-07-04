@@ -1,5 +1,8 @@
 package com.logabit.pipeforce.cli;
 
+/**
+ * To be thrown in case something went wrong during CLI execution.
+ */
 public class CliException extends RuntimeException {
 
     public CliException(String message) {

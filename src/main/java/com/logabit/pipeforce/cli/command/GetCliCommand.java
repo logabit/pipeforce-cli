@@ -2,16 +2,17 @@ package com.logabit.pipeforce.cli.command;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.logabit.pipeforce.cli.CliPathArg;
 import com.logabit.pipeforce.cli.CommandArgs;
 import com.logabit.pipeforce.cli.service.PublishCliService;
 import com.logabit.pipeforce.common.content.model.ContentType;
 import com.logabit.pipeforce.common.content.service.MimeTypeService;
 import com.logabit.pipeforce.common.util.EncodeUtil;
-import com.logabit.pipeforce.common.util.InputUtil;
 import com.logabit.pipeforce.common.util.ListUtil;
 import com.logabit.pipeforce.common.util.PathUtil;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
@@ -30,22 +31,22 @@ public class GetCliCommand extends BaseCliCommand {
             return -1;
         }
 
-        String path = args.getOptionKeyAt(0);
-        String keyPattern = path;
-        String keyPrefix = PathUtil.path("/pipeforce", config.getNamespace());
+        CliPathArg pathArg = getContext().createPathArg(args.getOptionKeyAt(0));
 
         PublishCliService publishService = getContext().getPublishService();
         publishService.load();
 
         MimeTypeService mimeTypeService = getContext().getMimeTypeService();
 
-        ArrayNode list = (ArrayNode) getContext().getPipelineRunner().executePipelineUri("property.list?filter=" + keyPattern);
+        ArrayNode list = (ArrayNode) getContext().getPipelineRunner().executePipelineUri("property.list?filter=" + pathArg.getRemotePattern());
 
         int rememberOverwriteAnswer = -1;
         int filesCounter = 0;
         int updatedCounter = 0;
         int createdCounter = 0;
         int skippedCounter = 0;
+
+        String keyPrefix = PathUtil.path("/pipeforce", config.getNamespace());
 
         for (JsonNode node : list) {
 
@@ -87,7 +88,7 @@ public class GetCliCommand extends BaseCliCommand {
                     // If lastModified differs: Ask user what to do with local file
                     List<String> items = ListUtil.asList("yes", "yes-all", "no", "no-all", "cancel");
                     out.println("File already exists. Overwrite?");
-                    selection = InputUtil.choose(items, "no");
+                    selection = in.choose(items, "no");
                     questionAsked = true;
 
                     if (selection == 1 || selection == 3) {
@@ -122,7 +123,8 @@ public class GetCliCommand extends BaseCliCommand {
                 byte[] data = EncodeUtil.fromBase64ToBytes(node.get("value").textValue());
                 out.saveByteArrayToFile(data, localPropertyFile);
             } else {
-                out.saveStringToFile(node.get("value").textValue(), localPropertyFile);
+                byte[] data = node.get("value").textValue().getBytes(StandardCharsets.UTF_8);
+                out.saveByteArrayToFile(data, localPropertyFile);
             }
             localPropertyFile.setLastModified(updated);
 
@@ -139,6 +141,11 @@ public class GetCliCommand extends BaseCliCommand {
     public String getUsageHelp() {
         return "pi get <PROPERTY_KEY_PATTERN>\n" +
                 "   Downloads all properties of the pattern into its local src folder.\n" +
-                "   Example: pi get global/app/myapp/** - Downloads all resources of myapp";
+                "   Examples:\n" +
+                "     pi get global/app/myapp/** - Downloads all resources recursively.\n" +
+                "     pi get global/app/myapp/* - Downloads all resources. Not recursively.\n" +
+                "     pi get src/global/app/myapp/* - Downloads all resources. Not recursively.\n" +
+                "     pi get global/app/*/pipeline/* - Downloads all pipelines of all apps.\n" +
+                "     pi get global/app/myapp/ - Short-cut of global/app/myapp/**.";
     }
 }

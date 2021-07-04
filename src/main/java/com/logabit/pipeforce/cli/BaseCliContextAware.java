@@ -3,6 +3,9 @@ package com.logabit.pipeforce.cli;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Base class for services which must hold a {@link CliContext} reference.
+ */
 public class BaseCliContextAware implements CliContextAware {
 
     private CliContext context;

@@ -108,10 +108,11 @@ public class HelpCliCommand extends BaseCliCommand {
     }
 
     public String getUsageHelp() {
-        return "pi help <command> <commandName>\n" +
-                "   Shows documentation messages.\n" +
-                "   Example: pi help - Shows the CLI options.\n" +
-                "   Example: pi help command - Shows all available command docs.\n" +
-                "   Example: pi help command log - Shows docs of the log command.";
+        return "pi help [command] [<COMMAND_NAME>]\n" +
+                "   Shows the documentation messages.\n" +
+                "   Examples: \n" +
+                "     pi help - Shows the CLI options.\n" +
+                "     pi help command - Shows all available command docs.\n" +
+                "     pi help command log - Shows docs of the log command.";
     }
 }

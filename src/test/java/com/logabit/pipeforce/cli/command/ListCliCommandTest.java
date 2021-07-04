@@ -9,6 +9,7 @@ import com.logabit.pipeforce.cli.service.OutputCliService;
 import com.logabit.pipeforce.cli.service.PublishCliService;
 import com.logabit.pipeforce.common.pipeline.PipelineRunner;
 import com.logabit.pipeforce.common.util.JsonUtil;
+import com.logabit.pipeforce.common.util.ListUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -19,6 +20,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.File;
@@ -30,19 +32,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link GetCliCommand}.
+ * Tests the {@link ListCliCommand}.
  *
  * @author sniederm
- * @since 2.7
+ * @since 2.20
  */
 @RunWith(MockitoJUnitRunner.class)
-public class GetCliCommandTest {
-
-    @Rule
-    public final SystemOutRule systemOutRule = new SystemOutRule().enableLog();
-
-    @Rule
-    public final TextFromStandardInputStream systemInMock = emptyStandardInputStream();
+public class ListCliCommandTest {
 
     @InjectMocks
     private final CliContext cliContext = new CliContext();
@@ -51,30 +47,15 @@ public class GetCliCommandTest {
     private ConfigCliService configService;
 
     @Mock
-    private InstallCliService installService;
-
-    @Mock
     private OutputCliService outputService;
-
-    @Mock
-    private PublishCliService publishCliService;
 
     @Mock
     private PipelineRunner pipelineRunner;
 
-    @Before
-    public void setUp() {
-
-        cliContext.setCurrentWorkDir(new File("/some/home/pipeforce"));
-        when(configService.getHome()).thenReturn("/some/home/pipeforce");
-    }
-
     @Test
-    public void testGet() throws Exception {
+    public void testList() throws Exception {
 
         when(configService.getNamespace()).thenReturn("enterprise");
-
-        systemInMock.provideLines("1"); // Do you want to delete? 1=yes
 
         String foundProperties = "[\n" +
                 "  {\n" +
@@ -101,30 +82,38 @@ public class GetCliCommandTest {
 
         JsonNode foundPropsNode = JsonUtil.jsonStringToJsonNode(foundProperties);
 
-        when(pipelineRunner.executePipelineUri("property.list?filter=global/app/myapp/pipeline/**")).thenReturn(foundPropsNode);
+        when(pipelineRunner.executePipelineUri(Mockito.anyString())).thenReturn(foundPropsNode);
 
-        GetCliCommand getCmd = (GetCliCommand) cliContext.createCommandInstance("get");
-        getCmd.call(new CommandArgs("global/app/myapp/pipeline/**"));
+        ListCliCommand getCmd = (ListCliCommand) cliContext.createCommandInstance("list");
+        getCmd.call(new CommandArgs("global/app/myapp/"));
 
         ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
         verify(pipelineRunner, times(1)).executePipelineUri(uriCaptor.capture());
 
         List<String> values = uriCaptor.getAllValues();
-        Assert.assertEquals("property.list?filter=global/app/myapp/pipeline/**", values.get(0));
+        Assert.assertEquals("property.list?filter=global/app/myapp/**", ListUtil.lastElement(values));
 
-        verify(publishCliService, times(1)).load();
-        verify(publishCliService, times(1)).save();
+        // Converts global/*/myapp/** -> global/*/myapp/**
 
-        ArgumentCaptor<byte[]> dataCaptor = ArgumentCaptor.forClass(byte[].class);
-        ArgumentCaptor<File> fileCaptor = ArgumentCaptor.forClass(File.class);
-        verify(outputService, times(2)).saveByteArrayToFile(dataCaptor.capture(), fileCaptor.capture());
+        getCmd = (ListCliCommand) cliContext.createCommandInstance("list");
+        getCmd.call(new CommandArgs("global/*/myapp/**"));
 
-        List<byte[]> allData = dataCaptor.getAllValues();
-        Assert.assertEquals("someValue1ččč", new String(allData.get(0)));
-        Assert.assertEquals("someValue2", new String(allData.get(1)));
+        uriCaptor = ArgumentCaptor.forClass(String.class);
+        verify(pipelineRunner, times(2)).executePipelineUri(uriCaptor.capture());
 
-        List<File> allFiles = fileCaptor.getAllValues();
-        Assert.assertEquals(new File("/some/home/pipeforce/src/global/app/myapp/pipeline/prop1.pi.yaml"), allFiles.get(0));
-        Assert.assertEquals(new File("/some/home/pipeforce/src/global/app/myapp/pipeline/prop2.pi.yaml"), allFiles.get(1));
+        values = uriCaptor.getAllValues();
+        Assert.assertEquals("property.list?filter=global/*/myapp/**", ListUtil.lastElement(values));
+
+        // Converts global/app/myapp -> global/app/myapp
+
+        getCmd = (ListCliCommand) cliContext.createCommandInstance("list");
+        getCmd.call(new CommandArgs("global/app/myapp"));
+
+        uriCaptor = ArgumentCaptor.forClass(String.class);
+        verify(pipelineRunner, times(3)).executePipelineUri(uriCaptor.capture());
+
+        values = uriCaptor.getAllValues();
+        Assert.assertEquals("property.list?filter=global/app/myapp", ListUtil.lastElement(values));
+
     }
 }

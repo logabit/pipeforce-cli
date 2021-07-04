@@ -102,7 +102,7 @@ public class DeleteCliCommandTest {
         when(pipelineRunner.executePipelineUri("property.list?filter=global/app/myapp/pipeline/**")).thenReturn(foundPropsNode);
 
         DeleteCliCommand deleteCmd = (DeleteCliCommand) cliContext.createCommandInstance("delete");
-        deleteCmd.call(new CommandArgs("src/global/app/myapp/pipeline/**"));
+        deleteCmd.call(new CommandArgs("global/app/myapp/pipeline/**"));
 
         ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
         verify(pipelineRunner, times(3)).executePipelineUri(uriCaptor.capture());
@@ -127,7 +127,7 @@ public class DeleteCliCommandTest {
         when(pipelineRunner.executePipelineUri("property.list?filter=global/app/myapp/pipeline/mypipe")).thenReturn(foundPropsNode);
 
         DeleteCliCommand deleteCmd = (DeleteCliCommand) cliContext.createCommandInstance("delete");
-        deleteCmd.call(new CommandArgs("src/global/app/myapp/pipeline/mypipe.pi.yaml"));
+        deleteCmd.call(new CommandArgs("global/app/myapp/pipeline/mypipe.pi.yaml"));
 
         ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
         verify(pipelineRunner, times(1)).executePipelineUri(uriCaptor.capture());
@@ -146,5 +146,53 @@ public class DeleteCliCommandTest {
         deleteCmd.call(new CommandArgs("src/global/app/myapp/pipeline/**"));
 
         verify(pipelineRunner, times(0)).executePipelineUri(anyString());
+    }
+
+    @Test
+    public void testFolderSingleWildcardNoChange() throws Exception {
+
+        systemInMock.provideLines("1"); // Do you want to delete? 1=yes
+
+        DeleteCliCommand deleteCmd = (DeleteCliCommand) cliContext.createCommandInstance("delete");
+        deleteCmd.call(new CommandArgs("global/app/myapp/pipeline/*"));
+
+        ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
+        verify(pipelineRunner, times(1)).executePipelineUri(uriCaptor.capture());
+
+        List<String> values = uriCaptor.getAllValues();
+        Assert.assertEquals(1, values.size());
+        Assert.assertEquals("property.list?filter=global/app/myapp/pipeline/*", values.get(0));
+    }
+
+    @Test
+    public void testFolderDoubleWildcardNoChange() throws Exception {
+
+        systemInMock.provideLines("1"); // Do you want to delete? 1=yes
+
+        DeleteCliCommand deleteCmd = (DeleteCliCommand) cliContext.createCommandInstance("delete");
+        deleteCmd.call(new CommandArgs("global/app/myapp/pipeline/**"));
+
+        ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
+        verify(pipelineRunner, times(1)).executePipelineUri(uriCaptor.capture());
+
+        List<String> values = uriCaptor.getAllValues();
+        Assert.assertEquals(1, values.size());
+        Assert.assertEquals("property.list?filter=global/app/myapp/pipeline/**", values.get(0));
+    }
+
+    @Test
+    public void testFolderLeafNoChange() throws Exception {
+
+        systemInMock.provideLines("1"); // Do you want to delete? 1=yes
+
+        DeleteCliCommand deleteCmd = (DeleteCliCommand) cliContext.createCommandInstance("delete");
+        deleteCmd.call(new CommandArgs("global/app/myapp/pipeline/someleaf"));
+
+        ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
+        verify(pipelineRunner, times(1)).executePipelineUri(uriCaptor.capture());
+
+        List<String> values = uriCaptor.getAllValues();
+        Assert.assertEquals(1, values.size());
+        Assert.assertEquals("property.list?filter=global/app/myapp/pipeline/someleaf", values.get(0));
     }
 }

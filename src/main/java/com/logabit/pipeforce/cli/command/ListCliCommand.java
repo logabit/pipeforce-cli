@@ -2,6 +2,7 @@ package com.logabit.pipeforce.cli.command;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.logabit.pipeforce.cli.CliPathArg;
 import com.logabit.pipeforce.cli.CommandArgs;
 import com.logabit.pipeforce.common.util.PathUtil;
 
@@ -19,45 +20,40 @@ public class ListCliCommand extends BaseCliCommand {
     @Override
     public int call(CommandArgs args) throws Exception {
 
-        if (args.getLength() > 1) {
+        if (args.getLength() != 1) {
             out.println("USAGE: " + getUsageHelp());
             return -1;
         }
 
-        String path = null;
-        if (args.getLength() == 1) {
-
-            // pi list PATH
-            path = args.getOptionKeyAt(0);
-        }
-
-        String keyPattern = path;
-
-        if (!keyPattern.endsWith("*")) {
-            keyPattern = PathUtil.path(keyPattern, "**");
-        }
-
+        // pi list PATH
+        CliPathArg pathArg = getContext().createPathArg(args.getOptionKeyAt(0));
         String keyPrefix = PathUtil.path("/pipeforce", config.getNamespace());
-        getContext().getOutputService().showProgress("");
+
+        out.showProgress("");
         try {
             ArrayNode list = (ArrayNode) getContext().getPipelineRunner()
-                    .executePipelineUri("property.list?filter=" + keyPattern);
+                    .executePipelineUri("property.list?filter=" + pathArg.getRemotePattern());
 
             List<String> keys = new ArrayList<>();
             for (JsonNode node : list) {
                 keys.add(node.get("key").textValue().substring(keyPrefix.length()));
             }
 
-            getContext().getOutputService().printResult(keys);
+            out.printResult(keys);
         } finally {
-            getContext().getOutputService().stopProgress();
+            out.stopProgress();
         }
         return 0;
     }
 
     public String getUsageHelp() {
-        return "pi list <APP_NAME>\n" +
+        return "pi list <PATH_PATTERN>\n" +
                 "   Lists all published remote resources of the app.\n" +
-                "   Example: pi list global/app/myapp/**";
+                "   Examples:\n" +
+                "     pi list global/app/myapp/** - Lists the content of myapp recursively.\n" +
+                "     pi list global/app/myapp/ - Short-cut of global/app/myapp/**\n" +
+                "     pi list global/app/myapp/pipeline/test - Lists the content of test pipeline\n" +
+                "     pi list global/app/myapp/* - Lists the content of myapp. Not recursively.\n" +
+                "     pi list global/app/*/pipeline/* - Lists all pipelines of all apps.";
     }
 }

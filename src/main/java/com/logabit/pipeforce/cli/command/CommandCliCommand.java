@@ -54,9 +54,10 @@ public class CommandCliCommand extends BaseCliCommand {
     }
 
     public String getUsageHelp() {
-        return "pi command <commandName> <param1=value1> <paramN=valueN>\n" +
+        return "pi command <COMMAND_NAME> [<PARAM1=VAL1>] [<PARAMN=VALN>]\n" +
                 "   Executes a command with given optional parameters.\n" +
-                "   Example: pi command log message=HELLO - Executes the log command.\n" +
-                "   Example: pi command datetime format=dd.MM.YY - Executes the datetime command.";
+                "   Examples:\n" +
+                "     pi command log message=HELLO - Executes the log command.\n" +
+                "     pi command datetime format=dd.MM.YY - Executes the datetime command.";
     }
 }

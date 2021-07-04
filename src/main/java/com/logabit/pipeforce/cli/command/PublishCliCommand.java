@@ -4,26 +4,24 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.logabit.pipeforce.cli.CliException;
+import com.logabit.pipeforce.cli.CliPathArg;
 import com.logabit.pipeforce.cli.CommandArgs;
 import com.logabit.pipeforce.cli.service.PublishCliService;
 import com.logabit.pipeforce.common.content.model.ContentType;
 import com.logabit.pipeforce.common.content.service.MimeTypeService;
 import com.logabit.pipeforce.common.util.EncodeUtil;
 import com.logabit.pipeforce.common.util.FileUtil;
-import com.logabit.pipeforce.common.util.InputUtil;
 import com.logabit.pipeforce.common.util.JsonUtil;
 import com.logabit.pipeforce.common.util.ListUtil;
 import com.logabit.pipeforce.common.util.PathUtil;
 import com.logabit.pipeforce.common.util.StringUtil;
 import org.apache.commons.io.FileUtils;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -47,57 +45,40 @@ public class PublishCliCommand extends BaseCliCommand {
             return -1;
         }
 
-        String path = null;
-        if (args.getLength() == 1) {
+        String path = args.getOptionKeyAt(0);
 
-            // pi publish PATH
-            path = args.getOptionKeyAt(0);
+        if (StringUtil.isEmpty(path)) {
+            path = "**";
         }
 
-        String absolutePath;
-        if (path == null) {
-            absolutePath = PathUtil.path(config.getHome(), "src");
-        } else {
-            path = getContext().getRelativeToSrc(path);
-            Path absolute = Paths.get(config.getHome(), "src", path);
-            absolutePath = absolute.toString();
-        }
+        CliPathArg pathArg = getContext().createPathArg(path);
 
-        filesCounter = 0;
-        publishedCounter = 0;
-        updatedCounter = 0;
-        createdCounter = 0;
+        out.println("Publish " + pathArg.getLocalPattern() + " ?");
+        Integer choose = in.choose(ListUtil.asList("no", "yes"), "yes", null);
+        if (choose == 0) {
+            return 0;
+        }
 
         PublishCliService publishService = getContext().getPublishService();
         MimeTypeService mimeTypeService = getContext().getMimeTypeService();
 
-        List<File> files;
-        File pathFile = new File(absolutePath);
-
-        if (pathFile.isDirectory()) {
-            absolutePath = PathUtil.path(absolutePath, "**");
-            files = FileUtil.findFilesByPatternMatcher(absolutePath);
-        } else if (absolutePath.endsWith("*")) {
-            files = FileUtil.findFilesByPatternMatcher(absolutePath);
-        } else {
-            files = new ArrayList<>();
-            files.add(pathFile);
-        }
-
-        out.println("Publish " + absolutePath + " ?");
-        Integer choose = InputUtil.choose(ListUtil.asList("no", "yes"), "yes", null);
-        if (choose == 0) {
-            return 0;
-        }
+        PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+        Resource[] resources = resolver.getResources("file:" + pathArg.getLocalPattern());
 
         String srcHome = PathUtil.path(config.getHome(), "src");
 
         publishService.load();
         int serverVersionMajor = getContext().getSeverVersionMajor();
+        filesCounter = 0;
+        publishedCounter = 0;
+        updatedCounter = 0;
+        createdCounter = 0;
 
-        for (File file : files) {
+        for (Resource resource : resources) {
 
-            if ((!file.exists()) || file.isDirectory()) {
+            File file = resource.getFile();
+
+            if ((!file.exists()) || file.isDirectory() || file.getName().startsWith(".")) {
                 continue;
             }
 
@@ -106,6 +87,8 @@ public class PublishCliCommand extends BaseCliCommand {
             String propertyKey = file.getAbsolutePath().substring(srcHome.length());
             propertyKey = propertyKey.substring(1);
             propertyKey = PathUtil.removeExtensions(propertyKey);
+            // Replace any backslash to forward slash \ -> / (for windows)
+            propertyKey = propertyKey.replaceAll("\\\\", "/");
 
             boolean appConfigValid = true;
             FileAndKey fileAndKey = null;
@@ -181,12 +164,6 @@ public class PublishCliCommand extends BaseCliCommand {
         return 0;
     }
 
-    public String getUsageHelp() {
-        return "pi publish [<APP_NAME>]\n" +
-                "   Publishes all locally created/modified app resources to the server.\n" +
-                "   Example: pi publish src/global/app/myapp/**";
-    }
-
     public int getFilesCounter() {
         return filesCounter;
     }
@@ -237,12 +214,13 @@ public class PublishCliCommand extends BaseCliCommand {
                 "Should I rename " + propertyFile.getAbsolutePath() + " to " + newPropertyFile.getAbsolutePath() +
                 " for you? Note: If you choose 'no', your app might not work correctly!");
 
-        Integer choose = InputUtil.choose(ListUtil.asList("no", "yes"), "yes", null);
+        Integer choose = in.choose(ListUtil.asList("no", "yes"), "yes", null);
 
         if (choose == 1) {
             try {
                 FileUtils.moveFile(propertyFile, newPropertyFile);
             } catch (IOException e) {
+                throw new CliException(String.format("failed to move: %s to: %s", propertyFile, newPropertyFile), e);
             }
 
             FileAndKey fileAndKey = new FileAndKey();
@@ -314,6 +292,17 @@ public class PublishCliCommand extends BaseCliCommand {
         String data = JsonUtil.objectToJsonString(appConfig);
         FileUtil.saveStringToFile(data, appConfigFile);
         return false;
+    }
+
+    public String getUsageHelp() {
+
+        return "pi publish <PATH_PATTERN>\n" +
+                "   Publishes all locally created/modified resources from inside src to the server.\n" +
+                "   <PATH_PATTERN> must be relative to src folder. Absolute path not allowed.\n" +
+                "   Examples: \n" +
+                "     pi publish global/app/myapp/** - Publishes content of myapp recursively.\n" +
+                "     pi publish global/app/myapp/ - Short-cut of global/app/myapp/**.\n" +
+                "     pi publish global/app/*/pipeline/* - Publishes all pipelines of all apps.";
     }
 
     private static class FileAndKey {

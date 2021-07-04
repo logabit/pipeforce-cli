@@ -1,8 +1,14 @@
 package com.logabit.pipeforce.cli.command;
 
 import com.logabit.pipeforce.cli.CliContext;
+import com.logabit.pipeforce.cli.CliException;
 import com.logabit.pipeforce.cli.service.ConfigCliService;
 import com.logabit.pipeforce.cli.service.OutputCliService;
+import com.logabit.pipeforce.common.util.InputUtil;
+import com.logabit.pipeforce.common.util.PathUtil;
+import com.logabit.pipeforce.common.util.StringUtil;
+
+import java.io.File;
 
 /**
  * Base class for all CLI commands.
@@ -12,19 +18,106 @@ import com.logabit.pipeforce.cli.service.OutputCliService;
  */
 public abstract class BaseCliCommand implements ICliCommand {
 
-    private CliContext context;
+    protected CliContext context;
 
+    protected InputUtil in;
     protected OutputCliService out;
 
     protected ConfigCliService config;
+
 
     public void setContext(CliContext context) {
         this.context = context;
         this.out = context.getOutputService();
         this.config = context.getConfigService();
+        this.in = context.getInputUtil();
     }
 
     public CliContext getContext() {
         return context;
+    }
+
+    /**
+     * Prepares a given command line user argument which is considered as a REMOTE property key pattern:
+     * <ul>
+     *     <li>
+     *         Removes extension from path if exists: global/app/myapp/file.json -> global/app/myapp/file
+     *     </li>
+     *     <li>
+     *         Expands to full app path if only single item is given: myapp -> global/app/myapp/**
+     *     </li>
+     *     <li>
+     *         Expands to double wildcard if folder is given: global/app/myapp/ -> global/app/myapp/**
+     *     </li>
+     * </ul>
+     *
+     * @param remotePath
+     * @return
+     */
+    public String prepareRemotePropertyKeyPattern(String remotePath, boolean removeExtension) {
+
+        if (removeExtension) {
+            // Remove extension if there is any: global/app/myapp/file.json -> myapp/file
+            remotePath = PathUtil.removeExtensions(remotePath);
+        }
+
+        // Only single string is given, expand to app key: myapp -> global/app/myapp/
+        if (!remotePath.contains("/")) {
+            remotePath = PathUtil.path("global", "app", remotePath, "/");
+        }
+
+        // If folder path is given, expand to wildcards to delete recursively: global/app/myapp/ -> global/app/myapp/**
+        if (remotePath.endsWith("/")) {
+            remotePath = remotePath + "**";
+        }
+
+        return remotePath;
+
+    }
+
+    /**
+     * Expects a potential local path pattern and prepares it:
+     * <ul>
+     *     <li>
+     *         If empty or null -> Set it to /**
+     *     </li>
+     *     <li>
+     *         If absolute path -> Throws exception (must be relative to config home)
+     *     </li>
+     *     <li>
+     *         Returns the given path as absolute path PATTERN pointing inside pipeforce home.
+     *     </li>
+     * </ul>
+     * The path can also contain no wildcards at all!
+     *
+     * @param path
+     * @return
+     */
+    public String prepareLocalPathPattern(String path) {
+
+        if (!StringUtil.isEmpty(path)) {
+            String tmpPath = path.replace('*', '_'); // Windows has problems with * in File object
+            File pathFile = new File(tmpPath); // We need it only because of the absolute checking
+            if (pathFile.isAbsolute()) {
+                throw new CliException("Absolute path not allowed for security reasons: " + path +
+                        ". Path must be relative to: " + config.getHome());
+            }
+        } else {
+            path = "/**";
+        }
+
+        // Replace any backslash to forward slash \ -> / (for windows)
+        path.replaceAll("\\\\", "/");
+
+        path = prepareRemotePropertyKeyPattern(path, false);
+
+        String src = "";
+        if (!path.startsWith("src/")) {
+            src = "src";
+        }
+
+        File homeFolder = new File(config.getHome());
+        path = PathUtil.path(homeFolder.toURI().toString(), src, path);
+        return path;
     }
 }

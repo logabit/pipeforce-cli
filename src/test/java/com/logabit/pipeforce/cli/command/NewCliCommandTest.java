@@ -52,17 +52,15 @@ public class NewCliCommandTest {
 
     private String workspaceHome;
 
-    @After
-    public void tearDown() {
-
-        FileUtil.delete(workspaceHome);
-    }
-
     @Before
     public void setUp() {
-
         workspaceHome = getTestWorkspace();
         Mockito.when(configService.getHome()).thenReturn(workspaceHome);
+    }
+
+    @After
+    public void tearDown() {
+        FileUtil.delete(workspaceHome);
     }
 
     @Test

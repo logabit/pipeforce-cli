@@ -1,7 +1,7 @@
 package com.logabit.pipeforce.cli.command;
 
-import com.logabit.pipeforce.cli.CommandArgs;
 import com.logabit.pipeforce.cli.CliContextAware;
+import com.logabit.pipeforce.cli.CommandArgs;
 
 /**
  * Represents a single command. In order to create a new command you need to do these steps:

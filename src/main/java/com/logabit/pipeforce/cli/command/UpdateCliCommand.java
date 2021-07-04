@@ -1,16 +1,12 @@
 package com.logabit.pipeforce.cli.command;
 
 import com.logabit.pipeforce.cli.CommandArgs;
-import com.logabit.pipeforce.common.util.InputUtil;
 import com.logabit.pipeforce.common.util.ListUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Updates the CLI to the latest state.
- *
- * @author sniederm
- * @since 6.0
  */
 public class UpdateCliCommand extends BaseCliCommand {
 
@@ -36,13 +32,15 @@ public class UpdateCliCommand extends BaseCliCommand {
             newVersion = getContext().getUpdateService().isNewerVersionAvailable(config.getInstalledVersion());
             if (newVersion == null) {
                 // No update found under given url -> Most recent version is in use. Quit update.
+                out.println("Newest version already installed.");
                 return 0;
             }
 
             // Update found. Ask user whether he wants to download + install update.
-            getContext().getOutputService().println("A newer version of PIPEFORCE CLI has been detected: " +
+            out.println("Current version is: " + config.getInstalledVersion() +
+                    ". A newer version of PIPEFORCE CLI has been detected: " +
                     newVersion + ". Download and install?");
-            Integer selection = InputUtil.choose(ListUtil.asList("no", "yes"), "yes");
+            Integer selection = in.choose(ListUtil.asList("no", "yes"), "yes");
 
             if (selection == 0) {
                 // No was selected. So do not update. Quit.
@@ -63,7 +61,8 @@ public class UpdateCliCommand extends BaseCliCommand {
     public String getUsageHelp() {
         return "pi update [<version>]\n" +
                 "   Checks for exact/newer version and installs it.\n" +
-                "   Example: pi update - Checks for latest version.\n" +
-                "   Example: pi update 3.0 - Downloads and installs version 3.0.";
+                "   Examples:\n" +
+                "     pi update - Checks for the latest version.\n" +
+                "     pi update 3.0 - Downloads and installs version 3.0.";
     }
 }

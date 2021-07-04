@@ -561,14 +561,16 @@ public class ComparableVersion
                 }
                 startIndex = i + 1;
 
-                list.add(list = new ListItem());
+                list = new ListItem();
+                list.add(list);
                 stack.push(list);
             } else if (Character.isDigit(c)) {
                 if (!isDigit && i > startIndex) {
                     list.add(new StringItem(version.substring(startIndex, i), true));
                     startIndex = i;
 
-                    list.add(list = new ListItem());
+                    list = new ListItem();
+                    list.add(list);
                     stack.push(list);
                 }
 
@@ -578,7 +580,8 @@ public class ComparableVersion
                     list.add(parseItem(true, version.substring(startIndex, i)));
                     startIndex = i;
 
-                    list.add(list = new ListItem());
+                    list = new ListItem();
+                    list.add(list);
                     stack.push(list);
                 }
 
@@ -657,7 +660,8 @@ public class ComparableVersion
      * Main to test version parsing and comparison.
      * <p>
      * To check how "1.2.7" compares to "1.2-SNAPSHOT", for example, you can issue
-     * <pre>java -jar ${maven.repo.local}/org/apache/maven/maven-artifact/${maven.version}/maven-artifact-${maven.version}.jar "1.2.7" "1.2-SNAPSHOT"</pre>
+     * <pre>java -jar ${maven.repo.local}/org/apache/maven/maven-artifact/${maven.version}/
+     * maven-artifact-${maven.version}.jar "1.2.7" "1.2-SNAPSHOT"</pre>
      * command to command line. Result of given command will be something like this:
      * <pre>
      * Display parameters as parsed by Maven (in canonical form) and comparison result:
@@ -671,8 +675,8 @@ public class ComparableVersion
      */
     // CHECKSTYLE_ON: LineLength
     public static void main(String... args) {
-        System.out.println("Display parameters as parsed by Maven (in canonical form and as a list of tokens) and"
-                + " comparison result:");
+        System.out.println("Display parameters as parsed by Maven (in canonical form and as a list of tokens) and" +
+                " comparison result:");
         if (args.length == 0) {
             return;
         }
@@ -684,12 +688,12 @@ public class ComparableVersion
 
             if (prev != null) {
                 int compare = prev.compareTo(c);
-                System.out.println("   " + prev.toString() + ' '
-                        + ((compare == 0) ? "==" : ((compare < 0) ? "<" : ">")) + ' ' + version);
+                System.out.println("   " + prev.toString() + ' ' +
+                        ((compare == 0) ? "==" : ((compare < 0) ? "<" : ">")) + ' ' + version);
             }
 
-            System.out.println((i++) + ". " + version + " -> " + c.getCanonical()
-                    + "; tokens: " + c.items.toListString());
+            System.out.println((i++) + ". " + version + " -> " + c.getCanonical() +
+                    "; tokens: " + c.items.toListString());
 
             prev = c;
         }

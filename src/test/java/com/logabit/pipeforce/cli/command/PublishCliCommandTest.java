@@ -58,17 +58,20 @@ public class PublishCliCommandTest {
 
     private String workspaceHome;
 
-    @After
-    public void tearDown() {
+    @InjectMocks
+    private PublishCliCommand publishCommand = new PublishCliCommand();
 
-        FileUtil.delete(workspaceHome);
-    }
 
     @Before
     public void setUp() {
 
         workspaceHome = getTestWorkspace();
         Mockito.when(configService.getHome()).thenReturn(workspaceHome);
+    }
+
+    @After
+    public void tearDown() {
+        FileUtil.delete(workspaceHome);
     }
 
     @Test
@@ -97,7 +100,7 @@ public class PublishCliCommandTest {
 
         systemInMock.provideLines("yes");
         PublishCliCommand publishCommand = (PublishCliCommand) cliContext.createCommandInstance("publish");
-        publishCommand.call(new CommandArgs("src/global/app/someapp/**"));
+        publishCommand.call(new CommandArgs("global/app/someapp/**"));
 
         ArgumentCaptor<JsonNode> publishNode = ArgumentCaptor.forClass(JsonNode.class);
         Mockito.verify(pipelineRunner, Mockito.atLeastOnce()).executePipelineJsonNode(publishNode.capture());
@@ -117,7 +120,7 @@ public class PublishCliCommandTest {
 
         systemInMock.provideLines("yes");
         publishCommand = (PublishCliCommand) cliContext.createCommandInstance("publish");
-        publishCommand.call(new CommandArgs("src/global/app/someapp/**"));
+        publishCommand.call(new CommandArgs("global/app/someapp/**"));
 
         // No files have changed -> Nothing to upload
         Assert.assertEquals(5, publishCommand.getFilesCounter());
@@ -192,6 +195,24 @@ public class PublishCliCommandTest {
 
         Assert.assertEquals(new File("global/app/someapp/config/app"),
                 new File(allValues.get(1).get("pipeline").get(0).get("property.schema.put").get("key").textValue()));
+    }
+
+    @Test
+    public void testPreparePath() throws Exception {
+
+        Mockito.when(configService.getHome()).thenReturn("/Users/some/pipeforce");
+
+        Assert.assertEquals(new File("/Users/some/pipeforce/src/global/app/myapp/**").toURI().toString(),
+                publishCommand.prepareLocalPathPattern("myapp"));
+
+        Assert.assertEquals(new File("/Users/some/pipeforce/src/global/app/myapp/**").toURI().toString(),
+                publishCommand.prepareLocalPathPattern("global/app/myapp/**"));
+
+        Assert.assertEquals(new File("/Users/some/pipeforce/src/global/app/myapp/pipeline/test").toURI().toString(),
+                publishCommand.prepareLocalPathPattern("global/app/myapp/pipeline/test"));
+
+        Assert.assertEquals(new File("/Users/some/pipeforce/src/global/app/*/pipeline/test").toURI().toString(),
+                publishCommand.prepareLocalPathPattern("global/app/*/pipeline/test"));
     }
 
     private String getTestWorkspace() {

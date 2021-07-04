@@ -3,14 +3,10 @@ package com.logabit.pipeforce.cli.command;
 import com.logabit.pipeforce.cli.CommandArgs;
 import com.logabit.pipeforce.common.util.DateTimeUtil;
 import com.logabit.pipeforce.common.util.FileUtil;
-import com.logabit.pipeforce.common.util.InputUtil;
 import com.logabit.pipeforce.common.util.PathUtil;
 
 /**
  * Setup wizard + installs to PIPEFORCE home in case folder doesnt exist yet.
- *
- * @author sniederm
- * @since 6.0
  */
 public class SetupCliCommand extends BaseCliCommand {
 
@@ -37,18 +33,18 @@ public class SetupCliCommand extends BaseCliCommand {
         String userHome = System.getProperty("user.home");
         String pipeforceHome = PathUtil.path(userHome, "pipeforce");
 
-        config.setNamespace(InputUtil.ask("Namespace", config.getNamespace()));
+        config.setNamespace(in.ask("Namespace", config.getNamespace()));
 
         if (advanced) {
-            config.setHost(InputUtil.ask("Host", config.getHost()));
-            config.setPort(Integer.parseInt(InputUtil.ask("Port", config.getPort() + "")));
-            config.setProtocol(InputUtil.ask("Protocol", config.getProtocol()));
-            config.setApiPath(InputUtil.ask("API Path", config.getApiPath()));
+            config.setHost(in.ask("Host", config.getHost()));
+            config.setPort(Integer.parseInt(in.ask("Port", config.getPort() + "")));
+            config.setProtocol(in.ask("Protocol", config.getProtocol()));
+            config.setApiPath(in.ask("API Path", config.getApiPath()));
         }
 
-        config.setUsername(InputUtil.ask("Username", config.getUsername()));
+        config.setUsername(in.ask("Username", config.getUsername()));
 
-        String password = InputUtil.askPassword("Password");
+        String password = in.askPassword("Password");
         config.setApiToken(null);
         String apitoken = loadApiToken(config.getUsername(), password);
 
@@ -67,6 +63,7 @@ public class SetupCliCommand extends BaseCliCommand {
             out.println();
         }
 
+
         String vsCodeWorkspace = "" +
                 "{\n" +
                 "        \"folders\": [\n" +
@@ -74,15 +71,20 @@ public class SetupCliCommand extends BaseCliCommand {
                 "               \"path\":\".\"\n" +
                 "           }\n" +
                 "        ],\n" +
+                "\n" +
                 "        \"settings\": {\n" +
+                "\n" +
                 "            \"yaml.schemas\": {\n" +
                 "               \"" + config.getHubApiUrl("pipe") + ":pipe.schema.v7\": [\"/*.pi.yaml\"]\n" +
-                "             }, \n" +
+                "            },\n" +
+                "\n" +
                 "           \"files.exclude\": {\n" +
                 "               \"**/PIPEFORCE.code-workspace\": true\n" +
-                "            }" +
-                "        },\n" +
-                "    }";
+                "           },\n" +
+                "\n" +
+                "           \"files.encoding\": \"utf8\"\n" +
+                "        }\n" +
+                "}\n";
 
         String vsCodeConfig = PathUtil.path(pipeforceHome, "PIPEFORCE.code-workspace");
         FileUtil.saveStringToFile(vsCodeWorkspace, FileUtil.getOrCreateFile(vsCodeConfig));
@@ -93,8 +95,9 @@ public class SetupCliCommand extends BaseCliCommand {
     public String getUsageHelp() {
         return "pi setup [advanced]\n" +
                 "   Optionally installs the CLI + runs the (advanced) setup wizard.\n" +
-                "   Example: pi setup\n" +
-                "   Example: pi setup advanced";
+                "   Examples: \n" +
+                "     pi setup\n" +
+                "     pi setup advanced";
     }
 
     private String loadApiToken(String username, String password) {

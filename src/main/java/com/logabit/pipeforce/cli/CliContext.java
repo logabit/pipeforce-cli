@@ -10,6 +10,7 @@ import com.logabit.pipeforce.cli.service.PublishCliService;
 import com.logabit.pipeforce.cli.service.UpdateCliService;
 import com.logabit.pipeforce.common.content.service.MimeTypeService;
 import com.logabit.pipeforce.common.pipeline.PipelineRunner;
+import com.logabit.pipeforce.common.util.InputUtil;
 import com.logabit.pipeforce.common.util.PathUtil;
 import com.logabit.pipeforce.common.util.ReflectionUtil;
 import com.logabit.pipeforce.common.util.StringUtil;
@@ -26,6 +27,7 @@ import org.springframework.web.client.RestTemplate;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 import java.io.File;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.cert.X509Certificate;
@@ -35,8 +37,6 @@ import java.util.Arrays;
  * This is a lightweight approach of an application context,
  * holding only the required objects and initializing them on request.
  *
- * @author sniederm
- * @since 7.0
  */
 public class CliContext {
 
@@ -54,9 +54,24 @@ public class CliContext {
     private CommandArgs args;
     private String command;
     private Integer serverVersionMajor;
+    private InputUtil inputUtil;
+    private InputStream answerInputStream;
 
     public CliContext(String... args) {
         setArgs(args);
+    }
+
+    /**
+     * Sets the input stream for answering questions of the CLI.
+     *
+     * @param is
+     */
+    public void setAnswerInputStream(InputStream is) {
+        this.answerInputStream = is;
+
+        if (inputUtil != null) {
+            inputUtil.setAnswerInputStream(is);
+        }
     }
 
     public void setArgs(String... defaultArgs) {
@@ -208,29 +223,6 @@ public class CliContext {
     }
 
     /**
-     * Returns the full relative path of the given file inside the home folder.
-     * Throws an exception in case the given file's path doesnt point to the pipeforce home.
-     *
-     * @param file The file to return the relative path for. If null, current work dir is used.
-     * @return
-     */
-    public String getRelativeToHome(File file) {
-
-        if (file == null) {
-            file = getCurrentWorkDir();
-        }
-
-        String absolutePath = file.getAbsolutePath();
-        String home = getConfigService().getHome();
-
-        if (!absolutePath.startsWith(home)) {
-            throw new CliException("File [" + absolutePath + "] is not inside pipeforce home: " + home);
-        }
-
-        return file.getAbsolutePath().substring(home.length() + 1);
-    }
-
-    /**
      * In case the current work dir is inside an app folder, returns the name of this app folder.
      * Returns null in case the cwd is not inside a src/global/app/APP folder
      *
@@ -246,68 +238,6 @@ public class CliContext {
         }
 
         return null;
-    }
-
-
-    /**
-     * Gets the normalized path to the src dir:
-     * <ul>
-     *     <li>
-     *         CWD=$PIPEFORCE_HOME, src/global/app/myapp = global/app/myapp
-     *     </li>
-     *     <li>
-     *         CWD=$PIPEFORCE_HOME, global/app/myapp = global/app/myapp
-     *     </li>
-     *     <li>
-     *         CWD=global/app/myapp, "" = global/app/myapp
-     *     </li>
-     *     <li>
-     *         CWD=global/app/myapp, "foo" = global/app/myapp/foo
-     *     </li>
-     *     <li>
-     *         CWD=outside $PIPEFORCE_HOME, ERROR (CWD must be inside $PIPEFORCE_HOME)
-     *     </li>
-     * </ul>
-     *
-     * @param path
-     * @return
-     */
-    public String getRelativeToSrc(String path) {
-
-        if (path == null) {
-            path = "";
-        }
-
-        Path cwd = getCurrentWorkDir().toPath();
-        String home = getConfigService().getHome();
-
-        // The CWD must be inside the home folder (outside calls are not allowed for security reasons)
-        Path homePath = Paths.get(home);
-
-        if (!PathUtil.isSubPath(homePath, cwd)) {
-            throw new CliException("Current work dir must be inside " + homePath + " but is: " + cwd);
-        }
-
-        Path srcHome = Paths.get(getConfigService().getHome(), "src");
-
-        // If CWD is in $PIPEFORCE_HOME -> Move to src
-        if (cwd.equals(homePath)) {
-            cwd = srcHome;
-        }
-
-        Path pathPath = Paths.get(path);
-        if (pathPath.startsWith("src")) {
-            pathPath = pathPath.subpath(1, pathPath.getNameCount());
-        }
-
-        Path absolute = cwd.resolve(pathPath);
-
-        String result = srcHome.relativize(absolute).toString();
-        if (result.startsWith("..")) {
-            throw new CliException("Invalid path [" + absolute + "]. It is not inside src: " + srcHome);
-        }
-
-        return result;
     }
 
     public PublishCliService getPublishService() {
@@ -380,5 +310,25 @@ public class CliContext {
         }
 
         return serverVersionMajor;
+    }
+
+    public CliPathArg createPathArg(String path) {
+
+        String home = configService.getHome();
+        if (home == null) {
+            home = "";
+        }
+
+        // TODO remove extra new File step here
+        return new CliPathArg(path, getCurrentWorkDir().getAbsolutePath(), (new File(home).getAbsolutePath()));
+    }
+
+    public InputUtil getInputUtil() {
+
+        if (inputUtil == null) {
+            inputUtil = new InputUtil(this.answerInputStream);
+        }
+
+        return inputUtil;
     }
 }

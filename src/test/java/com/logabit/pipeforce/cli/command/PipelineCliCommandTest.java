@@ -15,6 +15,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.File;
@@ -61,13 +62,13 @@ public class PipelineCliCommandTest {
 
     @Test
     public void testRunFile() throws Exception {
-
-        when(out.readFileToString("/some/home/pipeforce/src/global/app/myapp/pipeline/hello.pi.yaml")).thenReturn("pipeline:");
+        //TODO expect this but system specific "/some/home/pipeforce/src/global/app/myapp/pipeline/hello.pi.yaml"
+        when(out.readFileToString(Mockito.anyString())).thenReturn("pipeline:");
         when(config.getHome()).thenReturn("/some/home/pipeforce");
-        cliContext.setCurrentWorkDir(new File("/some/home/pipeforce/src"));
+        cliContext.setCurrentWorkDir(new File("/some/home/pipeforce"));
 
         PipelineCliCommand localRun = (PipelineCliCommand) cliContext.createCommandInstance("pipeline");
-        localRun.call(new CommandArgs("file", "global/app/myapp/pipeline/hello.pi.yaml"));
+        localRun.call(new CommandArgs("file", "src/global/app/myapp/pipeline/hello.pi.yaml"));
 
         ArgumentCaptor<JsonNode> nodeCaptor = ArgumentCaptor.forClass(JsonNode.class);
         verify(pipelineRunner, times(1)).executePipelineJsonNode(nodeCaptor.capture());

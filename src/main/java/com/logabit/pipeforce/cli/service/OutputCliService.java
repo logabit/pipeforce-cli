@@ -11,6 +11,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -24,6 +26,7 @@ public class OutputCliService implements CliContextAware {
 
     private AnimationRunnable runnable;
     private CliContext context;
+    private List<String> outputs = new ArrayList<>();
 
     public void printResult(Object result) {
 
@@ -97,6 +100,7 @@ public class OutputCliService implements CliContextAware {
     }
 
     public void println(String s) {
+        outputs.add(s);
         System.out.println(s);
     }
 
@@ -105,7 +109,18 @@ public class OutputCliService implements CliContextAware {
     }
 
     public void print(String s) {
+        outputs.add(s);
         System.out.print(s);
+    }
+
+    /**
+     * Returns all recorder print / println outputs.
+     * Mainly for testing and automation purposes.
+     *
+     * @return
+     */
+    public List<String> getPrintedOutputs() {
+        return outputs;
     }
 
     /**

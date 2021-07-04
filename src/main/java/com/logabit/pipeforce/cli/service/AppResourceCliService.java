@@ -3,6 +3,9 @@ package com.logabit.pipeforce.cli.service;
 import com.logabit.pipeforce.cli.BaseCliContextAware;
 import com.logabit.pipeforce.common.util.FileUtil;
 
+/**
+ * Service to handle app resources.
+ */
 public class AppResourceCliService extends BaseCliContextAware {
 
     /**

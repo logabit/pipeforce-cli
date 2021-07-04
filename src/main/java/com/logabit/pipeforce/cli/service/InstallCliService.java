@@ -2,7 +2,6 @@ package com.logabit.pipeforce.cli.service;
 
 import com.logabit.pipeforce.cli.BaseCliContextAware;
 import com.logabit.pipeforce.common.util.FileUtil;
-import com.logabit.pipeforce.common.util.InputUtil;
 import com.logabit.pipeforce.common.util.ListUtil;
 import com.logabit.pipeforce.common.util.PathUtil;
 import org.apache.commons.io.FileUtils;
@@ -13,9 +12,6 @@ import java.io.IOException;
 
 /**
  * Service for all install / uninstall steps of the CLI tool.
- *
- * @author sniederm
- * @since 6.0
  */
 public class InstallCliService extends BaseCliContextAware {
 
@@ -79,7 +75,7 @@ public class InstallCliService extends BaseCliContextAware {
         // TODO Check for updates
 
         System.out.println("Install PIPEFORCE CLI to " + pipeforceHome + "?");
-        Integer selection = InputUtil.choose(ListUtil.asList("no", "yes"), "yes");
+        Integer selection = getContext().getInputUtil().choose(ListUtil.asList("no", "yes"), "yes");
         if (selection == 0) {
             return false;
         }

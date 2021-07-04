@@ -38,7 +38,7 @@ public class NewCliCommand extends BaseCliCommand {
             out.println("Create new...");
             List<String> items = ListUtil.asList(
                     "app", "form", "list", "object", "pipeline", "workflow");
-            int selectedResource = InputUtil.choose(items);
+            int selectedResource = in.choose(items);
 
             resource = items.get(selectedResource);
         }
@@ -79,7 +79,7 @@ public class NewCliCommand extends BaseCliCommand {
 
         String workflowName;
         while (true) {
-            workflowName = InputUtil.ask("Workflow name");
+            workflowName = in.ask("Workflow name");
 
             String path = PathUtil.path(config.getHome(), "src", "global",
                     "app", appName, "workflow", workflowName + ".bpmn");
@@ -127,7 +127,7 @@ public class NewCliCommand extends BaseCliCommand {
 
         String pipelineName;
         while (true) {
-            pipelineName = InputUtil.ask("Pipeline name");
+            pipelineName = in.ask("Pipeline name");
 
             String path = PathUtil.path(config.getHome(), "src", "global",
                     "app", appName, "pipeline", pipelineName + ".pi.yaml");
@@ -162,7 +162,7 @@ public class NewCliCommand extends BaseCliCommand {
 
         String listName;
         while (true) {
-            listName = InputUtil.ask("List name");
+            listName = in.ask("List name");
 
             String path = PathUtil.path(config.getHome(), "src", "global",
                     "app", appName, "list", listName + ".json");
@@ -181,14 +181,14 @@ public class NewCliCommand extends BaseCliCommand {
             break;
         }
 
-        String description = InputUtil.ask("Optional description of list", "");
+        String description = in.ask("Optional description of list", "");
 
         out.println("Do you like to load existing objects into your list?");
         List<File> objectFolders = FileUtil.listFiles(config.getHome(), "src", "global", "app", appName, "object");
         List<String> objectNames = objectFolders.stream().map(File::getName).collect(Collectors.toList());
         objectNames.add("[Do not show existing object in list]");
         objectNames.add("[Create a new object schema]");
-        Integer selectedItem = InputUtil.choose(objectNames);
+        Integer selectedItem = in.choose(objectNames);
         String selectedObject = objectNames.get(selectedItem);
 
         if (selectedObject.equals("[Create a new object schema]")) {
@@ -219,7 +219,7 @@ public class NewCliCommand extends BaseCliCommand {
 
         String objectName;
         while (true) {
-            objectName = InputUtil.ask("Object name");
+            objectName = in.ask("Object name");
 
             String path = PathUtil.path(config.getHome(), "src", "global",
                     "app", appName, "object", objectName);
@@ -286,7 +286,7 @@ public class NewCliCommand extends BaseCliCommand {
         String formName;
         while (true) {
 
-            formName = InputUtil.ask("New form name");
+            formName = in.ask("New form name");
 
             if (StringUtil.isEmpty(formName)) {
                 continue;
@@ -308,14 +308,14 @@ public class NewCliCommand extends BaseCliCommand {
             break;
         }
 
-        String description = InputUtil.ask("Optional description of form", "");
+        String description = in.ask("Optional description of form", "");
 
         out.println("Select the object schema to connect with this form:");
         List<File> objectFolders = FileUtil.listFiles(config.getHome(), "src", "global", "app", appName, "object");
         List<String> objectNames = objectFolders.stream().map(File::getName).collect(Collectors.toList());
         objectNames.add("[Do not connect to object schema]");
         objectNames.add("[Create a new object schema]");
-        Integer selectedItem = InputUtil.choose(objectNames);
+        Integer selectedItem = in.choose(objectNames);
         String selectedObject = objectNames.get(selectedItem);
 
         if (selectedObject.equals("[Create a new object schema]")) {
@@ -345,7 +345,7 @@ public class NewCliCommand extends BaseCliCommand {
     private String createApp() {
 
         while (true) {
-            String appName = InputUtil.ask("New app name", null);
+            String appName = in.ask("New app name", null);
 
             String globalHome = PathUtil.path(config.getHome(), "src", "global");
             String appPath = PathUtil.path(globalHome, "app", appName);
@@ -364,18 +364,18 @@ public class NewCliCommand extends BaseCliCommand {
 
             String title;
             while (true) {
-                title = InputUtil.ask("Title of the app", appName);
+                title = in.ask("Title of the app", appName);
                 if (StringUtil.isEmpty(title)) {
                     continue;
                 }
                 break;
             }
 
-            String description = InputUtil.ask("Description of the app", "");
+            String description = in.ask("Description of the app", "");
 
             String icon;
             while (true) {
-                icon = InputUtil.ask("Go to https://material.io/resources/icons and select the " +
+                icon = in.ask("Go to https://material.io/resources/icons and select the " +
                         "name of the icon to be used", "assignment");
                 if (StringUtil.isEmpty(icon)) {
                     continue;
@@ -419,9 +419,10 @@ public class NewCliCommand extends BaseCliCommand {
     public String getUsageHelp() {
         return "pi new [<RESOURCE_NAME>]\n" +
                 "   Creates a local resource. Also see 'pi publish' to upload to server.\n" +
-                "   Example: pi new - Shows the list of wizards to select from.\n" +
-                "   Example: pi new app - Creates a new app structure.\n" +
-                "   Example: pi new pipeline - Creates a new pipeline file";
+                "   Examples:\n" +
+                "     pi new - Shows the list of wizards to select from.\n" +
+                "     pi new app - Creates a new app.\n" +
+                "     pi new pipeline - Creates a new pipeline file.";
     }
 
     private String loadApiToken(String username, String password) {
@@ -456,7 +457,7 @@ public class NewCliCommand extends BaseCliCommand {
         List<String> appNames = appFolders.stream().map(File::getName).collect(Collectors.toList());
         appNames.add("[Create new app...]");
 
-        Integer selectedItem = InputUtil.choose(
+        Integer selectedItem = in.choose(
                 appNames, selectedValue,
                 new InputUtil.InputValidator() {
                     @Override

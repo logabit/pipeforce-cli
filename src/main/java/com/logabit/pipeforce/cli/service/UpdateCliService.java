@@ -2,6 +2,7 @@ package com.logabit.pipeforce.cli.service;
 
 import com.logabit.pipeforce.cli.BaseCliContextAware;
 import com.logabit.pipeforce.cli.CliException;
+import com.logabit.pipeforce.common.util.ListUtil;
 import com.logabit.pipeforce.common.util.PathUtil;
 import com.logabit.pipeforce.common.util.StringUtil;
 import org.apache.http.HttpEntity;
@@ -63,9 +64,6 @@ public class UpdateCliService extends BaseCliContextAware {
 
     /**
      * Checks if a never version for the given version is available.
-     * "Newer" means the next higher version. Since there could be an upgrade path from one version
-     * to another, also each version must be downloaded and installed in order to execute each
-     * migration tasks.
      *
      * @param currentVersion
      * @return The newer available version or null in case no newer version is available
@@ -87,15 +85,11 @@ public class UpdateCliService extends BaseCliContextAware {
         }
 
         List<ComparableVersion> sortedVersions = versionsList.stream().sorted().collect(Collectors.toList());
-
         ComparableVersion thisVersion = new ComparableVersion(currentVersion);
+        ComparableVersion latestVersion = ListUtil.lastElement(sortedVersions);
 
-        // Get the "next" version (check only "non-snapshot-versions")
-        for (ComparableVersion sortedVersion : sortedVersions) {
-
-            if (sortedVersion.compareTo(thisVersion) > 0) {
-                return sortedVersion.toString(); // Next higher version
-            }
+        if (latestVersion.compareTo(thisVersion) > 0) {
+            return latestVersion.toString(); // Latest version
         }
 
         return null; // No new version found

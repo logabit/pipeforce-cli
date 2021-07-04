@@ -39,9 +39,10 @@ public class LogsCliCommand extends BaseCliCommand {
     }
 
     public String getUsageHelp() {
-        return "pi logs <LINES> <SERVICE>\n" +
+        return "pi logs [<LINES> <SERVICE>]\n" +
                 "   Shows the server logs.\n" +
-                "   Example: pi logs\n" +
-                "   example: pi logs 1000 hub";
+                "   Examples:\n" +
+                "     pi logs - Shows the default logs.\n" +
+                "     pi logs 20 hub - Shows the last 20 lines of hub service.";
     }
 }

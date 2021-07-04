@@ -7,6 +7,7 @@ import com.logabit.pipeforce.cli.service.ConfigCliService;
 import com.logabit.pipeforce.cli.service.InstallCliService;
 import com.logabit.pipeforce.cli.service.OutputCliService;
 import com.logabit.pipeforce.cli.service.UpdateCliService;
+import com.logabit.pipeforce.common.util.FileUtil;
 import com.logabit.pipeforce.common.util.ListUtil;
 import com.logabit.pipeforce.common.util.StringUtil;
 import org.apache.http.HttpEntity;
@@ -15,6 +16,7 @@ import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -145,7 +147,7 @@ public class UpdateCliCommandTest {
 
         ArgumentCaptor<String> messageCaptor = ArgumentCaptor.forClass(String.class);
         verify(outputService, times(1)).println(messageCaptor.capture());
-        Assert.assertEquals("A newer version of PIPEFORCE CLI has been detected: 3.0.0. Download and install?",
+        Assert.assertEquals("Current version is: 1.0.0. A newer version of PIPEFORCE CLI has been detected: 3.0.0. Download and install?",
                 messageCaptor.getValue());
     }
 
@@ -291,6 +293,6 @@ public class UpdateCliCommandTest {
                 )).when(updateCliService).downloadFilesList();
 
         String newerVersion = updateCliService.isNewerVersionAvailable("1.0");
-        Assert.assertEquals("2.1.0", newerVersion);
+        Assert.assertEquals("4.0.2", newerVersion);
     }
 }
