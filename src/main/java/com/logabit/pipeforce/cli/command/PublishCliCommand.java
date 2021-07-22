@@ -194,7 +194,8 @@ public class PublishCliCommand extends BaseCliCommand {
         String[] split = StringUtil.split(propertyKey, "/");
         String appName = split[2];
 
-        if (serverVersionMajor <= 6) {
+        // serverVersionMajor = 0 only in test standalone mode (we assume we are on the latest version which is >> 6.0).
+        if (serverVersionMajor > 0 && serverVersionMajor <= 6) {
             if (!propertyKey.endsWith(appName)) {
                 throw new CliException("Folder conf may not contain any other files except the app config " +
                         "global/app/" + appName + "/config/" + appName + ".json but contains: " + propertyKey +
