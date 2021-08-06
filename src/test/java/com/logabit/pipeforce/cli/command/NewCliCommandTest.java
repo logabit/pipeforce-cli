@@ -236,7 +236,7 @@ public class NewCliCommandTest {
         context.callCommand();
 
         String bpmnString = FileUtil.readFileToString(workspaceHome, "src/global/app/someapp1/workflow/someworkflow.bpmn");
-        Document bpmn = XMLUtil.readStringToDOM(bpmnString);
+        Document bpmn = XMLUtil.parseToDom(bpmnString);
 
         Assert.assertNotNull(((Element) bpmn.getDocumentElement().getElementsByTagName("bpmn:process").item(0)).getTagName());
     }
