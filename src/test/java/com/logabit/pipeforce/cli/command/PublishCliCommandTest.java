@@ -107,7 +107,7 @@ public class PublishCliCommandTest {
 
         List<JsonNode> allNodes = publishNode.getAllValues();
 
-        Assert.assertEquals(new File("global/app/someapp/config/someapp"),
+        Assert.assertEquals(new File("global/app/someapp/config/app"),
                 new File(allNodes.get(0).get("pipeline").get(0).get("property.schema.put").get("key").textValue()));
         Assert.assertEquals("application/json", allNodes.get(1).get("pipeline").get(0).get("property.schema.put").get("type").textValue());
 
@@ -131,7 +131,7 @@ public class PublishCliCommandTest {
         publishCommand.call(CommandArgs.EMPTY); // All in src folder
 
         // Test that lower case values of "show" attribute in app config will be converted to upper case correctly
-        final File appConfig = new File(PathUtil.path(configService.getHome(), "src/global/app/someapp/config/someapp.json"));
+        final File appConfig = new File(PathUtil.path(configService.getHome(), "src/global/app/someapp/config/app.json"));
         String appConfigString = FileUtil.readFileToString(appConfig);
         Map<String, Object> appConfigMap = JsonUtil.jsonStringToMap(appConfigString);
         String showValue = (String) appConfigMap.get("show");
@@ -157,6 +157,7 @@ public class PublishCliCommandTest {
     public void testMigrateToNewAppConfig() throws Exception {
 
         cliContext.setCurrentWorkDir(new File(PathUtil.path(workspaceHome)));
+        ReflectionUtil.setFieldValue(cliContext, "serverVersionMajor", 6);
         JsonNode resultNode = JsonUtil.mapToJsonNode(ListUtil.asMap("result", "created"));
         Mockito.when(pipelineRunner.executePipelineJsonNode(Mockito.any(JsonNode.class))).thenReturn(resultNode);
 

@@ -84,7 +84,7 @@ public class NewCliCommandTest {
         Assert.assertEquals("test", files.get(7).getName());
         Assert.assertEquals("workflow", files.get(8).getName());
 
-        String configString = FileUtil.readFileToString(workspaceHome, "src/global/app/someapp/config/someapp.json");
+        String configString = FileUtil.readFileToString(workspaceHome, "src/global/app/someapp/config/app.json");
         JsonNode config = JsonUtil.jsonStringToJsonNode(configString);
 
         Assert.assertEquals("someapp", config.get("title").textValue());
@@ -105,7 +105,7 @@ public class NewCliCommandTest {
         context.setArgs("new", "form");
         context.callCommand();
 
-        String configString = FileUtil.readFileToString(workspaceHome, "src/global/app/someapp1/config/someapp1.json");
+        String configString = FileUtil.readFileToString(workspaceHome, "src/global/app/someapp1/config/app.json");
         JsonNode appConfig = JsonUtil.jsonStringToJsonNode(configString);
 
         Assert.assertEquals("someapp1", appConfig.get("title").textValue());
@@ -140,7 +140,7 @@ public class NewCliCommandTest {
         context.setArgs("new", "list");
         context.callCommand();
 
-        String configString = FileUtil.readFileToString(workspaceHome, "src/global/app/someapp1/config/someapp1.json");
+        String configString = FileUtil.readFileToString(workspaceHome, "src/global/app/someapp1/config/app.json");
         JsonNode appConfig = JsonUtil.jsonStringToJsonNode(configString);
 
         Assert.assertEquals("someapp1", appConfig.get("title").textValue());
@@ -180,7 +180,7 @@ public class NewCliCommandTest {
         context.setArgs("new", "list");
         context.callCommand();
 
-        String configString = FileUtil.readFileToString(workspaceHome, "src/global/app/someapp1/config/someapp1.json");
+        String configString = FileUtil.readFileToString(workspaceHome, "src/global/app/someapp1/config/app.json");
         JsonNode appConfig = JsonUtil.jsonStringToJsonNode(configString);
 
         Assert.assertEquals("someapp1", appConfig.get("title").textValue());
