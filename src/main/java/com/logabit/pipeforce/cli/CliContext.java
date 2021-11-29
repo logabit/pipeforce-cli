@@ -306,7 +306,7 @@ public class CliContext {
             JsonNode serverInfo = (JsonNode) getPipelineRunner().executePipelineUri("server.info");
             this.serverVersionMajor = serverInfo.get("versionMajor").intValue();
         } catch (Exception e) {
-            this.serverVersionMajor = 6;
+            this.serverVersionMajor = 7;
         }
 
         return serverVersionMajor;
