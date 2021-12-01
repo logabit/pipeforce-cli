@@ -75,7 +75,7 @@ public class SetupCliCommand extends BaseCliCommand {
                 "        \"settings\": {\n" +
                 "\n" +
                 "            \"yaml.schemas\": {\n" +
-                "               \"" + config.getHubApiUrl("command") + "/pipe.schema.v7\": [\"/*.pi.yaml\"]\n" +
+                "               \"" + config.getHubApiUrl("command") + "/schema.pipeline\": [\"/*.pi.yaml\"]\n" +
                 "            },\n" +
                 "\n" +
                 "           \"files.exclude\": {\n" +

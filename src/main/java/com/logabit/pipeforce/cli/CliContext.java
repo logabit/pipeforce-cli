@@ -10,6 +10,7 @@ import com.logabit.pipeforce.cli.service.PublishCliService;
 import com.logabit.pipeforce.cli.service.UpdateCliService;
 import com.logabit.pipeforce.common.content.service.MimeTypeService;
 import com.logabit.pipeforce.common.pipeline.PipelineRunner;
+import com.logabit.pipeforce.common.util.Create;
 import com.logabit.pipeforce.common.util.InputUtil;
 import com.logabit.pipeforce.common.util.PathUtil;
 import com.logabit.pipeforce.common.util.ReflectionUtil;
@@ -21,6 +22,9 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.tika.Tika;
 import org.apache.tika.config.TikaConfig;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
@@ -36,7 +40,6 @@ import java.util.Arrays;
 /**
  * This is a lightweight approach of an application context,
  * holding only the required objects and initializing them on request.
- *
  */
 public class CliContext {
 
@@ -198,7 +201,15 @@ public class CliContext {
         HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
         requestFactory.setHttpClient(getHttpClient());
 
-        return new RestTemplate(requestFactory);
+        RestTemplate template = new RestTemplate(requestFactory);
+        template.setInterceptors(Create.newList((ClientHttpRequestInterceptor) (request, body, execution) -> {
+
+            HttpHeaders headers = request.getHeaders();
+            headers.add("Accept", MediaType.APPLICATION_JSON_VALUE);
+            return execution.execute(request, body);
+        }));
+
+        return template;
     }
 
     public HttpClient getHttpClient() {
