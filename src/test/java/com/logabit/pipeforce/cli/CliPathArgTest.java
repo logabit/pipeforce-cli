@@ -19,105 +19,86 @@ public class CliPathArgTest {
         // Workspace home
         String home = "/User/someUser/pipeforce";
 
-        // Current working dir
-        String cwd = "/User/someUser/pipeforce";
-
-        CliPathArg pathArg = createPathArg("global/app/*/pipeline/*", cwd, home, false);
+        CliPathArg pathArg = createPathArg("src/global/app/*/pipeline/*", home, false);
         Assert.assertEquals("/User/someUser/pipeforce/src/global/app/*/pipeline/*", pathArg.getLocalPattern());
         Assert.assertEquals("global/app/*/pipeline/*", pathArg.getRemotePattern());
         Assert.assertTrue(pathArg.isPattern());
 
-        pathArg = createPathArg("**", cwd, home, true);
+        pathArg = createPathArg("src/**", home, true);
         Assert.assertEquals("/User/someUser/pipeforce/src/**", pathArg.getLocalPattern());
         Assert.assertEquals("**", pathArg.getRemotePattern());
         Assert.assertTrue(pathArg.isPattern());
 
-        pathArg = createPathArg("global/app/myapp/", cwd, home, true);
+        pathArg = createPathArg("src/global/app/myapp/", home, true);
         Assert.assertEquals("/User/someUser/pipeforce/src/global/app/myapp", pathArg.getLocalPattern());
         Assert.assertEquals("global/app/myapp/**", pathArg.getRemotePattern());
         Assert.assertFalse(pathArg.isPattern());
 
-        pathArg = createPathArg("global/app/myapp", cwd, home, true);
+        pathArg = createPathArg("src/global/app/myapp", home, true);
         Assert.assertEquals("/User/someUser/pipeforce/src/global/app/myapp", pathArg.getLocalPattern());
         Assert.assertEquals("global/app/myapp/**", pathArg.getRemotePattern());
         Assert.assertFalse(pathArg.isPattern());
 
-        pathArg = createPathArg("global/app/myapp/pipeline/hello.pi.yaml", cwd, home, false);
+        pathArg = createPathArg("src/global/app/myapp/pipeline/hello.pi.yaml", home, false);
         Assert.assertEquals("/User/someUser/pipeforce/src/global/app/myapp/pipeline/hello.pi.yaml", pathArg.getLocalPattern());
         Assert.assertEquals("global/app/myapp/pipeline/hello.pi.yaml", pathArg.getRemotePattern());
         Assert.assertFalse(pathArg.isPattern());
 
-        pathArg = createPathArg("src/global/app/myapp/file", cwd, home, false);
+        pathArg = createPathArg("src/global/app/myapp/file", home, false);
         Assert.assertEquals("/User/someUser/pipeforce/src/global/app/myapp/file", pathArg.getLocalPattern());
         Assert.assertEquals("global/app/myapp/file", pathArg.getRemotePattern());
         Assert.assertFalse(pathArg.isPattern());
 
-        cwd = "/User/someUser/pipeforce/src";
-
-        pathArg = createPathArg("**", cwd, home, true);
+        pathArg = createPathArg("src/**", home, true);
         Assert.assertEquals("/User/someUser/pipeforce/src/**", pathArg.getLocalPattern());
         Assert.assertEquals("**", pathArg.getRemotePattern());
         Assert.assertTrue(pathArg.isPattern());
 
-        pathArg = createPathArg("global/app/myapp", cwd, home, true);
+        pathArg = createPathArg("src/global/app/myapp", home, true);
         Assert.assertEquals("/User/someUser/pipeforce/src/global/app/myapp", pathArg.getLocalPattern());
         Assert.assertEquals("global/app/myapp/**", pathArg.getRemotePattern());
         Assert.assertFalse(pathArg.isPattern());
 
-        pathArg = createPathArg("global/app/myapp/", cwd, home, true);
+        pathArg = createPathArg("src/global/app/myapp/", home, true);
         Assert.assertEquals("/User/someUser/pipeforce/src/global/app/myapp", pathArg.getLocalPattern());
         Assert.assertEquals("global/app/myapp/**", pathArg.getRemotePattern());
         Assert.assertFalse(pathArg.isPattern());
 
-        cwd = "/User/someUser/pipeforce/src/global/app";
 
-        pathArg = createPathArg("**", cwd, home, true);
-        Assert.assertEquals("/User/someUser/pipeforce/src/global/app/**", pathArg.getLocalPattern());
-        Assert.assertEquals("global/app/**", pathArg.getRemotePattern());
+        pathArg = createPathArg("src/**", home, true);
+        Assert.assertEquals("/User/someUser/pipeforce/src/**", pathArg.getLocalPattern());
+        Assert.assertEquals("**", pathArg.getRemotePattern());
         Assert.assertTrue(pathArg.isPattern());
 
-        pathArg = createPathArg("myapp", cwd, home, true);
+        pathArg = createPathArg("src/global/app/myapp", home, true);
         Assert.assertEquals("/User/someUser/pipeforce/src/global/app/myapp", pathArg.getLocalPattern());
         Assert.assertEquals("global/app/myapp/**", pathArg.getRemotePattern());
         Assert.assertFalse(pathArg.isPattern());
 
-        pathArg = createPathArg("myapp/pipeline", cwd, home, false);
+        pathArg = createPathArg("src/global/app/myapp/pipeline", home, false);
         Assert.assertEquals("/User/someUser/pipeforce/src/global/app/myapp/pipeline", pathArg.getLocalPattern());
         Assert.assertEquals("global/app/myapp/pipeline", pathArg.getRemotePattern());
         Assert.assertFalse(pathArg.isPattern());
 
-        pathArg = createPathArg("myapp/pipeline/**", cwd, home, false);
+        pathArg = createPathArg("src/global/app/myapp/pipeline/**", home, false);
         Assert.assertEquals("/User/someUser/pipeforce/src/global/app/myapp/pipeline/**", pathArg.getLocalPattern());
         Assert.assertEquals("global/app/myapp/pipeline/**", pathArg.getRemotePattern());
         Assert.assertTrue(pathArg.isPattern());
 
-        pathArg = createPathArg("", cwd, home, true);
+        pathArg = createPathArg("src/global/app/", home, true);
         Assert.assertEquals("/User/someUser/pipeforce/src/global/app", pathArg.getLocalPattern());
         Assert.assertEquals("global/app/**", pathArg.getRemotePattern());
         Assert.assertFalse(pathArg.isPattern());
 
-        cwd = "/some/other/path"; // Not allowed outside PIPEFORCE home
-
-        try {
-            pathArg = createPathArg("/User/someUser/pipeforce/src/global", cwd, home, true);
-            Assert.fail("Not thrown");
-        } catch (Exception e) {
-
-        }
-
-        cwd = "/User/someUser/pipeforce/config"; // Not allowed outside PIPEFORCE home (even not in config folder)
-
-        try {
-            pathArg = createPathArg("/User/someUser/pipeforce/src/global", cwd, home, true);
-            Assert.fail("Not thrown");
-        } catch (Exception e) {
-
-        }
+        pathArg = createPathArg("/User/someUser/pipeforce/src/global/app/", home, true);
+        Assert.assertEquals("/User/someUser/pipeforce/src/global/app", pathArg.getLocalPattern());
+        Assert.assertEquals("global/app/**", pathArg.getRemotePattern());
+        Assert.assertFalse(pathArg.isPattern());
     }
 
-    private CliPathArg createPathArg(String path, String cwd, String home, boolean expectDir) {
+    private CliPathArg createPathArg(String path, String home, boolean expectDir) {
 
-        CliPathArg orig = new CliPathArg(path, cwd, home) {
+        CliPathArg orig = new CliPathArg(path, home) {
 
             public boolean isDir(File file) {
                 return expectDir;

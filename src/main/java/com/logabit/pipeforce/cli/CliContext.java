@@ -15,6 +15,7 @@ import com.logabit.pipeforce.common.util.InputUtil;
 import com.logabit.pipeforce.common.util.PathUtil;
 import com.logabit.pipeforce.common.util.ReflectionUtil;
 import com.logabit.pipeforce.common.util.StringUtil;
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.http.client.HttpClient;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustStrategy;
@@ -331,7 +332,7 @@ public class CliContext {
         }
 
         // TODO remove extra new File step here
-        return new CliPathArg(path, getCurrentWorkDir().getAbsolutePath(), (new File(home).getAbsolutePath()));
+        return new CliPathArg(path, (new File(home).getAbsolutePath()));
     }
 
     public InputUtil getInputUtil() {
@@ -341,5 +342,27 @@ public class CliContext {
         }
 
         return inputUtil;
+    }
+
+    /**
+     * In case the CLI was built with jpackage and run using the OS application launchers,
+     * this property is set. See pom.xml for more details.
+     *
+     * @return
+     */
+    public boolean isJpackageLaunched() {
+        return System.getProperty("jpackageLaunched") != null;
+    }
+
+    public boolean isOsMac() {
+        return SystemUtils.OS_NAME.toLowerCase().contains("mac");
+    }
+
+    public boolean isOsWin() {
+        return SystemUtils.OS_NAME.toLowerCase().contains("win");
+    }
+
+    public String getWorkspaceHome() {
+        return PathUtil.path(getUserHome(), "pipeforce");
     }
 }

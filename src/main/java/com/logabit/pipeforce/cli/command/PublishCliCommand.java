@@ -15,14 +15,16 @@ import com.logabit.pipeforce.common.util.JsonUtil;
 import com.logabit.pipeforce.common.util.ListUtil;
 import com.logabit.pipeforce.common.util.PathUtil;
 import com.logabit.pipeforce.common.util.StringUtil;
-import org.apache.commons.io.FileUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Publishes all resources of a given app to the server.
@@ -48,7 +50,8 @@ public class PublishCliCommand extends BaseCliCommand {
         String path = args.getOptionKeyAt(0);
 
         if (StringUtil.isEmpty(path)) {
-            path = "**";
+            out.println("USAGE: " + getUsageHelp());
+            return -1;
         }
 
         CliPathArg pathArg = getContext().createPathArg(path);
@@ -59,24 +62,43 @@ public class PublishCliCommand extends BaseCliCommand {
             return 0;
         }
 
-        PublishCliService publishService = getContext().getPublishService();
-        MimeTypeService mimeTypeService = getContext().getMimeTypeService();
+        publish(pathArg);
+        out.println("See your changes here: " + config.getPortalUrl());
+
+        return 0;
+    }
+
+    public void publish(CliPathArg pathArg) throws IOException {
 
         PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
         Resource[] resources = resolver.getResources("file:" + pathArg.getLocalPattern());
 
+        List<File> files = Arrays.stream(resources).map(r -> {
+                    try {
+                        return r.getFile();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+        ).collect(Collectors.toList());
+
+        publish(files.toArray(new File[]{}));
+    }
+
+    public void publish(File... files) throws IOException {
+
+        PublishCliService publishService = getContext().getPublishService();
+        MimeTypeService mimeTypeService = getContext().getMimeTypeService();
+
         String srcHome = PathUtil.path(config.getHome(), "src");
 
         publishService.load();
-        int serverVersionMajor = getContext().getSeverVersionMajor();
         filesCounter = 0;
         publishedCounter = 0;
         updatedCounter = 0;
         createdCounter = 0;
 
-        for (Resource resource : resources) {
-
-            File file = resource.getFile();
+        for (File file : files) {
 
             if ((!file.exists()) || file.isDirectory() || file.getName().startsWith(".")) {
                 continue;
@@ -91,21 +113,12 @@ public class PublishCliCommand extends BaseCliCommand {
             propertyKey = propertyKey.replaceAll("\\\\", "/");
 
             boolean appConfigValid = true;
-            FileAndKey fileAndKey = null;
-
             if (isAppConfigProperty(propertyKey)) {
-                fileAndKey = checkAppConfig(propertyKey, file, serverVersionMajor);
-                if (fileAndKey != null) {
-                    // Property file and key has changed to global/app/APPNAME/config/app.json
-                    propertyKey = fileAndKey.key;
-                    file = fileAndKey.file;
-                }
-
                 appConfigValid = validateAppConfig(file);
             }
 
             long lastModified = Files.getLastModifiedTime(file.toPath()).toMillis();
-            if (!publishService.add(absoluteFilePath, lastModified) && fileAndKey == null && appConfigValid) {
+            if (!publishService.add(absoluteFilePath, lastModified) && appConfigValid) {
                 continue;
             }
 
@@ -159,9 +172,6 @@ public class PublishCliCommand extends BaseCliCommand {
 
         out.println("Found " + filesCounter + " files. " + publishedCounter +
                 " published. " + updatedCounter + " updated. " + createdCounter + " created.");
-        out.println("See your changes here: " + config.getPortalUrl());
-
-        return 0;
     }
 
     public int getFilesCounter() {
@@ -178,59 +188,6 @@ public class PublishCliCommand extends BaseCliCommand {
 
     public int getCreatedCounter() {
         return createdCounter;
-    }
-
-    /**
-     * Since in version 7.0 the app config has changed from global/app/APPNAME/config/APPNAME.json
-     * to global/app/APPNAME/config/app.json we migrate these here in case the target server is >= 7.0.
-     */
-    private FileAndKey checkAppConfig(String propertyKey, File propertyFile, int serverVersionMajor) {
-
-        if (!isAppConfigProperty(propertyKey)) {
-            return null;
-        }
-
-        propertyKey = StringUtil.removePrefix("/", propertyKey);
-        String[] split = StringUtil.split(propertyKey, "/");
-        String appName = split[2];
-
-        // serverVersionMajor = 0 only in test standalone mode (we assume we are on the latest version which is >> 6.0).
-        if (serverVersionMajor > 0 && serverVersionMajor <= 6) {
-            if (!propertyKey.endsWith(appName)) {
-                throw new CliException("Folder conf may not contain any other files except the app config " +
-                        "global/app/" + appName + "/config/" + appName + ".json but contains: " + propertyKey +
-                        ". Please move this file to another location and try again to publish.");
-            }
-
-            return null; // All OK. We are on server version 6.0 and this is the app config file as expected
-        }
-
-        File newPropertyFile = new File(propertyFile.getParentFile(), "app.json");
-
-        if (newPropertyFile.exists()) {
-            return null;
-        }
-
-        out.println("In server version >= 7.0, the default app config file was renamed to app.json. " +
-                "Should I rename " + propertyFile.getAbsolutePath() + " to " + newPropertyFile.getAbsolutePath() +
-                " for you? Note: If you choose 'no', your app might not work correctly!");
-
-        Integer choose = in.choose(ListUtil.asList("no", "yes"), "yes", null);
-
-        if (choose == 1) {
-            try {
-                FileUtils.moveFile(propertyFile, newPropertyFile);
-            } catch (IOException e) {
-                throw new CliException(String.format("failed to move: %s to: %s", propertyFile, newPropertyFile), e);
-            }
-
-            FileAndKey fileAndKey = new FileAndKey();
-            fileAndKey.file = newPropertyFile;
-            fileAndKey.key = "global/app/" + appName + "/config/app";
-            return fileAndKey;
-        }
-
-        return null;
     }
 
     /**
@@ -299,11 +256,11 @@ public class PublishCliCommand extends BaseCliCommand {
 
         return "pi publish <PATH_PATTERN>\n" +
                 "   Publishes all locally created/modified resources from inside src to the server.\n" +
-                "   <PATH_PATTERN> must be relative to src folder. Absolute path not allowed.\n" +
+                "   <PATH_PATTERN> must point to resources inside the src folder.\n" +
                 "   Examples: \n" +
-                "     pi publish global/app/myapp/** - Publishes content of myapp recursively.\n" +
-                "     pi publish global/app/myapp/ - Short-cut of global/app/myapp/**.\n" +
-                "     pi publish global/app/*/pipeline/* - Publishes all pipelines of all apps.";
+                "     pi publish src/global/app/myapp/** - Publishes content of myapp recursively.\n" +
+                "     pi publish src/global/app/myapp/ - Short-cut of global/app/myapp/**.\n" +
+                "     pi publish src/global/app/*/pipeline/* - Publishes all pipelines of all apps.";
     }
 
     private static class FileAndKey {

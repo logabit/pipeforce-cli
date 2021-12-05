@@ -29,7 +29,6 @@ public class SetupCliCommand extends BaseCliCommand {
         }
 
         boolean installed = getContext().getInstallService().install();
-
         String userHome = System.getProperty("user.home");
         String pipeforceHome = PathUtil.path(userHome, "pipeforce");
 
@@ -93,7 +92,7 @@ public class SetupCliCommand extends BaseCliCommand {
     }
 
     public String getUsageHelp() {
-        return "pi setup [advanced]\n" +
+        return "pi setup [advanced] [path]\n" +
                 "   Optionally installs the CLI + runs the (advanced) setup wizard.\n" +
                 "   Examples: \n" +
                 "     pi setup\n" +

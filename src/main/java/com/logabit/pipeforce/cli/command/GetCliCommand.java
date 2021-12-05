@@ -32,6 +32,18 @@ public class GetCliCommand extends BaseCliCommand {
         }
 
         CliPathArg pathArg = getContext().createPathArg(args.getOptionKeyAt(0));
+        get(pathArg, "src");
+
+        return 0;
+    }
+
+    /**
+     * Downloads all properties matching given pattern.
+     *
+     * @param pathArg
+     * @param localTargetFolderName The folder inside the pipeforce workspace to get files into.
+     */
+    public void get(CliPathArg pathArg, String localTargetFolderName) {
 
         PublishCliService publishService = getContext().getPublishService();
         publishService.load();
@@ -63,7 +75,7 @@ public class GetCliCommand extends BaseCliCommand {
             out.print("Get " + relLocalPath + " : ");
 
             // e.g. /Users/someUser/pipeforce/src/....
-            String fullLocalPath = PathUtil.path(config.getHome(), "src", relLocalPath);
+            String fullLocalPath = PathUtil.path(config.getHome(), localTargetFolderName, relLocalPath);
 
             long updated = node.get("updated").longValue();
             if (updated == 0) {
@@ -109,7 +121,7 @@ public class GetCliCommand extends BaseCliCommand {
 
                 if (selection == 4) {
                     skippedCounter++;
-                    return 1; // Cancel the command
+                    return; // Cancel the command
                 }
 
                 out.println("updated");
@@ -135,16 +147,14 @@ public class GetCliCommand extends BaseCliCommand {
 
         out.println("Finished get of " + filesCounter + " files. " + createdCounter +
                 " created. " + updatedCounter + " updated. " + skippedCounter + " skipped.");
-        return 0;
     }
 
     public String getUsageHelp() {
         return "pi get <PROPERTY_KEY_PATTERN>\n" +
-                "   Downloads all properties of the pattern into its local src folder.\n" +
+                "   Downloads all remote properties of the pattern into its local folder inside src.\n" +
                 "   Examples:\n" +
                 "     pi get global/app/myapp/** - Downloads all resources recursively.\n" +
                 "     pi get global/app/myapp/* - Downloads all resources. Not recursively.\n" +
-                "     pi get src/global/app/myapp/* - Downloads all resources. Not recursively.\n" +
                 "     pi get global/app/*/pipeline/* - Downloads all pipelines of all apps.\n" +
                 "     pi get global/app/myapp/ - Short-cut of global/app/myapp/**.";
     }

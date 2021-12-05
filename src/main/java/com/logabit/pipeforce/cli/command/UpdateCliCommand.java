@@ -2,6 +2,7 @@ package com.logabit.pipeforce.cli.command;
 
 import com.logabit.pipeforce.cli.CommandArgs;
 import com.logabit.pipeforce.common.util.ListUtil;
+import com.logabit.pipeforce.common.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,6 +15,14 @@ public class UpdateCliCommand extends BaseCliCommand {
 
     @Override
     public int call(CommandArgs args) throws Exception {
+
+        // If natively launched with javapackage -> We do not support auto-update for now
+        String nativeLaunched = System.getProperty("jpackageLaunched");
+        if (!StringUtil.isEmpty(nativeLaunched)) {
+            out.println("Auto-update doesnt work with native launcher on Mac.");
+            out.println("Please download update manually from: https://docs.pipeforce.org");
+            return -1;
+        }
 
         if (args.getLength() > 1) {
             out.println("USAGE: " + getUsageHelp());
@@ -61,6 +70,7 @@ public class UpdateCliCommand extends BaseCliCommand {
     public String getUsageHelp() {
         return "pi update [<version>]\n" +
                 "   Checks for exact/newer version and installs it.\n" +
+                "   Note: Doesnt work with native launcher on Mac.\n" +
                 "   Examples:\n" +
                 "     pi update - Checks for the latest version.\n" +
                 "     pi update 3.0 - Downloads and installs version 3.0.";

@@ -9,6 +9,10 @@ import org.apache.commons.lang3.SystemUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 /**
  * Service for all install / uninstall steps of the CLI tool.
@@ -26,30 +30,59 @@ public class InstallCliService extends BaseCliContextAware {
         String jarTargetPath = PathUtil.path(getContext().getUserHome(), "pipeforce", "tool", "pipeforce-cli-" +
                 config.getInstalledVersion() + ".jar");
 
+        String scriptContent;
+
         // Create a pi script depending on the operating system
         if (SystemUtils.OS_NAME.toLowerCase().contains("win")) {
 
-            String batContent = "" +
+            scriptContent = "" +
                     "@echo OFF\n" +
                     "java -XX:TieredStopAtLevel=1 -jar " + jarTargetPath + " %*";
 
-            FileUtil.saveStringToFile(batContent, PathUtil.path(getContext().getUserHome(), "pipeforce", "pi.bat"));
+            FileUtil.saveStringToFile(scriptContent, PathUtil.path(getContext().getUserHome(), "pipeforce", "pi.bat"));
 
+        } else if (getContext().isJpackageLaunched() && getContext().isOsMac()) {
+
+            // CLI was called from Mac + installed inside Applications using jpackage (see pom.xml)
+            scriptContent = "" +
+                    "#!/usr/bin/env bash\n" +
+                    "PIPEFORCE_WORKSPACE_HOME=\"" + getContext().getWorkspaceHome() + "\"\n" +
+                    "/Applications/pi.app/Contents/MacOS/universalJavaApplicationStub $@";
         } else {
 
             // Mac and *nix work the same here
-            String bashContent = "" +
+            scriptContent = "" +
                     "#!/usr/bin/env bash\n" +
                     "java -XX:TieredStopAtLevel=1 -jar " + jarTargetPath + " $@";
+        }
 
-            String piPath = PathUtil.path(getContext().getUserHome(), "pipeforce", "pi");
-            FileUtil.saveStringToFile(bashContent, piPath);
-            String command = "chmod u+x " + piPath;
-            try {
-                Runtime.getRuntime().exec(command);
-            } catch (IOException e) {
-                throw new RuntimeException("Could not execute chmod: " + command + ": " + e.getMessage(), e);
-            }
+        String piPath = PathUtil.path(getContext().getUserHome(), "pipeforce", "pi");
+        FileUtil.saveStringToFile(scriptContent, piPath);
+        String command = "chmod u+x " + piPath;
+        try {
+            Runtime.getRuntime().exec(command);
+        } catch (IOException e) {
+            throw new RuntimeException("Could not execute chmod: " + command + ": " + e.getMessage(), e);
+        }
+    }
+
+    public void addToPath(String path) {
+
+        if (!getContext().isOsMac()) {
+            return; // Currently only supported for Mac
+        }
+
+        System.out.println("Add pi command to your /etc/paths?");
+        Integer selection = getContext().getInputUtil().choose(ListUtil.asList("no", "yes"), "yes");
+        if (selection == 0) {
+            return;
+        }
+
+        try {
+            Files.write(Paths.get("/etc/paths"), path.getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
+        } catch (IOException e) {
+            throw new RuntimeException("Could not add pi to your /etc/paths. " +
+                    "Make sure to run this command with admin privileges!", e);
         }
     }
 
@@ -85,16 +118,17 @@ public class InstallCliService extends BaseCliContextAware {
         FileUtil.createFolders(PathUtil.path(userHome, "pipeforce", "conf"));
         FileUtil.createFolders(PathUtil.path(userHome, "pipeforce", "log"));
 
-        // Copy jar
-        String jarSourcePath = PathUtil.path(System.getProperty("user.dir"), jarName);
-        File targetJar = new File(jarTargetPath);
-        targetJar.getParentFile().mkdirs();
-        try {
-            FileUtils.copyFile(new File(jarSourcePath), targetJar);
-        } catch (IOException e) {
-            throw new RuntimeException("Could not copy jar: " + jarSourcePath + " to " + targetJar + ": " + e.getMessage(), e);
+        // Copy jar but only if not launched by OS native launcher
+        if (!getContext().isJpackageLaunched()) {
+            String jarSourcePath = PathUtil.path(System.getProperty("user.dir"), jarName);
+            File targetJar = new File(jarTargetPath);
+            targetJar.getParentFile().mkdirs();
+            try {
+                FileUtils.copyFile(new File(jarSourcePath), targetJar);
+            } catch (IOException e) {
+                throw new RuntimeException("Could not copy jar: " + jarSourcePath + " to " + targetJar + ": " + e.getMessage(), e);
+            }
         }
-
         this.createPiScript();
         return true;
     }

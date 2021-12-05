@@ -32,6 +32,12 @@ public class DeleteCliCommand extends BaseCliCommand {
             return 0;
         }
 
+        delete(pathArg);
+        return 0;
+    }
+
+    public void delete(CliPathArg pathArg) {
+
         PublishCliService publishService = getContext().getPublishService();
         publishService.load();
 
@@ -42,7 +48,7 @@ public class DeleteCliCommand extends BaseCliCommand {
         String propHome = PathUtil.path("/pipeforce/" + config.getNamespace());
 
         if (founds == null) {
-            return 0;
+            return;
         }
 
         for (JsonNode found : founds) {
@@ -60,13 +66,12 @@ public class DeleteCliCommand extends BaseCliCommand {
         }
 
         publishService.save();
-
-        return 0;
     }
 
     public String getUsageHelp() {
         return "pi delete <PROPERTY_KEY_PATTERN>\n" +
-                "   Deletes the given property or properties from server.\n" +
+                "   Deletes the given remote property or properties from server.\n" +
+                "   Doesn't delete any local file.\n" +
                 "   Examples:\n" +
                 "     pi delete global/app/myapp/pipeline/test - Deletes the test pipeline.\n" +
                 "     pi delete global/app/myapp/ - Same as global/app/myapp/**.\n" +

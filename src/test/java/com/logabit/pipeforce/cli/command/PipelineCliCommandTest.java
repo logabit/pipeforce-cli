@@ -50,7 +50,7 @@ public class PipelineCliCommandTest {
     public void testRunRemote() throws Exception {
 
         PipelineCliCommand remoteRun = (PipelineCliCommand) cliContext.createCommandInstance("pipeline");
-        cliContext.setArgs("pipeline", "remote", "global/app/myapp/pipeline/hello");
+        cliContext.setArgs("pipeline", "global/app/myapp/pipeline/hello");
         cliContext.callCommand();
 
         ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
@@ -68,7 +68,7 @@ public class PipelineCliCommandTest {
         cliContext.setCurrentWorkDir(new File("/some/home/pipeforce"));
 
         PipelineCliCommand localRun = (PipelineCliCommand) cliContext.createCommandInstance("pipeline");
-        localRun.call(new CommandArgs("file", "src/global/app/myapp/pipeline/hello.pi.yaml"));
+        localRun.call(new CommandArgs("src/global/app/myapp/pipeline/hello.pi.yaml"));
 
         ArgumentCaptor<JsonNode> nodeCaptor = ArgumentCaptor.forClass(JsonNode.class);
         verify(pipelineRunner, times(1)).executePipelineJsonNode(nodeCaptor.capture());
@@ -106,7 +106,7 @@ public class PipelineCliCommandTest {
         when(pipelineRunner.executePipelineUri("log?message=FOO|drive.read?path=file.pdf")).thenReturn(foundPropsNode);
 
         PipelineCliCommand uriCmd = (PipelineCliCommand) cliContext.createCommandInstance("pipeline");
-        uriCmd.call(new CommandArgs("uri", "log?message=FOO|drive.read?path=file.pdf"));
+        uriCmd.call(new CommandArgs("log?message=FOO|drive.read?path=file.pdf"));
 
         ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
         verify(pipelineRunner, times(1)).executePipelineUri(uriCaptor.capture());

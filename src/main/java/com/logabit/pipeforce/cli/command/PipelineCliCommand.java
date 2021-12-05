@@ -1,7 +1,6 @@
 package com.logabit.pipeforce.cli.command;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.logabit.pipeforce.cli.CliException;
 import com.logabit.pipeforce.cli.CliPathArg;
 import com.logabit.pipeforce.cli.CommandArgs;
 import com.logabit.pipeforce.common.util.JsonUtil;
@@ -17,14 +16,14 @@ public class PipelineCliCommand extends BaseCliCommand {
     @Override
     public int call(CommandArgs args) throws Exception {
 
-        if (args.getLength() != 2) {
+        if (args.getLength() != 1) {
             out.println("USAGE: " + getUsageHelp());
             return -1;
         }
 
         // pi pipeline OPTION PATH
-        String option = args.getOptionKeyAt(0);
-        String path = args.getOptionKeyAt(1);
+        String path = args.getOriginalArgs()[0];
+        String option = detectType(path);
 
         switch (option) {
 
@@ -32,17 +31,27 @@ public class PipelineCliCommand extends BaseCliCommand {
                 executeFile(path);
                 break;
             case "uri":
-                executePipelineUri(args.getOriginalArgs()[1]);
+                executePipelineUri(path);
                 break;
             case "remote":
                 executePipelineRemote(path);
                 break;
-
-            default:
-                throw new CliException("Unregognized pipeline option: " + option);
         }
 
         return 0;
+    }
+
+    private String detectType(String path) {
+
+        if (path.startsWith("src/")) {
+            return "file";
+        }
+
+        if (path.startsWith("global/")) {
+            return "remote";
+        }
+
+        return "uri";
     }
 
     private void executePipelineRemote(String path) {
@@ -74,10 +83,10 @@ public class PipelineCliCommand extends BaseCliCommand {
 
     public String getUsageHelp() {
         return "pi pipeline <file|remote|uri> <PATH>\n" +
-                "   Executes a pipeline.\n" +
+                "   Executes a pipeline locally or remote depending on existing src/ or global/ path.\n" +
                 "   Examples:\n" +
-                "     pi pipeline file src/global/app/myapp/pipeline/hello.pi.yaml - Executes a local file.\n" +
-                "     pi pipeline remote global/app/myapp/hello - Executes a remote pipeline.\n" +
-                "     pi pipeline uri \"datetime?format=dd.MM.YY\" - Executes a pipeline uri.";
+                "     pi pipeline src/global/app/myapp/pipeline/hello.pi.yaml - Executes a local file.\n" +
+                "     pi pipeline global/app/myapp/hello - Executes a remote pipeline.\n" +
+                "     pi pipeline \"datetime?format=dd.MM.YY\" - Executes a pipeline uri.";
     }
 }

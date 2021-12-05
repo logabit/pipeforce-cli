@@ -403,13 +403,8 @@ public class NewCliCommand extends BaseCliCommand {
                     "  \"editions\": [\"basic\", \"enterprise\"]\n" +
                     "}";
 
-            String configName = appName;
-            if (getContext().getSeverVersionMajor() > 6) {
-                configName = "app"; // Was renamed to app.json in server version >= 7.0
-            }
-
             FileUtil.saveStringToFile(appConfigContent,
-                    PathUtil.path(globalHome, "app", appName, "config", configName + ".json"));
+                    PathUtil.path(globalHome, "app", appName, "config", "app.json"));
 
             out.println("App created: " + appPath);
             return appName;
@@ -422,6 +417,10 @@ public class NewCliCommand extends BaseCliCommand {
                 "   Examples:\n" +
                 "     pi new - Shows the list of wizards to select from.\n" +
                 "     pi new app - Creates a new app.\n" +
+                "     pi new form - Creates a new form.\n" +
+                "     pi new list - Creates a new list.\n" +
+                "     pi new object - Creates a new object.\n" +
+                "     pi new workflow - Creates a new workflow.\n" +
                 "     pi new pipeline - Creates a new pipeline file.";
     }
 

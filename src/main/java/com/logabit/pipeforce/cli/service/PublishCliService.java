@@ -6,6 +6,7 @@ import com.logabit.pipeforce.common.util.JsonUtil;
 import com.logabit.pipeforce.common.util.PathUtil;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -67,6 +68,11 @@ public class PublishCliService extends BaseCliContextAware {
         return true;
     }
 
+    /**
+     * Removes concrete path entries.
+     *
+     * @param targetPath
+     */
     public void remove(String targetPath) {
 
         if (publishedMap == null) {
@@ -74,5 +80,18 @@ public class PublishCliService extends BaseCliContextAware {
         }
 
         publishedMap.remove(targetPath);
+    }
+
+    /**
+     * Removes all entries of a given folder (= path prefix). So a targetPath of /my/path/ would remove everything
+     * inside the folder /my/path/.
+     */
+    public void removeFolder(String targetPath) {
+
+        publishedMap.keySet().removeIf(k -> (k + "").startsWith(targetPath));
+    }
+
+    public Map getPublishedMap() {
+        return Collections.unmodifiableMap(publishedMap);
     }
 }

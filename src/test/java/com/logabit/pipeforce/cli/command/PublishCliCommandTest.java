@@ -100,7 +100,7 @@ public class PublishCliCommandTest {
 
         systemInMock.provideLines("yes");
         PublishCliCommand publishCommand = (PublishCliCommand) cliContext.createCommandInstance("publish");
-        publishCommand.call(new CommandArgs("global/app/someapp/**"));
+        publishCommand.call(new CommandArgs("src/global/app/someapp/**"));
 
         ArgumentCaptor<JsonNode> publishNode = ArgumentCaptor.forClass(JsonNode.class);
         Mockito.verify(pipelineRunner, Mockito.atLeastOnce()).executePipelineJsonNode(publishNode.capture());
@@ -141,7 +141,7 @@ public class PublishCliCommandTest {
 
         systemInMock.provideLines("yes");
         publishCommand = (PublishCliCommand) cliContext.createCommandInstance("publish");
-        publishCommand.call(CommandArgs.EMPTY); // All in src folder
+        publishCommand.call(new CommandArgs("src/global/app/**")); // All in src folder
 
         // appConfig file have changed -> 1 to upload
         Assert.assertEquals(5, publishCommand.getFilesCounter());
@@ -151,51 +151,6 @@ public class PublishCliCommandTest {
         appConfigString = FileUtil.readFileToString(appConfig);
         appConfigMap = JsonUtil.jsonStringToMap(appConfigString);
         Assert.assertEquals("CAN_APP_SOMEAPP", appConfigMap.get("show"));
-    }
-
-    @Test
-    public void testMigrateToNewAppConfig() throws Exception {
-
-        cliContext.setCurrentWorkDir(new File(PathUtil.path(workspaceHome)));
-        ReflectionUtil.setFieldValue(cliContext, "serverVersionMajor", 6);
-        JsonNode resultNode = JsonUtil.mapToJsonNode(ListUtil.asMap("result", "created"));
-        Mockito.when(pipelineRunner.executePipelineJsonNode(Mockito.any(JsonNode.class))).thenReturn(resultNode);
-
-        systemInMock.provideLines(
-                "someapp", null, "someDescription", null // new app
-        );
-
-        cliContext.setArgs("new", "app");
-        cliContext.callCommand();
-
-        systemInMock.provideLines(
-                "yes" // Yes, publish
-        );
-
-        cliContext.setArgs("publish");
-        cliContext.callCommand();
-
-        // Now switch server version to 7
-        ReflectionUtil.setFieldValue(cliContext, "serverVersionMajor", 7);
-
-        systemInMock.provideLines(
-                "yes", // Yes, publish
-                "yes" // Yes migrate to app.json
-        );
-
-        cliContext.setArgs("publish");
-        cliContext.callCommand();
-
-        ArgumentCaptor<JsonNode> publishNode = ArgumentCaptor.forClass(JsonNode.class);
-        Mockito.verify(pipelineRunner, Mockito.atLeastOnce()).executePipelineJsonNode(publishNode.capture());
-        List<JsonNode> allValues = publishNode.getAllValues();
-        System.out.println(allValues);
-
-        Assert.assertEquals(new File("global/app/someapp/config/someapp"),
-                new File(allValues.get(0).get("pipeline").get(0).get("property.schema.put").get("key").textValue()));
-
-        Assert.assertEquals(new File("global/app/someapp/config/app"),
-                new File(allValues.get(1).get("pipeline").get(0).get("property.schema.put").get("key").textValue()));
     }
 
     @Test
