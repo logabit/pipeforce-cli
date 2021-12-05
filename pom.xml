@@ -161,6 +161,7 @@
             </plugin>
 
             <!-- See https://github.com/fvarrui/JavaPackager -->
+            <!--
             <plugin>
                 <groupId>io.github.fvarrui</groupId>
                 <artifactId>javapackager</artifactId>
@@ -177,7 +178,6 @@
 
                 <executions>
 
-                    <!--
                     <execution>
                         <id>bundling-for-windows</id>
                         <phase>package</phase>
@@ -190,9 +190,7 @@
                             <jdkPath>/Users/sniederm/Downloads/jdk-17.0.1</jdkPath>
                         </configuration>
                     </execution>
-                    -->
 
-                    <!--
                     <execution>
                         <id>bundling-for-linux</id>
                         <phase>package</phase>
@@ -205,7 +203,6 @@
                             <jdkPath>X:\\path\to\linux\jdk</jdkPath>
                         </configuration>
                     </execution>
-                    -->
 
                     <execution>
                         <id>bundling-for-mac</id>
@@ -225,6 +222,7 @@
                     </execution>
                 </executions>
             </plugin>
+            -->
         </plugins>
         <resources>
             <resource>
