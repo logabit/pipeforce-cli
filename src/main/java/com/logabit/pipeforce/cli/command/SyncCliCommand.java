@@ -8,10 +8,7 @@ import com.logabit.pipeforce.common.util.ListUtil;
 import com.logabit.pipeforce.common.util.PathUtil;
 import com.logabit.pipeforce.common.util.StringUtil;
 import io.methvin.watcher.DirectoryWatcher;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
@@ -37,7 +34,7 @@ public class SyncCliCommand extends BaseCliCommand {
         String path = args.getOptionKeyAt(0);
 
         if (StringUtil.isEmpty(path)) {
-            new CliException("Please specify a path!");
+            throw new CliException("Please specify a path!");
         }
 
         this.publishCommand = (PublishCliCommand) getContext().createCommandInstance("Publish");
@@ -45,18 +42,17 @@ public class SyncCliCommand extends BaseCliCommand {
 
         CliPathArg pathArg = getContext().createPathArg(path);
 
-        PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-        Resource resource = resolver.getResource("file:" + pathArg.getLocalPattern());
-
-        File file = resource.getFile();
-
-        if (!file.isDirectory()) {
-
-            throw new CliException("Can only watch existing folders. " +
-                    "This path does not point to a folder or doesnt exist: " + file.getAbsolutePath());
+        if (pathArg.isPattern()) {
+            throw new CliException("Patterns not allowed. Point to a local existing folder path to sync.");
         }
 
-        CliPathArg folderPattern = getContext().createPathArg(pathArg.getLocalPattern());
+        if (!pathArg.isLocalFileExists()) {
+            throw new CliException("Local path doesnt exist: " + path);
+        }
+
+        if (!pathArg.isLocalDirectory()) {
+            throw new CliException("Local path must point to a directory: " + path);
+        }
 
         out.println("Backup locally and cleanup on server " + pathArg.getLocalPattern() + " first?");
         Integer choose = in.choose(ListUtil.asList("no", "yes"), "yes", null);
@@ -64,10 +60,10 @@ public class SyncCliCommand extends BaseCliCommand {
 
             // Create a local backup
             GetCliCommand getCommand = (GetCliCommand) getContext().createCommandInstance("Get");
-            getCommand.get(folderPattern, "backup/sync/" + System.currentTimeMillis());
+            getCommand.get(pathArg, "backup/sync/" + System.currentTimeMillis());
 
             // Delete remote all remote files
-            deleteCommand.delete(folderPattern);
+            deleteCommand.delete(pathArg);
         }
 
         PublishCliService publishService = getContext().getPublishService();
@@ -75,11 +71,11 @@ public class SyncCliCommand extends BaseCliCommand {
         publishService.save();
 
         // Upload all files from watch folder
-        publishCommand.publish(folderPattern);
+        publishCommand.publish(pathArg);
 
         // See: https://github.com/gmethvin/directory-watcher
         DirectoryWatcher.builder()
-                .path(file.toPath())
+                .path(pathArg.getLocalFile().toPath())
                 .listener(event -> {
 
                     Path eventPath = event.path();
@@ -146,6 +142,7 @@ public class SyncCliCommand extends BaseCliCommand {
                 "   <FOLDER_PATH> must point to a folder inside src.\n" +
                 "   Examples: \n" +
                 "     pi sync src/global/app/myapp/ - Syncs content of myapp recursively.\n" +
-                "     pi sync src/global/app/ - Syncs anything below global/app/ path.";
+                "     pi sync src/global/app/ - Syncs anything below global/app/ path." +
+                "     pi sync /Users/me/pipeforce/src/global/app/ - Absolute path.";
     }
 }

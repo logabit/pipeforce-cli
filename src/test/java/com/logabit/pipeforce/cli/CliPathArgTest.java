@@ -30,12 +30,12 @@ public class CliPathArgTest {
         Assert.assertTrue(pathArg.isPattern());
 
         pathArg = createPathArg("src/global/app/myapp/", home, true);
-        Assert.assertEquals("/User/someUser/pipeforce/src/global/app/myapp", pathArg.getLocalPattern());
+        Assert.assertEquals("/User/someUser/pipeforce/src/global/app/myapp/**", pathArg.getLocalPattern());
         Assert.assertEquals("global/app/myapp/**", pathArg.getRemotePattern());
         Assert.assertFalse(pathArg.isPattern());
 
         pathArg = createPathArg("src/global/app/myapp", home, true);
-        Assert.assertEquals("/User/someUser/pipeforce/src/global/app/myapp", pathArg.getLocalPattern());
+        Assert.assertEquals("/User/someUser/pipeforce/src/global/app/myapp/**", pathArg.getLocalPattern());
         Assert.assertEquals("global/app/myapp/**", pathArg.getRemotePattern());
         Assert.assertFalse(pathArg.isPattern());
 
@@ -55,15 +55,14 @@ public class CliPathArgTest {
         Assert.assertTrue(pathArg.isPattern());
 
         pathArg = createPathArg("src/global/app/myapp", home, true);
-        Assert.assertEquals("/User/someUser/pipeforce/src/global/app/myapp", pathArg.getLocalPattern());
+        Assert.assertEquals("/User/someUser/pipeforce/src/global/app/myapp/**", pathArg.getLocalPattern());
         Assert.assertEquals("global/app/myapp/**", pathArg.getRemotePattern());
         Assert.assertFalse(pathArg.isPattern());
 
         pathArg = createPathArg("src/global/app/myapp/", home, true);
-        Assert.assertEquals("/User/someUser/pipeforce/src/global/app/myapp", pathArg.getLocalPattern());
+        Assert.assertEquals("/User/someUser/pipeforce/src/global/app/myapp/**", pathArg.getLocalPattern());
         Assert.assertEquals("global/app/myapp/**", pathArg.getRemotePattern());
         Assert.assertFalse(pathArg.isPattern());
-
 
         pathArg = createPathArg("src/**", home, true);
         Assert.assertEquals("/User/someUser/pipeforce/src/**", pathArg.getLocalPattern());
@@ -71,7 +70,7 @@ public class CliPathArgTest {
         Assert.assertTrue(pathArg.isPattern());
 
         pathArg = createPathArg("src/global/app/myapp", home, true);
-        Assert.assertEquals("/User/someUser/pipeforce/src/global/app/myapp", pathArg.getLocalPattern());
+        Assert.assertEquals("/User/someUser/pipeforce/src/global/app/myapp/**", pathArg.getLocalPattern());
         Assert.assertEquals("global/app/myapp/**", pathArg.getRemotePattern());
         Assert.assertFalse(pathArg.isPattern());
 
@@ -86,12 +85,12 @@ public class CliPathArgTest {
         Assert.assertTrue(pathArg.isPattern());
 
         pathArg = createPathArg("src/global/app/", home, true);
-        Assert.assertEquals("/User/someUser/pipeforce/src/global/app", pathArg.getLocalPattern());
+        Assert.assertEquals("/User/someUser/pipeforce/src/global/app/**", pathArg.getLocalPattern());
         Assert.assertEquals("global/app/**", pathArg.getRemotePattern());
         Assert.assertFalse(pathArg.isPattern());
 
         pathArg = createPathArg("/User/someUser/pipeforce/src/global/app/", home, true);
-        Assert.assertEquals("/User/someUser/pipeforce/src/global/app", pathArg.getLocalPattern());
+        Assert.assertEquals("/User/someUser/pipeforce/src/global/app/**", pathArg.getLocalPattern());
         Assert.assertEquals("global/app/**", pathArg.getRemotePattern());
         Assert.assertFalse(pathArg.isPattern());
     }

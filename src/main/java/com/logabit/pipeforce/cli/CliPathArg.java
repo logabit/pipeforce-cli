@@ -56,8 +56,8 @@ public class CliPathArg {
         // Replace * by ASTERISK to avoid platform problems
         this.encodedPath = encodePath(this.path);
 
-        this.localPattern = toExternalForm(encodePath(getLocalPathAbsolute())).replaceAll("\\\\", "/");
-        this.remotePattern = toExternalForm(toRemotePattern(this.encodedPath)).replaceAll("\\\\", "/");
+        this.localPattern = toExternalForm(toPattern(encodePath(getLocalPathAbsolute()))).replaceAll("\\\\", "/");
+        this.remotePattern = toExternalForm(toPattern(this.encodedPath)).replaceAll("\\\\", "/");
     }
 
     /**
@@ -87,7 +87,7 @@ public class CliPathArg {
         return path.replaceAll(ASTERISK, "*");
     }
 
-    private String toRemotePattern(String path) {
+    private String toPattern(String path) {
 
         // Is it already a pattern like this? global/*/myapp/**
         if (path.contains(ASTERISK)) {
@@ -155,5 +155,29 @@ public class CliPathArg {
 
     public String getRemotePath() {
         return this.path;
+    }
+
+    /**
+     * Returns true in case this path points to a local directory AND it exists locally.
+     *
+     * @return
+     */
+    public boolean isLocalDirectory() {
+        File file = new File(getLocalPathAbsolute());
+        return file.isDirectory();
+    }
+
+    /**
+     * Returns true in case this path points to a local file AND this file exists.
+     *
+     * @return
+     */
+    public boolean isLocalFileExists() {
+        File file = new File(getLocalPathAbsolute());
+        return file.exists();
+    }
+
+    public File getLocalFile() {
+        return new File(getLocalPathAbsolute());
     }
 }

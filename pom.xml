@@ -5,7 +5,7 @@
 
     <groupId>com.logabit.pipeforce</groupId>
     <artifactId>pipeforce-cli</artifactId>
-    <version>2.24</version>
+    <version>2.25</version>
     <name>pipeforce-cli</name>
     <description>PIPEFORCE CLI</description>
 
@@ -161,7 +161,6 @@
             </plugin>
 
             <!-- See https://github.com/fvarrui/JavaPackager -->
-            <!--
             <plugin>
                 <groupId>io.github.fvarrui</groupId>
                 <artifactId>javapackager</artifactId>
@@ -177,7 +176,7 @@
                 </configuration>
 
                 <executions>
-
+                    <!--
                     <execution>
                         <id>bundling-for-windows</id>
                         <phase>package</phase>
@@ -203,6 +202,7 @@
                             <jdkPath>X:\\path\to\linux\jdk</jdkPath>
                         </configuration>
                     </execution>
+                    -->
 
                     <execution>
                         <id>bundling-for-mac</id>
@@ -217,12 +217,11 @@
                             </macConfig>
                             <platform>mac</platform>
                             <createTarball>true</createTarball>
-                            <vmArgs>-DjpackageLaunched=true</vmArgs>
+                            <vmArgs>-DjpackageLaunched=true</vmArgs> <!-- Indicate to CLI it was lunched via OS -->
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-            -->
         </plugins>
         <resources>
             <resource>
