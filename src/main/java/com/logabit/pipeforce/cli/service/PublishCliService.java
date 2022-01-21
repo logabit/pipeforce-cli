@@ -58,7 +58,7 @@ public class PublishCliService extends BaseCliContextAware {
 
         lastModified = lastModified / 1000;
         if (publishedMap.containsKey(path)) {
-            Integer lastModifiedEntry = (Integer) publishedMap.get(path);
+            Long lastModifiedEntry = Long.valueOf(publishedMap.get(path) + "");
             if (lastModifiedEntry == lastModified) {
                 return false;
             }

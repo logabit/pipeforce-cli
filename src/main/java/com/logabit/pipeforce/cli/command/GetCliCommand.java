@@ -135,8 +135,12 @@ public class GetCliCommand extends BaseCliCommand {
                 byte[] data = EncodeUtil.fromBase64ToBytes(node.get("value").textValue());
                 out.saveByteArrayToFile(data, localPropertyFile);
             } else {
-                byte[] data = node.get("value").textValue().getBytes(StandardCharsets.UTF_8);
-                out.saveByteArrayToFile(data, localPropertyFile);
+                String text = node.get("value").textValue();
+
+                if (text != null) {
+                    byte[] data = text.getBytes(StandardCharsets.UTF_8);
+                    out.saveByteArrayToFile(data, localPropertyFile);
+                }
             }
             localPropertyFile.setLastModified(updated);
 
