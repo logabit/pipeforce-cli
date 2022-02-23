@@ -27,5 +27,9 @@ jobs:
           java-version: '11'
           distribution: 'temurin'
           cache: maven
-      - name: Build with Maven
-        run: mvn -B package --file pom.xml
+      - name: Build pipeforce-sdk-java
+        run: mvn -B package install --file pom.xml
+      - name: Checkout pipeforce-cli
+        uses: actions/checkout@v2
+      - name: Build pipeforce-cli
+        run: mvn -B package install --file pom.xml
