@@ -35,6 +35,8 @@ jobs:
         run: mvn -B package install --file pom.xml
       - name: Package jar as dmg installer
         run: "jpackage --name pipeforce-cli -i jars --main-class com.logabit.pipeforce.cli.Main --main-jar pipeforce-cli-2.26-jar-with-dependencies.jar  --input ./target --dest ./target"
+      - name: List build artifacts
+        run: ls ./target
       - name: Release
         uses: ncipollo/release-action@v1
         with:
