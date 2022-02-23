@@ -34,31 +34,9 @@ jobs:
       - name: Build pipeforce-cli
         run: mvn -B package install --file pom.xml
       - name: Package jar as dmg installer
-        run: "jpackage --name pipeforce-cli.dmg -i jars --main-class com.logabit.pipeforce.cli.Main --main-jar pipeforce-cli-2.26-jar-with-dependencies.jar"
+        run: "jpackage --name pipeforce-cli.dmg -i jars --main-class com.logabit.pipeforce.cli.Main --main-jar ./target/pipeforce-cli-2.26-jar-with-dependencies.jar"
       - name: Release
         uses: ncipollo/release-action@v1
         with:
           artifacts: "./target/pipeforce-*.jar,./target/pipeforce-cli.dmg"
           token: ${{ secrets.PIPEFORCE_SDK_JAVA }}
-
-  osx:
-    needs: build
-    runs-on: [macos-latest]
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-java@v1
-        with:
-          java-version: '14.0.0'
-          java-package: jdk
-          architecture: x64
-      - name: Download fat jar
-        uses: actions/download-artifact@v1
-        with:
-          name: jars
-      - name: Package jar as dmg installer
-        run: "jpackage --name ${{ env.pkg-name }} -i jars --main-class example.Main --main-jar ${{ env.pkg-assembly }}"
-      - name: Upload dmg
-        uses: actions/upload-artifact@v1
-        with:
-          name: dmgs
-          path: "${{ env.pkg-name }}-${{ env.pkg-version }}.dmg"
