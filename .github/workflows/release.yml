@@ -38,5 +38,5 @@ jobs:
       - name: Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "./target/pipeforce-*.jar,./target/pipeforce-cli.dmg"
+          artifacts: "./target/pipeforce-*.jar,./target/*.dmg"
           token: ${{ secrets.PIPEFORCE_SDK_JAVA }}
