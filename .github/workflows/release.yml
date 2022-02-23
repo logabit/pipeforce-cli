@@ -7,7 +7,7 @@ on:
   push:
     # Sequence of patterns matched against refs/tags
     tags:
-    - 'RELEASE-*'
+    - 'v*'
 
 jobs:
   build:
