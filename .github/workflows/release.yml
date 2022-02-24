@@ -30,13 +30,13 @@ jobs:
           distribution: 'temurin'
           cache: maven
       - name: Build pipeforce-sdk-java
-        run: mvn -B package install --file pom.xml
+        run: mvn -B package install --file pom.xml -Drevision=5.0.0
         
       # Build pipeforce-cli
       - name: Checkout pipeforce-cli
         uses: actions/checkout@v2
       - name: Build pipeforce-cli
-        run: mvn -B package install --file pom.xml
+        run: mvn -B package install --file pom.xml -Drevision=5.0.0
       - name: List build artifacts
         run: ls ./target
         
