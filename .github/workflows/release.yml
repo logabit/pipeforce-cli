@@ -34,20 +34,20 @@ jobs:
       - name: Build pipeforce-cli
         run: mvn -B package install --file pom.xml
       - name: Package jar as dmg installer
-        run: "jpackage --name pipeforce-cli -i jars --main-class com.logabit.pipeforce.cli.Main --main-jar pipeforce-cli-2.26-jar-with-dependencies.jar  --input ./target --dest ./target"
+        run: "jpackage --name pipeforce-cli -i jars --main-class com.logabit.pipeforce.cli.Main --main-jar pipeforce-cli-2.26-jar-with-dependencies.jar  --input ./target --dest ./target --type pkg"
       - name: List build artifacts
         run: ls ./target
-      - name: Create tar.gz
-        run: |
-          mkdir ./target/deb-unpackaged
-          dpkg-deb -R ./target/pipeforce-cli_1.0-1_amd64.deb ./target/deb-unpackaged
-          cd ./target/deb-unpackaged
-          tar -czvf pipeforce-cli.tar.gz *
-          ls
+      #- name: Create tar.gz
+      #  run: |
+      #    mkdir ./target/deb-unpackaged
+      #    dpkg-deb -R ./target/pipeforce-cli_1.0-1_amd64.deb ./target/deb-unpackaged
+      #    cd ./target/deb-unpackaged
+      #    tar -czvf pipeforce-cli.tar.gz *
+      #    ls
       - name: Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "./target/pipeforce-*.jar,./target/*.deb,./target/deb-unpackaged/*.tar.gz"
+          artifacts: "./target/pipeforce-*.jar,./target/*.deb,./target/*.pkg"
           token: ${{ secrets.PIPEFORCE_SDK_JAVA }}
           
 
