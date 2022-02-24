@@ -79,6 +79,6 @@ jobs:
       uses: actions/upload-artifact@v1
       with:
         name: pipeforce-cli.pkg
-        path: "*.pkg"
+        path: "pipeforce-cli-1.0.pkg"
           
 
