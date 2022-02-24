@@ -34,7 +34,7 @@ jobs:
       - name: Build pipeforce-cli
         run: mvn -B package install --file pom.xml
       #- name: Package jar as dmg installer
-      #  run: "jpackage --name pipeforce-cli -i jars --main-class com.logabit.pipeforce.cli.Main --main-jar pipeforce-cli-2.26-jar-with-dependencies.jar  --input ./target --dest ./target --type pkg"
+      #  run: "jpackage --name pipeforce-cli -i jars --main-class com.logabit.pipeforce.cli.Main --main-jar jars  --input ./target --dest ./target --type pkg"
       - name: List build artifacts
         run: ls ./target
       #- name: Create tar.gz
@@ -72,11 +72,13 @@ jobs:
     - name: List downloaded artifacts
       run: ls
     - name: Package jar as dmg installer
-      run: "jpackage --name pipeforce-cli -i jars --main-class com.logabit.pipeforce.cli.Main --main-jar pipeforce-cli-2.26-jar-with-dependencies.jar"
+      run: "jpackage --name pipeforce-cli -i jars --main-class com.logabit.pipeforce.cli.Main --main-jar jars --type pkg"
+    - name: List downloaded artifacts
+      run: ls
     - name: Upload dmg
       uses: actions/upload-artifact@v1
       with:
-        name: pipeforce-cli.dmg
-        path: "*.dmg"
+        name: pipeforce-cli.pkg
+        path: "*.pkg"
           
 
