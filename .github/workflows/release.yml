@@ -30,7 +30,7 @@ jobs:
           distribution: 'temurin'
           cache: maven
       - name: Build pipeforce-sdk-java
-        run: mvn -B package install --file pom.xml -Drevision=5.0.0
+        run: mvn -B package install --file pom.xml
         
       # Build pipeforce-cli
       - name: Checkout pipeforce-cli
