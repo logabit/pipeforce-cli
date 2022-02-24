@@ -16,6 +16,10 @@ jobs:
 
     steps:
     
+      - name: Set current tag to output
+        id: vars
+        run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+    
       # Build pipeforce-sdk-java
       - name: Checkout pipeforce-sdk-java
         uses: actions/checkout@v2
@@ -36,11 +40,11 @@ jobs:
       - name: Checkout pipeforce-cli
         uses: actions/checkout@v2
       - name: Build pipeforce-cli
-        run: mvn -B package install --file pom.xml -Drevision=5.0.0
+        run: mvn -B package install --file pom.xml -Drevision=${{ steps.vars.outputs.tag }}
       - name: Rename
         run: mv ./target/pipeforce-cli-5.0.0-jar-with-dependencies.jar ./target/pipeforce-cli-5.0.0-all.jar
       - name: Create SHA Fingerprint file
-        run: shasum -a 256 ./target/pipeforce-cli-5.0.0-all.jar | awk '{printf $1}' > ./target/pipeforce-cli-5.0.0-all.jar.sha256
+        run: shasum -a 256 ./target/pipeforce-cli-${{ steps.vars.outputs.tag }}-all.jar | awk '{printf $1}' > ./target/pipeforce-cli-${{ steps.vars.outputs.tag }}-all.jar.sha256
       - name: List build artifacts
         run: ls ./target
         
