@@ -42,9 +42,9 @@ jobs:
       - name: Build pipeforce-cli
         run: mvn -B package install --file pom.xml -Drevision=${{ steps.vars.outputs.tag }}
       - name: Rename
-        run: mv ./target/pipeforce-cli-${{ steps.vars.outputs.tag }}-jar-with-dependencies.jar ./target/pipeforce-cli-${{ steps.vars.outputs.tag }}-all.jar
+        run: mv ./target/pipeforce-cli-${{ steps.vars.outputs.tag }}-jar-with-dependencies.jar ./target/pipeforce-cli.jar
       - name: Create SHA Fingerprint file
-        run: shasum -a 256 ./target/pipeforce-cli-${{ steps.vars.outputs.tag }}-all.jar | awk '{printf $1}' > ./target/pipeforce-cli-${{ steps.vars.outputs.tag }}-all.jar.sha256
+        run: shasum -a 256 ./target/pipeforce-cli-${{ steps.vars.outputs.tag }}-all.jar | awk '{printf $1}' > ./target/pipeforce-cli.jar.sha256
       - name: List build artifacts
         run: ls ./target
         
@@ -52,5 +52,5 @@ jobs:
       - name: Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "./target/pipeforce-*all.jar,./target/*.sha256"
+          artifacts: "./target/pipeforce-cli.jar,./target/pipeforce-cli.jar.sha256"
           token: ${{ secrets.PIPEFORCE_SDK_JAVA }}
