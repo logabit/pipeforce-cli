@@ -44,7 +44,7 @@ jobs:
       - name: Rename
         run: mv ./target/pipeforce-cli-${{ steps.vars.outputs.tag }}-jar-with-dependencies.jar ./target/pipeforce-cli.jar
       - name: Create SHA Fingerprint file
-        run: shasum -a 256 ./target/pipeforce-cli-${{ steps.vars.outputs.tag }}-all.jar | awk '{printf $1}' > ./target/pipeforce-cli.jar.sha256
+        run: shasum -a 256 ./target/pipeforce-cli.jar | awk '{printf $1}' > ./target/pipeforce-cli.jar.sha256
       - name: List build artifacts
         run: ls ./target
         
