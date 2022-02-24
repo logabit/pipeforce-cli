@@ -96,7 +96,7 @@ jobs:
       with:
         name: jars
     - name: Package jar as msi
-      run: "jpackage --name pipeforce-cli --type msi -i jars --main-class example.Main --main-jar jars --win-dir-chooser --input ."
+      run: "jpackage --name pipeforce-cli --type msi -i jars --main-class com.logabit.pipeforce.cli.Main --main-jar jars --win-dir-chooser --input ."
     - name: View artifacts
       run: dir
     - name: Upload installer
