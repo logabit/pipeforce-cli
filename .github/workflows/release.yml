@@ -37,6 +37,8 @@ jobs:
         uses: actions/checkout@v2
       - name: Build pipeforce-cli
         run: mvn -B package install --file pom.xml -Drevision=5.0.0
+      - name: Rename
+        run: mv ./target/pipeforce-cli-5.0.0-jar-with-dependencies.jar ./target/pipeforce-cli-5.0.0-all.jar
       - name: List build artifacts
         run: ls ./target
         
@@ -44,5 +46,5 @@ jobs:
       - name: Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "./target/pipeforce-*.jar,./target/*.deb,./target/*.pkg"
+          artifacts: "./target/pipeforce-*all.jar"
           token: ${{ secrets.PIPEFORCE_SDK_JAVA }}
