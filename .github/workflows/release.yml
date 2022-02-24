@@ -37,10 +37,17 @@ jobs:
         run: "jpackage --name pipeforce-cli -i jars --main-class com.logabit.pipeforce.cli.Main --main-jar pipeforce-cli-2.26-jar-with-dependencies.jar  --input ./target --dest ./target"
       - name: List build artifacts
         run: ls ./target
+      - name: Create tar.gz
+        run: |
+          mkdir deb-unpackaged
+          dpkg-deb -R pipeforce-cli_1.0-1_amd64.deb deb-unpackaged
+          cd deb-unpackaged
+          tar -czvf pipeforce-cli.tar.gz *
+          ls
       - name: Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "./target/pipeforce-*.jar,./target/*.deb"
+          artifacts: "./target/pipeforce-*.jar,./target/*.deb,./deb-unpackaged/*.tar.gz"
           token: ${{ secrets.PIPEFORCE_SDK_JAVA }}
           
 
