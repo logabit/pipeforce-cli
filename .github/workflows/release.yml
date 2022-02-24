@@ -1,7 +1,7 @@
 # This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
 
-name: Java CI with Maven
+name: Build, Test, Release
 
 on:
   push:
@@ -15,6 +15,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    
+      # Build pipeforce-sdk-java
       - name: Checkout pipeforce-sdk-java
         uses: actions/checkout@v2
         with:
@@ -29,80 +31,18 @@ jobs:
           cache: maven
       - name: Build pipeforce-sdk-java
         run: mvn -B package install --file pom.xml
+        
+      # Build pipeforce-cli
       - name: Checkout pipeforce-cli
         uses: actions/checkout@v2
       - name: Build pipeforce-cli
         run: mvn -B package install --file pom.xml
-      #- name: Package jar as dmg installer
-      #  run: "jpackage --name pipeforce-cli -i jars --main-class com.logabit.pipeforce.cli.Main --main-jar jars  --input ./target --dest ./target --type pkg"
       - name: List build artifacts
         run: ls ./target
-      #- name: Create tar.gz
-      #  run: |
-      #    mkdir ./target/deb-unpackaged
-      #    dpkg-deb -R ./target/pipeforce-cli_1.0-1_amd64.deb ./target/deb-unpackaged
-      #    cd ./target/deb-unpackaged
-      #    tar -czvf pipeforce-cli.tar.gz *
-      #    ls
+        
+      # Create release
       - name: Release
         uses: ncipollo/release-action@v1
         with:
           artifacts: "./target/pipeforce-*.jar,./target/*.deb,./target/*.pkg"
           token: ${{ secrets.PIPEFORCE_SDK_JAVA }}
-      - name: Upload fat jar
-        uses: actions/upload-artifact@v1
-        with:
-          name: jars
-          path: "target/pipeforce-cli-2.26-jar-with-dependencies.jar"
-                          
-  osx:
-    needs: build
-    runs-on: [macos-latest]
-    steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-java@v1
-      with:
-        java-version: '14.0.0'
-        java-package: jdk
-        architecture: x64
-    - name: Download fat jar
-      uses: actions/download-artifact@v1
-      with:
-        name: jars
-    - name: List downloaded artifacts
-      run: ls
-    - name: Package jar as dmg installer
-      run: "jpackage --name pipeforce-cli -i jars --main-class com.logabit.pipeforce.cli.Main --main-jar jars --type pkg --input ."
-    - name: List downloaded artifacts
-      run: ls
-    - name: Upload dmg
-      uses: actions/upload-artifact@v1
-      with:
-        name: pipeforce-cli.pkg
-        path: "pipeforce-cli-1.0.pkg"
-        
-  windows:
-    needs: build
-    runs-on: [windows-latest]
-    steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-java@v1
-      with:
-        java-version: '14.0.0'
-        java-package: jdk
-        architecture: x64
-    - name: Download fat jar
-      uses: actions/download-artifact@v1
-      with:
-        name: jars
-    - name: Package jar as msi
-      run: "jpackage --name pipeforce-cli --type msi -i jars --main-class com.logabit.pipeforce.cli.Main --main-jar jars --win-dir-chooser --input ."
-    - name: View artifacts
-      run: dir
-    - name: Upload installer
-      uses: actions/upload-artifact@v1
-      with:
-        name: pipeforce-cli.msi
-        path: "pipeforce-cli-1.0.msi"
-          
-
