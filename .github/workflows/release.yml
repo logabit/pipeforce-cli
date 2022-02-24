@@ -39,9 +39,9 @@ jobs:
         run: ls ./target
       - name: Create tar.gz
         run: |
-          mkdir deb-unpackaged
-          dpkg-deb -R pipeforce-cli_1.0-1_amd64.deb deb-unpackaged
-          cd deb-unpackaged
+          mkdir ./target/deb-unpackaged
+          dpkg-deb -R ./target/pipeforce-cli_1.0-1_amd64.deb ./target/deb-unpackaged
+          cd ./target/deb-unpackaged
           tar -czvf pipeforce-cli.tar.gz *
           ls
       - name: Release
