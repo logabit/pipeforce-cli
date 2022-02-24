@@ -72,7 +72,7 @@ jobs:
     - name: List downloaded artifacts
       run: ls
     - name: Package jar as dmg installer
-      run: "jpackage --name pipeforce-cli -i jars --main-class com.logabit.pipeforce.cli.Main --main-jar jars --type pkg"
+      run: "jpackage --name pipeforce-cli -i jars --main-class com.logabit.pipeforce.cli.Main --main-jar jars --type pkg --input ."
     - name: List downloaded artifacts
       run: ls
     - name: Upload dmg
