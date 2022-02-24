@@ -102,7 +102,7 @@ jobs:
     - name: Upload installer
       uses: actions/upload-artifact@v1
       with:
-        name: msis
+        name: pipeforce-cli.msi
         path: "pipeforce-cli-1.0.msi"
           
 
