@@ -40,12 +40,7 @@ jobs:
       - name: Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "./target/pipeforce-*.jar"
+          artifacts: "./target/pipeforce-*.jar,./target/*.deb"
           token: ${{ secrets.PIPEFORCE_SDK_JAVA }}
-      - name: Upload fat jar
-        uses: actions/upload-artifact@v1
-        with:
-          name: jars
-          path: "target/pipeforce-cli-2.26-jar-with-dependencies.jar,target/*deb"
           
 
