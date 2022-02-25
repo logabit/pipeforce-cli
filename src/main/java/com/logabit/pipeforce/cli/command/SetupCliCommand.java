@@ -2,7 +2,6 @@ package com.logabit.pipeforce.cli.command;
 
 import com.logabit.pipeforce.cli.CommandArgs;
 import com.logabit.pipeforce.common.util.DateTimeUtil;
-import com.logabit.pipeforce.common.util.FileUtil;
 import com.logabit.pipeforce.common.util.PathUtil;
 
 /**
