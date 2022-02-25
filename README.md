@@ -23,7 +23,7 @@ git tag v8.0.0-RELEASE
 git push origin --tags
 ```
 
-Note: After a stable version was released it is considered in all client-side installations as the latest version and
+Note: After a stable version was released, it is considered in all client-side installations as the latest version and
 roll-out will be started automatically! So be careful in setting this tag!
 
 ### Releasing a candidate
