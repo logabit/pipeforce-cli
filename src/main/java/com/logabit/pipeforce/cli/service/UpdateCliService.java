@@ -1,8 +1,11 @@
 package com.logabit.pipeforce.cli.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.logabit.pipeforce.cli.BaseCliContextAware;
 import com.logabit.pipeforce.cli.CliException;
-import com.logabit.pipeforce.common.util.ListUtil;
+import com.logabit.pipeforce.common.util.IOUtil;
+import com.logabit.pipeforce.common.util.JsonUtil;
 import com.logabit.pipeforce.common.util.PathUtil;
 import com.logabit.pipeforce.common.util.StringUtil;
 import org.apache.http.HttpEntity;
@@ -11,10 +14,6 @@ import org.apache.http.client.methods.HttpGet;
 
 import java.io.File;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Manages update checks, downloads and installations.
@@ -25,99 +24,41 @@ import java.util.stream.Collectors;
 public class UpdateCliService extends BaseCliContextAware {
 
     /**
-     * Downloads the files.txt from the configured server url.
-     *
-     * @return
+     * Returns the information of current and latest version.
      */
-    public List<String> downloadFilesList() {
+    public VersionInfo getVersionInfo() {
 
-        ConfigCliService config = getContext().getConfigService();
+        JsonNode gitHubInfo = downloadGitHubLatest();
 
-        String filesListUrl = PathUtil.path(config.getUpdateCheckUrl(), "pipeforce-cli", "files.txt");
+        String releaseName = gitHubInfo.get("name").textValue();
 
-        // Download the latest files.txt
-        HttpResponse response = null;
-        try {
-            HttpGet downloadRequest = new HttpGet(filesListUrl);
-            response = getContext().getHttpClient().execute(downloadRequest);
-        } catch (Exception e) {
-            throw new CliException("Download files list from [" + filesListUrl + "] failed: " + e.getMessage(), e);
-        }
+        String version = releaseName.substring(1);
+        version = version.split("-")[0];
+        String downloadUrl = "";
 
-        int statusCode = response.getStatusLine().getStatusCode();
-        if (statusCode != 200) {
-            throw new CliException("Download files list failed. Url not reachable [statusCode: " + statusCode + "]: " + filesListUrl);
-        }
+        ArrayNode assets = (ArrayNode) gitHubInfo.get("assets");
 
-        HttpEntity entity = response.getEntity();
-        if (entity != null) {
-            try {
-                String versions = StringUtil.fromInputStream(entity.getContent());
-                return StringUtil.splitToList(versions, "\n");
-            } catch (Exception e) {
-                throw new CliException("Could not read files list from " + filesListUrl + " : " + e.getMessage(), e);
+        for (JsonNode asset : assets) {
+
+            if (asset.get("browser_download_url").textValue().endsWith("pipeforce-cli.jar")) {
+                downloadUrl = asset.get("browser_download_url").textValue();
             }
         }
 
-        return Collections.EMPTY_LIST;
+        String currentReleaseName = getContext().getConfigService().getInstalledReleaseName();
+        VersionInfo latestInfo = new VersionInfo(currentReleaseName, releaseName, downloadUrl);
+        return latestInfo;
     }
 
     /**
-     * Checks if a never version for the given version is available.
+     * Downloads and updates the local version by the given latest version.
      *
-     * @param currentVersion
-     * @return The newer available version or null in case no newer version is available
+     * @param versionInfo
      */
-    public String isNewerVersionAvailable(String currentVersion) {
-
-        List<String> files = downloadFilesList();
-        List<ComparableVersion> versionsList = new ArrayList<>();
-
-        for (String filename : files) {
-            String v = filename.substring("pipeforce-cli-".length(), filename.length() - ".jar".length());
-
-            if (v.contains("-")) {
-                continue; // Ignore snapshot versions for auto-updates (e.g.: 1.0-MS1)
-            }
-
-            ComparableVersion version = new ComparableVersion(v);
-            versionsList.add(version);
-        }
-
-        List<ComparableVersion> sortedVersions = versionsList.stream().sorted().collect(Collectors.toList());
-        ComparableVersion thisVersion = new ComparableVersion(currentVersion);
-        ComparableVersion latestVersion = ListUtil.lastElement(sortedVersions);
-
-        if (latestVersion.compareTo(thisVersion) > 0) {
-            return latestVersion.toString(); // Latest version
-        }
-
-        return null; // No new version found
-    }
-
-    /**
-     * Constructs the download url for the given artifact version.
-     *
-     * @param version
-     * @return
-     */
-    public String getDownloadUrl(String version) {
-
-        ConfigCliService config = getContext().getConfigService();
-
-        // Example URL: https://download.pipeforce.io/pipeforce-cli/pipeforce-cli-8.0.jar
-        return PathUtil.path(config.getUpdateCheckUrl(), "pipeforce-cli", "pipeforce-cli-" + version + ".jar");
-    }
-
-    /**
-     * Downloads and installs the exact given version.
-     *
-     * @param version
-     */
-    public void downloadAndInstallVersion(String version) {
+    public void downloadAndUpdateVersion(VersionInfo versionInfo) {
 
         // Download the latest jar to the $USER_HOME/pipeforce/tools folder
-        String downloadUrl = getDownloadUrl(version);
+        String downloadUrl = versionInfo.getLatestDownloadUrl();
         HttpResponse response = null;
         try {
             HttpGet downloadRequest = new HttpGet(downloadUrl);
@@ -132,22 +73,174 @@ public class UpdateCliService extends BaseCliContextAware {
         }
 
         ConfigCliService config = getContext().getConfigService();
-
-        File updateJarFile = new File(PathUtil.path(config.getHome(), "tool",
-                "pipeforce-cli-" + version + ".jar"));
+        String jarLatestPath = PathUtil.path(config.getHome(), "tool", "pipeforce-cli-latest.jar");
+        File updateJarFile = new File(jarLatestPath);
 
         HttpEntity entity = response.getEntity();
         if (entity != null) {
             try (OutputStream os = getContext().getOutputService().createOutputStream(updateJarFile)) {
-                entity.writeTo(os);
+                IOUtil.copy(entity.getContent(), os);
             } catch (Exception e) {
                 throw new CliException("Could not save download from [" + downloadUrl + "] to file [" +
                         updateJarFile + "]: " + e.getMessage(), e);
             }
         }
 
-        config.setInstalledVersion(version);
-        config.saveConfiguration();
-        getContext().getInstallService().createPiScript(); // Let the pi script point to the latest version
+        String jarPath = PathUtil.path(config.getHome(), "tool", "pipeforce-cli.jar");
+        File jarFile = new File(jarPath);
+        getContext().getOutputService().moveFile(updateJarFile, jarFile);
+    }
+
+    protected JsonNode downloadGitHubLatest() {
+
+        // Download the latest files.txt
+        HttpResponse response = null;
+        try {
+            HttpGet downloadRequest = new HttpGet("https://api.github.com/repos/logabit/pipeforce-cli/releases/latest");
+            response = getContext().getHttpClient().execute(downloadRequest);
+        } catch (Exception e) {
+            throw new CliException("Could not download latest info from GitHub: " + e.getMessage(), e);
+        }
+
+        int statusCode = response.getStatusLine().getStatusCode();
+        if (statusCode != 200) {
+            throw new CliException("Could not download latest info from GitHub: Status code: " + statusCode);
+        }
+
+        HttpEntity entity = response.getEntity();
+        try {
+            String content = StringUtil.fromInputStream(entity.getContent());
+            return JsonUtil.jsonStringToJsonNode(content);
+        } catch (Exception e) {
+            throw new CliException("Could not read latest info from response : " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Represents current and latest version information.
+     *
+     * @author sniederm
+     * @since 8.0
+     */
+    public static class VersionInfo {
+
+        private Boolean newer;
+
+        private String latestReleaseName;
+        private String latestVersion;
+        private String latestDownloadUrl;
+
+        private String currentReleaseName;
+        private String currentVersion;
+
+        public VersionInfo(String currentReleaseName, String latestReleaseName, String latestDownloadUrl) {
+            this.currentReleaseName = currentReleaseName;
+            this.latestReleaseName = latestReleaseName;
+            this.latestDownloadUrl = latestDownloadUrl;
+        }
+
+        public String getLatestReleaseName() {
+            return latestReleaseName;
+        }
+
+        public String getLatestVersion() {
+
+            if (this.latestVersion != null) {
+                return this.latestVersion;
+            }
+
+            String releaseName = getLatestReleaseName();
+            this.latestVersion = toPlainVersion(releaseName);
+            return this.latestVersion;
+        }
+
+        public String getLatestDownloadUrl() {
+            return latestDownloadUrl;
+        }
+
+        public String getCurrentVersion() {
+
+            if (this.currentVersion != null) {
+                return this.currentVersion;
+            }
+
+            String releaseName = getCurrentReleaseName();
+            this.currentVersion = toPlainVersion(releaseName);
+            return this.currentVersion;
+        }
+
+        public String getCurrentReleaseName() {
+            return this.currentReleaseName;
+        }
+
+        /**
+         * Returns true in case this version is newer than the given one.
+         *
+         * @param givenVersion
+         * @return
+         */
+        public boolean isNewer(String givenVersion) {
+
+            String[] latestVersionSplit = getLatestVersion().split("\\.");
+            String[] givenVersionSplit = givenVersion.split("\\.");
+
+            int latestMajor = Integer.parseInt(latestVersionSplit[0]);
+            int givenMajor = Integer.parseInt(givenVersionSplit[0]);
+            if (latestMajor != givenMajor) {
+                return (latestMajor > givenMajor);
+            }
+
+            int latestMinor = Integer.parseInt(latestVersionSplit[1]);
+            int givenMinor = Integer.parseInt(givenVersionSplit[1]);
+            if (latestMinor != givenMinor) {
+                return (latestMinor > givenMinor);
+            }
+
+            int latestPatch = Integer.parseInt(latestVersionSplit[2]);
+            int givenPatch = Integer.parseInt(givenVersionSplit[2]);
+            if (latestPatch != givenPatch) {
+                return (latestPatch > givenPatch);
+            }
+
+            return false;
+        }
+
+        /**
+         * Returns true in case this version is newer than the installed / current one.
+         *
+         * @return
+         */
+        public boolean isNewerVersionAvailable() {
+
+            if (this.newer != null) {
+                return this.newer;
+            }
+
+            String version = toPlainVersion(this.currentReleaseName);
+            this.newer = this.isNewer(version);
+            return this.newer;
+        }
+
+        /**
+         * Converts from prefixed/suffixed release name to plain version: v1.2.3-RELEASE -> 1.2.3
+         *
+         * @param releaseName
+         * @return
+         */
+        private String toPlainVersion(String releaseName) {
+
+
+            // Strip off v
+            if (!StringUtil.isNumeric(releaseName.charAt(0) + "")) {
+                releaseName = releaseName.substring(1);
+            }
+
+            // Strip off -RELEASE or similar
+            if (releaseName.contains("-")) {
+                releaseName = releaseName.split("-")[0];
+            }
+
+            return releaseName;
+        }
     }
 }

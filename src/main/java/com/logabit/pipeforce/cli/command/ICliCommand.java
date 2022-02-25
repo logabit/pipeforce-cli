@@ -33,4 +33,12 @@ public interface ICliCommand extends CliContextAware {
      * Return null here in order to show no message.
      */
     String getUsageHelp();
+
+    /**
+     * The result after the command has been executed.
+     * Returns null in case the command was not executed yet or doesnt support a result object.
+     *
+     * @return
+     */
+    CommandResult getResult();
 }

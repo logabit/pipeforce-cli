@@ -2,6 +2,7 @@ package com.logabit.pipeforce.cli.service;
 
 import com.logabit.pipeforce.cli.CliContext;
 import com.logabit.pipeforce.cli.CliContextAware;
+import com.logabit.pipeforce.cli.CliException;
 import com.logabit.pipeforce.common.util.FileUtil;
 import com.logabit.pipeforce.common.util.JsonUtil;
 import com.logabit.pipeforce.common.util.ListUtil;
@@ -10,7 +11,10 @@ import com.logabit.pipeforce.common.util.StringUtil;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -152,6 +156,15 @@ public class OutputCliService implements CliContextAware {
     @Override
     public void setContext(CliContext context) {
         this.context = context;
+    }
+
+    public void moveFile(File updateJarFile, File jarFile) {
+
+        try {
+            Files.move(updateJarFile.toPath(), jarFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            throw new CliException("Could not move file: " + e.getMessage(), e);
+        }
     }
 
     /**

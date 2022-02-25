@@ -53,15 +53,14 @@ public class SetupCliCommand extends BaseCliCommand {
 
         if (installed) {
             out.println();
-            out.println("PIPEFORCE CLI successfully installed to: " + pipeforceHome);
+            out.println("PIPEFORCE CLI " + config.getInstalledReleaseName() + " successfully installed to: " + pipeforceHome);
             out.println();
             out.println("Tip 1: Install VS Code: https://code.visualstudio.com/download");
             out.println("Tip 2: Install YAML plugin: https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml");
             out.println("Tip 3: Open your workspace: " + PathUtil.path(userHome, "pipeforce", "PIPEFORCE.code-workspace"));
-            out.println("Tip 4: PIPEFORCE docs: https://devdocs.pipeforce.io");
+            out.println("Tip 4: PIPEFORCE docs: http://docs.pipeforce.io");
             out.println();
         }
-
 
         String vsCodeWorkspace = "" +
                 "{\n" +

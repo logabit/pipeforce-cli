@@ -25,6 +25,7 @@ public abstract class BaseCliCommand implements ICliCommand {
 
     protected ConfigCliService config;
 
+    protected CommandResult result;
 
     public void setContext(CliContext context) {
         this.context = context;
@@ -119,5 +120,28 @@ public abstract class BaseCliCommand implements ICliCommand {
         File homeFolder = new File(config.getHome());
         path = PathUtil.path(homeFolder.toURI().toString(), src, path);
         return path;
+    }
+
+    public void setResult(CommandResult result) {
+
+        if (this.result != null) {
+            throw new CliException("Result already set!");
+        }
+
+        this.result = result;
+    }
+
+    public void createResult(int resultCode, String resultMessage, Object resultValue) {
+
+        if (this.result != null) {
+            throw new CliException("Result already set!");
+        }
+
+        this.result = new CommandResult(resultCode, resultMessage, resultValue);
+    }
+
+    @Override
+    public CommandResult getResult() {
+        return result;
     }
 }

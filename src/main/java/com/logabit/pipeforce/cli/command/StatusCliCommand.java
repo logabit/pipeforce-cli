@@ -33,7 +33,7 @@ public class StatusCliCommand extends BaseCliCommand {
         cliStatus.put("apiTokenCreated", config.getApiTokenCreated());
         cliStatus.put("configLastUpdated", config.getConfigUpdated());
         cliStatus.put("home", config.getHome());
-        cliStatus.put("version", config.getInstalledVersion());
+        cliStatus.put("version", config.getInstalledReleaseName());
         cliStatus.put("lastUpdateCheck", DateTimeUtil.timestampToIso8061(config.getUpdateCheckLast()));
 
         status.put("cli", cliStatus);

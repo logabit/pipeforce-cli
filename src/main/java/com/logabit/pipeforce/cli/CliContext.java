@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.logabit.pipeforce.cli.command.ICliCommand;
 import com.logabit.pipeforce.cli.service.AppResourceCliService;
 import com.logabit.pipeforce.cli.service.ConfigCliService;
+import com.logabit.pipeforce.cli.service.InitCliService;
 import com.logabit.pipeforce.cli.service.InstallCliService;
 import com.logabit.pipeforce.cli.service.OutputCliService;
 import com.logabit.pipeforce.cli.service.PublishCliService;
@@ -60,6 +61,7 @@ public class CliContext {
     private Integer serverVersionMajor;
     private InputUtil inputUtil;
     private InputStream answerInputStream;
+    private InitCliService initService;
 
     public CliContext(String... args) {
         setArgs(args);
@@ -281,6 +283,16 @@ public class CliContext {
         }
 
         return installService;
+    }
+
+    public InitCliService getInitService() {
+
+        if (this.initService == null) {
+            this.initService = new InitCliService();
+            initComponent(initService);
+        }
+
+        return initService;
     }
 
     public AppResourceCliService getAppResourceService() {

@@ -200,14 +200,6 @@ public class CliConfig {
         this.configUpdated = configUpdated;
     }
 
-    public String getUpdateCheckUrl() {
-        return updateCheckUrl;
-    }
-
-    public void setUpdateCheckUrl(String updateCheckUrl) {
-        this.updateCheckUrl = updateCheckUrl;
-    }
-
     public long getUpdateCheckLast() {
         return updateCheckLast;
     }
@@ -224,9 +216,16 @@ public class CliConfig {
         this.updateCheck = updateCheck;
     }
 
-    public String getInstalledVersion() {
+    @JsonIgnore
+    public String getInstalledReleaseName() {
 
         if (!StringUtil.isEmpty(installedVersion)) {
+            return installedVersion;
+        }
+
+        // Mainly for testing purposes to be able to switch versions:
+        if (System.getProperty("CURRENT_RELEASE_NAME") != null) {
+            installedVersion = System.getProperty("CURRENT_RELEASE_NAME");
             return installedVersion;
         }
 
@@ -252,7 +251,7 @@ public class CliConfig {
     public int[] getInstalledVersionArray() {
 
         int[] versionArray = new int[]{0, 0, 0};
-        String installedVersion = getInstalledVersion();
+        String installedVersion = getInstalledReleaseName();
         if (installedVersion.equals("${project.version}")) {
             return new int[]{0, 0}; // We are running in DEV mode
         }

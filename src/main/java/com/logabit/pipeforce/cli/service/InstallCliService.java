@@ -27,8 +27,7 @@ public class InstallCliService extends BaseCliContextAware {
 
         ConfigCliService config = getContext().getConfigService();
 
-        String jarTargetPath = PathUtil.path(getContext().getUserHome(), "pipeforce", "tool", "pipeforce-cli-" +
-                config.getInstalledVersion() + ".jar");
+        String jarTargetPath = PathUtil.path(getContext().getUserHome(), "pipeforce", "tool", "pipeforce-cli.jar");
 
         String scriptContent;
 
@@ -94,22 +93,11 @@ public class InstallCliService extends BaseCliContextAware {
      */
     public boolean install() {
 
-        ConfigCliService config = getContext().getConfigService();
-
-        String jarName = "pipeforce-cli-" + config.getInstalledVersion() + ".jar";
+        String jarName = "pipeforce-cli.jar";
         String userHome = System.getProperty("user.home");
         String jarTargetPath = PathUtil.path(userHome, "pipeforce", "tool", jarName);
-        String pipeforceHome = PathUtil.path(userHome, "pipeforce");
 
         if (FileUtil.isFileExists(jarTargetPath)) {
-            return false;
-        }
-
-        // TODO Check for updates
-
-        System.out.println("Install PIPEFORCE CLI to " + pipeforceHome + "?");
-        Integer selection = getContext().getInputUtil().choose(ListUtil.asList("no", "yes"), "yes");
-        if (selection == 0) {
             return false;
         }
 
