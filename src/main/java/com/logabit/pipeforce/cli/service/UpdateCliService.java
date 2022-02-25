@@ -57,7 +57,7 @@ public class UpdateCliService extends BaseCliContextAware {
      */
     public void downloadAndUpdateVersion(VersionInfo versionInfo) {
 
-        // Download the latest jar to the $USER_HOME/pipeforce/tools folder
+        // Download the latest jar to the $USER_HOME/pipeforce/bin folder
         String downloadUrl = versionInfo.getLatestDownloadUrl();
         HttpResponse response = null;
         try {
@@ -73,7 +73,7 @@ public class UpdateCliService extends BaseCliContextAware {
         }
 
         ConfigCliService config = getContext().getConfigService();
-        String jarLatestPath = PathUtil.path(config.getHome(), "tool", "pipeforce-cli-latest.jar");
+        String jarLatestPath = PathUtil.path(config.getHome(), "bin", "pipeforce-cli-latest.jar");
         File updateJarFile = new File(jarLatestPath);
 
         HttpEntity entity = response.getEntity();
@@ -86,7 +86,7 @@ public class UpdateCliService extends BaseCliContextAware {
             }
         }
 
-        String jarPath = PathUtil.path(config.getHome(), "tool", "pipeforce-cli.jar");
+        String jarPath = PathUtil.path(config.getHome(), "bin", "pipeforce-cli.jar");
         File jarFile = new File(jarPath);
         getContext().getOutputService().moveFile(updateJarFile, jarFile);
     }

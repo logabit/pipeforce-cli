@@ -1,6 +1,7 @@
 package com.logabit.pipeforce.cli.service;
 
 import com.logabit.pipeforce.cli.BaseCliContextAware;
+import com.logabit.pipeforce.cli.CliException;
 import com.logabit.pipeforce.common.util.FileUtil;
 import com.logabit.pipeforce.common.util.ListUtil;
 import com.logabit.pipeforce.common.util.PathUtil;
@@ -11,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
@@ -27,7 +29,7 @@ public class InstallCliService extends BaseCliContextAware {
 
         ConfigCliService config = getContext().getConfigService();
 
-        String jarTargetPath = PathUtil.path(getContext().getUserHome(), "pipeforce", "tool", "pipeforce-cli.jar");
+        String jarTargetPath = PathUtil.path(getContext().getUserHome(), "pipeforce", "bin", "pipeforce-cli.jar");
 
         String scriptContent;
 
@@ -56,6 +58,11 @@ public class InstallCliService extends BaseCliContextAware {
         }
 
         String piPath = PathUtil.path(getContext().getUserHome(), "pipeforce", "pi");
+        File piScriptFile = new File(piPath);
+        if (piScriptFile.exists()) {
+            piScriptFile.delete(); // Delete old file before creating a new one to avoid appending to file
+        }
+
         FileUtil.saveStringToFile(scriptContent, piPath);
         String command = "chmod u+x " + piPath;
         try {
@@ -95,24 +102,32 @@ public class InstallCliService extends BaseCliContextAware {
 
         String jarName = "pipeforce-cli.jar";
         String userHome = System.getProperty("user.home");
-        String jarTargetPath = PathUtil.path(userHome, "pipeforce", "tool", jarName);
+        String jarTargetPath = PathUtil.path(userHome, "pipeforce", "bin", jarName);
 
         if (FileUtil.isFileExists(jarTargetPath)) {
             return false;
         }
 
-        FileUtil.createFolders(PathUtil.path(userHome, "pipeforce", "tool"));
-        FileUtil.createFolders(PathUtil.path(userHome, "pipeforce", "src"));
+        FileUtil.createFolders(PathUtil.path(userHome, "pipeforce", "bin"));
         FileUtil.createFolders(PathUtil.path(userHome, "pipeforce", "conf"));
         FileUtil.createFolders(PathUtil.path(userHome, "pipeforce", "log"));
 
         // Copy jar but only if not launched by OS native launcher
         if (!getContext().isJpackageLaunched()) {
             String jarSourcePath = PathUtil.path(System.getProperty("user.dir"), jarName);
+
+            File jarSourceFile = new File(jarSourcePath);
+
+            if (!jarSourceFile.exists()) {
+                throw new CliException("Could not find jar file in current working dir " +
+                        jarSourceFile.getAbsolutePath() + ". Hint: Make sure you execute " +
+                        "the setup command inside the same folder, the pipeforce-cli.jar exists!");
+            }
+
             File targetJar = new File(jarTargetPath);
             targetJar.getParentFile().mkdirs();
             try {
-                FileUtils.copyFile(new File(jarSourcePath), targetJar);
+                FileUtils.copyFile(jarSourceFile, targetJar);
             } catch (IOException e) {
                 throw new RuntimeException("Could not copy jar: " + jarSourcePath + " to " + targetJar + ": " + e.getMessage(), e);
             }

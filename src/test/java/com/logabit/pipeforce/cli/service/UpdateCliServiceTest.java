@@ -120,8 +120,8 @@ public class UpdateCliServiceTest {
         ArgumentCaptor<File> newJar = ArgumentCaptor.forClass(File.class);
         verify(outputService, times(1)).moveFile(currentJar.capture(), newJar.capture());
 
-        Assert.assertEquals("/some/home/path/tool/pipeforce-cli-latest.jar", currentJar.getValue().getAbsolutePath());
-        Assert.assertEquals("/some/home/path/tool/pipeforce-cli.jar", newJar.getValue().getAbsolutePath());
+        Assert.assertEquals("/some/home/path/bin/pipeforce-cli-latest.jar", currentJar.getValue().getAbsolutePath());
+        Assert.assertEquals("/some/home/path/bin/pipeforce-cli.jar", newJar.getValue().getAbsolutePath());
 
     }
 }
