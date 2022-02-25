@@ -4,6 +4,8 @@ PIPEFORCE CLI to manage the PIPEFORCE Cloud remotely.
 
 ![build status](https://github.com/logabit/pipeforce-cli/actions/workflows/release.yml/badge.svg)
 
+For more information, visit the official developer documentation: https://docs.pipeforce.io/
+
 ## Prerequisites
 
 Install Java 8 or higher.
