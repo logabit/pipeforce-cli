@@ -113,9 +113,11 @@ public class InstallCliService extends BaseCliContextAware {
 
         // Copy jar but only if not launched by OS native launcher
         if (!getContext().isJpackageLaunched()) {
-            String jarSourcePath = PathUtil.path(System.getProperty("user.dir"), jarName);
 
-            File jarSourceFile = new File(jarSourcePath);
+            File jarSourceFile = new File(InstallCliService.class.getProtectionDomain()
+                    .getCodeSource()
+                    .getLocation()
+                    .getPath());
 
             if (!jarSourceFile.exists()) {
                 throw new CliException("Could not find jar file in current working dir " +
@@ -128,7 +130,8 @@ public class InstallCliService extends BaseCliContextAware {
             try {
                 FileUtils.copyFile(jarSourceFile, targetJar);
             } catch (IOException e) {
-                throw new RuntimeException("Could not copy jar: " + jarSourcePath + " to " + targetJar + ": " + e.getMessage(), e);
+                throw new RuntimeException("Could not copy jar: " + jarSourceFile.getAbsolutePath() +
+                        " to " + targetJar + ": " + e.getMessage(), e);
             }
         }
         this.createPiScript();
