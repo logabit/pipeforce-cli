@@ -1,6 +1,7 @@
 # pipeforce-cli
 
 PIPEFORCE CLI to manage the PIPEFORCE Cloud remotely.
+![example workflow](https://github.com/logabit/pipeforce-cli/actions/workflows/release.yml/badge.svg)
 
 ## Prerequisites
 
