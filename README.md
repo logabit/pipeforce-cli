@@ -25,6 +25,18 @@ Or [download](https://www.oracle.com/java/technologies/downloads/) and install J
 java -jar pipeforce-cli.jar setup
 ```
 
+3. Add the `$USER_HOME/pipeforce/pi` script to your path variables of your operating system.
+
+## Init a folder as app repo
+
+In order to create VSCode workbench settings file and the default structure to an PIPEFORCE app folder, execute this
+command inside the folder:
+
+```
+> cd /my/app-repo
+> pi init
+```
+
 ## Releasing
 
 ### Releasing a stable version

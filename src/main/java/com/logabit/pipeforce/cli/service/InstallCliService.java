@@ -27,7 +27,6 @@ public class InstallCliService extends BaseCliContextAware {
     public void createPiScript() {
 
         ConfigCliService config = getContext().getConfigService();
-
         String jarTargetPath = PathUtil.path(getContext().getUserHome(), "pipeforce", "bin", "pipeforce-cli.jar");
 
         String scriptContent;
