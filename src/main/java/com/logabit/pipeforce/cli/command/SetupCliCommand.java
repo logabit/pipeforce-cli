@@ -62,31 +62,6 @@ public class SetupCliCommand extends BaseCliCommand {
             out.println();
         }
 
-        String vsCodeWorkspace = "" +
-                "{\n" +
-                "        \"folders\": [\n" +
-                "           {\n" +
-                "               \"path\":\".\"\n" +
-                "           }\n" +
-                "        ],\n" +
-                "\n" +
-                "        \"settings\": {\n" +
-                "\n" +
-                "            \"yaml.schemas\": {\n" +
-                "               \"" + config.getHubApiUrl("command") + "/schema.pipeline\": [\"/*.pi.yaml\"]\n" +
-                "            },\n" +
-                "\n" +
-                "           \"files.exclude\": {\n" +
-                "               \"**/PIPEFORCE.code-workspace\": true\n" +
-                "           },\n" +
-                "\n" +
-                "           \"files.encoding\": \"utf8\"\n" +
-                "        }\n" +
-                "}\n";
-
-        String vsCodeConfig = PathUtil.path(pipeforceHome, "PIPEFORCE.code-workspace");
-        FileUtil.saveStringToFile(vsCodeWorkspace, FileUtil.getOrCreateFile(vsCodeConfig));
-
         return 0;
     }
 
