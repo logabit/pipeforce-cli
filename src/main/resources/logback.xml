@@ -16,7 +16,7 @@
     <!--    </appender>-->
 
     <appender name="File" class="ch.qos.logback.core.FileAppender">
-        <file>${user.home}/pipeforce/log/cli.log</file>
+        <file>${user.home}/pipeforce/pipeforce-cli/log/cli.log</file>
         <encoder>
             <pattern>%d{MM.dd.YY HH:mm:ss} %-5level - %msg%n</pattern>
         </encoder>

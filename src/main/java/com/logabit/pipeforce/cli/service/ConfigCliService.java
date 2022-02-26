@@ -74,7 +74,7 @@ public class ConfigCliService extends CliConfig {
 
     @JsonIgnore
     public String getConfigFilePath() {
-        return PathUtil.path(System.getProperty("user.home"), "PIPEFORCE/conf/cli.config.json");
+        return PathUtil.path(System.getProperty("user.home"), "pipeforce/pipeforce-cli/conf/cli.config.json");
     }
 
     @JsonIgnore

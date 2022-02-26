@@ -151,6 +151,6 @@ public class InstallCliService extends BaseCliContextAware {
     public String getDefaultInstallationPath() {
 
         String userHomePath = System.getProperty("user.home");
-        return Paths.get(userHomePath, "pipeforce", CLI_JAR_FILENAME, "bin").toFile().getAbsolutePath();
+        return Paths.get(userHomePath, "pipeforce", "pipeforce-cli", "bin").toFile().getAbsolutePath();
     }
 }
