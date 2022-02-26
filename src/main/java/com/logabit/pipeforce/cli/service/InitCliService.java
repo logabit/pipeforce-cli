@@ -11,7 +11,7 @@ public class InitCliService extends BaseCliContextAware {
 
     public void init(String path) {
 
-        FileUtil.createFolders(PathUtil.path(path, "pipeforce", "src"));
+        FileUtil.createFolders(PathUtil.path(path, "pipeforce", "src", "global", "app"));
         createVSCodeWorkspaceFile(path);
     }
 
