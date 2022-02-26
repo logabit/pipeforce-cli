@@ -3,33 +3,106 @@ package com.logabit.pipeforce.cli.service;
 import com.logabit.pipeforce.cli.BaseCliContextAware;
 import com.logabit.pipeforce.cli.CliException;
 import com.logabit.pipeforce.common.util.FileUtil;
-import com.logabit.pipeforce.common.util.ListUtil;
 import com.logabit.pipeforce.common.util.PathUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SystemUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 
 /**
  * Service for all install / uninstall steps of the CLI tool.
  */
 public class InstallCliService extends BaseCliContextAware {
 
+    public static final String CLI_JAR_FILENAME = "pipeforce-cli.jar";
+
     /**
-     * Creates a new pi script in the PIPEFORCE home folder.
+     * Installs the PIPEFORCE CLI into $USER_HOME/pipeforce/... if not already exists.
+     * Does nothing in case it already exists.
+     *
+     * @return true in case the installation was done. false in case no installation was required since already done.
+     */
+    public boolean install() {
+
+        boolean installed;
+
+        String path = getDefaultInstallationPath();
+
+        this.createUserFolders();
+
+        installed = this.copyJar(path);
+
+        this.createPiScript(path);
+
+        return installed;
+    }
+
+    /**
+     * Creates the required folders for pipeforce-cli inside the users home folder if they do not exist yet.
+     * If these folders already exist, nothing happens.
+     */
+    private void createUserFolders() {
+
+        String userHome = System.getProperty("user.home");
+        FileUtil.createFolders(PathUtil.path(userHome, "pipeforce", "pipeforce-cli", "bin"));
+        FileUtil.createFolders(PathUtil.path(userHome, "pipeforce", "pipeforce-cli", "conf"));
+        FileUtil.createFolders(PathUtil.path(userHome, "pipeforce", "pipeforce-cli", "log"));
+    }
+
+    /**
+     * Copies the downloaded jar file (given on the command line) to the final installation path.
+     *
+     * @param installationPath
+     * @return
+     */
+    private boolean copyJar(String installationPath) {
+
+        String jarTargetPath = PathUtil.path(installationPath, CLI_JAR_FILENAME);
+
+        if (FileUtil.isFileExists(jarTargetPath)) {
+            return false;
+        }
+
+        // Do not execute installation if lanched via MacOS launcher
+        if (getContext().isJpackageLaunched()) {
+            return false;
+        }
+
+        // Get location of pipeforce-cli.jar when called via: java -jar pipeforce-cli.jar setup
+        File jarSourceFile = new File(InstallCliService.class.getProtectionDomain()
+                .getCodeSource()
+                .getLocation()
+                .getPath());
+
+        if (!jarSourceFile.exists()) {
+            throw new CliException("Could not find jar file in current working dir " +
+                    jarSourceFile.getAbsolutePath() + ". Hint: Make sure you execute " +
+                    "the setup command inside the same folder, the " + CLI_JAR_FILENAME + " exists!");
+        }
+
+        File targetJar = new File(jarTargetPath);
+        try {
+            targetJar.getParentFile().mkdirs();
+            FileUtils.copyFile(jarSourceFile, targetJar);
+        } catch (IOException e) {
+            throw new RuntimeException("Could not copy jar: " + jarSourceFile.getAbsolutePath() +
+                    " to " + targetJar + ": " + e.getMessage(), e);
+        }
+
+        return true;
+    }
+
+    /**
+     * Creates a new pi script in the PIPEFORCE installation folder.
      * Overwrites any existing one.
      */
-    public void createPiScript() {
-
-        ConfigCliService config = getContext().getConfigService();
-        String jarTargetPath = PathUtil.path(getContext().getUserHome(), "pipeforce", "bin", "pipeforce-cli.jar");
+    public void createPiScript(String path) {
 
         String scriptContent;
+        String jarTargetPath = PathUtil.path(path, CLI_JAR_FILENAME);
+        File scriptFile = new File(PathUtil.path(path, "pi"));
 
         // Create a pi script depending on the operating system
         if (SystemUtils.OS_NAME.toLowerCase().contains("win")) {
@@ -38,7 +111,8 @@ public class InstallCliService extends BaseCliContextAware {
                     "@echo OFF\n" +
                     "java -XX:TieredStopAtLevel=1 -jar " + jarTargetPath + " %*";
 
-            FileUtil.saveStringToFile(scriptContent, PathUtil.path(getContext().getUserHome(), "pipeforce", "pi.bat"));
+            // Windows needs the .bat suffix -> Change path
+            scriptFile = new File(PathUtil.path(path, "pi.bat"));
 
         } else if (getContext().isJpackageLaunched() && getContext().isOsMac()) {
 
@@ -55,14 +129,13 @@ public class InstallCliService extends BaseCliContextAware {
                     "java -XX:TieredStopAtLevel=1 -jar " + jarTargetPath + " $@";
         }
 
-        String piPath = PathUtil.path(getContext().getUserHome(), "pipeforce", "pi");
-        File piScriptFile = new File(piPath);
-        if (piScriptFile.exists()) {
-            piScriptFile.delete(); // Delete old file before creating a new one to avoid appending to file
+        if (scriptFile.exists()) {
+            scriptFile.delete(); // Delete old file before creating a new one to avoid appending to file
         }
 
-        FileUtil.saveStringToFile(scriptContent, piPath);
-        String command = "chmod u+x " + piPath;
+        FileUtil.saveStringToFile(scriptContent, scriptFile.getAbsolutePath());
+
+        String command = "chmod u+x " + scriptFile.getAbsolutePath();
         try {
             Runtime.getRuntime().exec(command);
         } catch (IOException e) {
@@ -70,70 +143,14 @@ public class InstallCliService extends BaseCliContextAware {
         }
     }
 
-    public void addToPath(String path) {
-
-        if (!getContext().isOsMac()) {
-            return; // Currently only supported for Mac
-        }
-
-        System.out.println("Add pi command to your /etc/paths?");
-        Integer selection = getContext().getInputUtil().choose(ListUtil.asList("no", "yes"), "yes");
-        if (selection == 0) {
-            return;
-        }
-
-        try {
-            Files.write(Paths.get("/etc/paths"), path.getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
-        } catch (IOException e) {
-            throw new RuntimeException("Could not add pi to your /etc/paths. " +
-                    "Make sure to run this command with admin privileges!", e);
-        }
-    }
-
     /**
-     * Installs the PIPEFORCE CLI into $USER_HOME/PIPEFORCE if not already exists.
-     * Does nothing in case it already exists.
+     * Returns the default installation path depending on the given OS.
      *
-     * @return true in case the installation was done. false in case no installation was required since already done.
+     * @return
      */
-    public boolean install() {
+    public String getDefaultInstallationPath() {
 
-        String jarName = "pipeforce-cli.jar";
-        String userHome = System.getProperty("user.home");
-        String jarTargetPath = PathUtil.path(userHome, "pipeforce", "bin", jarName);
-
-        if (FileUtil.isFileExists(jarTargetPath)) {
-            return false;
-        }
-
-        FileUtil.createFolders(PathUtil.path(userHome, "pipeforce", "bin"));
-        FileUtil.createFolders(PathUtil.path(userHome, "pipeforce", "conf"));
-        FileUtil.createFolders(PathUtil.path(userHome, "pipeforce", "log"));
-
-        // Copy jar but only if not launched by OS native launcher
-        if (!getContext().isJpackageLaunched()) {
-
-            File jarSourceFile = new File(InstallCliService.class.getProtectionDomain()
-                    .getCodeSource()
-                    .getLocation()
-                    .getPath());
-
-            if (!jarSourceFile.exists()) {
-                throw new CliException("Could not find jar file in current working dir " +
-                        jarSourceFile.getAbsolutePath() + ". Hint: Make sure you execute " +
-                        "the setup command inside the same folder, the pipeforce-cli.jar exists!");
-            }
-
-            File targetJar = new File(jarTargetPath);
-            targetJar.getParentFile().mkdirs();
-            try {
-                FileUtils.copyFile(jarSourceFile, targetJar);
-            } catch (IOException e) {
-                throw new RuntimeException("Could not copy jar: " + jarSourceFile.getAbsolutePath() +
-                        " to " + targetJar + ": " + e.getMessage(), e);
-            }
-        }
-        this.createPiScript();
-        return true;
+        String userHomePath = System.getProperty("user.home");
+        return Paths.get(userHomePath, "pipeforce", CLI_JAR_FILENAME, "bin").toFile().getAbsolutePath();
     }
 }

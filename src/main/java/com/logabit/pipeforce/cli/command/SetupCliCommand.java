@@ -56,8 +56,7 @@ public class SetupCliCommand extends BaseCliCommand {
             out.println();
             out.println("Tip 1: Install VS Code: https://code.visualstudio.com/download");
             out.println("Tip 2: Install YAML plugin: https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml");
-            out.println("Tip 3: Open your workspace: " + PathUtil.path(userHome, "pipeforce", "PIPEFORCE.code-workspace"));
-            out.println("Tip 4: PIPEFORCE docs: http://docs.pipeforce.io");
+            out.println("Tip 3: Study PIPEFORCE tutorials: https://docs.pipeforce.io");
             out.println();
         }
 
