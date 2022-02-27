@@ -54,8 +54,10 @@ manually such an update:
 ```
 > pi update
 ```
+**Note:** Only releases will be auto-updated. Release candidates need to be downloaded and installed manually.
 
-:warning: **Note**: If you're using a version <= 2.26 of the CLI (you can check that using `pi status`), then you need to delete/backup the folder $USER_HOME/pipeforce first and then follow the installation instruction above. Auto-update is no longer working for these older versions. The reason is because the auto-update, server and folder structure has changed fundamentally since then.
+
+:warning: **Warning**: If you're using a version <= 2.26 of the CLI (you can check that using `pi status`), then you need to delete/backup the folder $USER_HOME/pipeforce first and then follow the installation instruction above. Auto-update is no longer working for these older versions. The reason is because the auto-update, server and folder structure has changed fundamentally since then.
 
 ## Help
 
