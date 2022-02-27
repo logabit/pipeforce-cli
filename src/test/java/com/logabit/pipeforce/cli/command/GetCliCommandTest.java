@@ -3,6 +3,7 @@ package com.logabit.pipeforce.cli.command;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.logabit.pipeforce.cli.CliContext;
 import com.logabit.pipeforce.cli.CommandArgs;
+import com.logabit.pipeforce.cli.config.CliConfig;
 import com.logabit.pipeforce.cli.service.ConfigCliService;
 import com.logabit.pipeforce.cli.service.InstallCliService;
 import com.logabit.pipeforce.cli.service.OutputCliService;
@@ -72,7 +73,9 @@ public class GetCliCommandTest {
     @Test
     public void testGet() throws Exception {
 
-        when(configService.getNamespace()).thenReturn("enterprise");
+        CliConfig.Instance instance = new CliConfig.Instance();
+        instance.setNamespace("enterprise");
+        cliContext.setCurrentInstance(instance);
 
         systemInMock.provideLines("1"); // Do you want to delete? 1=yes
 

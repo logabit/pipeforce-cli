@@ -27,7 +27,7 @@ public class ListCliCommand extends BaseCliCommand {
 
         // pi list PATH
         CliPathArg pathArg = getContext().createPathArg(args.getOptionKeyAt(0));
-        String keyPrefix = PathUtil.path("/pipeforce", config.getNamespace());
+        String keyPrefix = PathUtil.path("/pipeforce", getContext().getCurrentInstance().getNamespace());
 
         out.showProgress("");
         try {

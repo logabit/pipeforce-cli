@@ -2,6 +2,8 @@ package com.logabit.pipeforce.cli.command;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.logabit.pipeforce.cli.CommandArgs;
+import com.logabit.pipeforce.cli.config.CliConfig;
+import com.logabit.pipeforce.cli.service.ConfigCliService;
 import com.logabit.pipeforce.common.util.DateTimeUtil;
 import com.logabit.pipeforce.common.util.JsonUtil;
 
@@ -26,11 +28,14 @@ public class StatusCliCommand extends BaseCliCommand {
 
         Map status = new LinkedHashMap();
 
+        CliConfig.Instance instance = getContext().getCurrentInstance();
+        ConfigCliService config = getContext().getConfigService();
+
         Map cliStatus = new LinkedHashMap();
         cliStatus.put("status", "OK");
-        cliStatus.put("url", config.getHubApiUrl(""));
-        cliStatus.put("username", config.getUsername());
-        cliStatus.put("apiTokenCreated", config.getApiTokenCreated());
+        cliStatus.put("url", instance.getHubApiUrl(""));
+        cliStatus.put("username", instance.getUsername());
+        cliStatus.put("apiTokenCreated", instance.getApiTokenCreated());
         cliStatus.put("configLastUpdated", config.getConfigUpdated());
         cliStatus.put("home", config.getHome());
         cliStatus.put("version", config.getInstalledReleaseName());

@@ -1,14 +1,12 @@
 package com.logabit.pipeforce.cli.command;
 
 import com.logabit.pipeforce.cli.CommandArgs;
-import com.logabit.pipeforce.cli.service.ConfigCliService;
 import com.logabit.pipeforce.common.util.FileUtil;
-import com.logabit.pipeforce.common.util.InputUtil;
 import com.logabit.pipeforce.common.util.ListUtil;
-import com.logabit.pipeforce.common.util.PathUtil;
 import com.logabit.pipeforce.common.util.StringUtil;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -78,20 +76,23 @@ public class NewCliCommand extends BaseCliCommand {
     private void createWorkflow(String appName) {
 
         String workflowName;
+        File bpmnFile;
+
         while (true) {
             workflowName = in.ask("Workflow name");
 
-            String path = PathUtil.path(config.getHome(), "src", "global",
-                    "app", appName, "workflow", workflowName + ".bpmn");
-
-            if (FileUtil.isFileExists(path)) {
-                out.println("Workflow with name [" + workflowName + "] already exists: " + path);
+            if (!workflowName.matches("([a-z0-9]+)")) {
+                out.println("Workflow name must be lower case and may not contain any special chars or spaces: " +
+                        workflowName);
                 out.println("Select a different name.");
                 continue;
             }
 
-            if (!workflowName.matches("([a-z0-9]+)")) {
-                out.println("Workflow name must be lower case and may not contain any special chars or spaces: " + workflowName);
+            bpmnFile = new File(getContext().getSrcFolder(), "global/app/" + appName + "/workflow/" +
+                    workflowName + ".bpmn");
+
+            if (bpmnFile.exists()) {
+                out.println("Workflow with name [" + workflowName + "] already exists: " + bpmnFile.getAbsolutePath());
                 out.println("Select a different name.");
                 continue;
             }
@@ -117,28 +118,29 @@ public class NewCliCommand extends BaseCliCommand {
                 "  </bpmndi:BPMNDiagram>\n" +
                 "</bpmn:definitions>";
 
-        String workflowPath = PathUtil.path(config.getAppHome(appName), "workflow", workflowName + ".bpmn");
-        FileUtil.saveStringToFile(workflowContent, workflowPath);
+        FileUtil.saveStringToFile(workflowContent, bpmnFile.getAbsolutePath());
 
-        out.println("Workflow created: " + workflowPath);
+        out.println("Workflow created: " + bpmnFile.getAbsolutePath());
     }
 
     private void createPipeline(String appName) {
 
         String pipelineName;
+        File pipelineFile;
+
         while (true) {
             pipelineName = in.ask("Pipeline name");
 
-            String path = PathUtil.path(config.getHome(), "src", "global",
-                    "app", appName, "pipeline", pipelineName + ".pi.yaml");
-            if (FileUtil.isFileExists(path)) {
-                out.println("Pipeline with name [" + pipelineName + "] already exists: " + path);
+            if (!pipelineName.matches("([a-z0-9]+)")) {
+                out.println("Pipeline name must be lower case and may not contain any special chars or spaces: " + pipelineName);
                 out.println("Select a different name.");
                 continue;
             }
 
-            if (!pipelineName.matches("([a-z0-9]+)")) {
-                out.println("Pipeline name must be lower case and may not contain any special chars or spaces: " + pipelineName);
+            pipelineFile = new File(getContext().getSrcFolder(), "global/app/" + appName + "/pipeline/" + pipelineName + ".pi.yaml");
+
+            if (pipelineFile.exists()) {
+                out.println("Pipeline with name [" + pipelineName + "] already exists: " + pipelineFile.getAbsolutePath());
                 out.println("Select a different name.");
                 continue;
             }
@@ -151,29 +153,29 @@ public class NewCliCommand extends BaseCliCommand {
                 "  - log:        \n" +
                 "      message: \"Hello World\"";
 
-        String pipelinePath = PathUtil.path(config.getHome(), "src", "global",
-                "app", appName, "pipeline", pipelineName + ".pi.yaml");
-        FileUtil.saveStringToFile(pipelineContent, pipelinePath);
+        FileUtil.saveStringToFile(pipelineContent, pipelineFile.getAbsolutePath());
 
-        out.println("Pipeline created: " + pipelinePath);
+        out.println("Pipeline created: " + pipelineFile.getAbsolutePath());
     }
 
     private void createList(String appName) {
 
         String listName;
+        File listFile;
+
         while (true) {
             listName = in.ask("List name");
 
-            String path = PathUtil.path(config.getHome(), "src", "global",
-                    "app", appName, "list", listName + ".json");
-            if (FileUtil.isFileExists(path)) {
-                out.println("List with name [" + listName + "] already exists: " + path);
+            if (!listName.matches("([a-z0-9]+)")) {
+                out.println("List name must be lower case and may not contain any special chars or spaces: " + listName);
                 out.println("Select a different name.");
                 continue;
             }
 
-            if (!listName.matches("([a-z0-9]+)")) {
-                out.println("List name must be lower case and may not contain any special chars or spaces: " + listName);
+            listFile = new File(getContext().getSrcFolder(), "global/app/" + appName + "/list/" + listName + ".json");
+
+            if (listFile.exists()) {
+                out.println("List with name [" + listName + "] already exists: " + listFile.getAbsolutePath());
                 out.println("Select a different name.");
                 continue;
             }
@@ -184,7 +186,8 @@ public class NewCliCommand extends BaseCliCommand {
         String description = in.ask("Optional description of list", "");
 
         out.println("Do you like to load existing objects into your list?");
-        List<File> objectFolders = FileUtil.listFiles(config.getHome(), "src", "global", "app", appName, "object");
+        File objectsRoot = new File(context.getSrcFolder(), "global/app/" + appName + "/object");
+        List<File> objectFolders = FileUtil.listFiles(objectsRoot);
         List<String> objectNames = objectFolders.stream().map(File::getName).collect(Collectors.toList());
         objectNames.add("[Do not show existing object in list]");
         objectNames.add("[Create a new object schema]");
@@ -209,28 +212,29 @@ public class NewCliCommand extends BaseCliCommand {
                 "  \"schema\": \"" + schemaPipeline + "\"\n" +
                 "}";
 
-        String listConfigPath = PathUtil.path(config.getHome(), "src", "global", "app", appName, "list", listName + ".json");
-        FileUtil.saveStringToFile(listConfigContent, listConfigPath);
+        FileUtil.saveStringToFile(listConfigContent, listFile.getAbsolutePath());
 
-        out.println("List created: " + listConfigPath);
+        out.println("List created: " + listFile.getAbsolutePath());
     }
 
     private String createObject(String appName) {
 
         String objectName;
+        File objectFolder;
+
         while (true) {
             objectName = in.ask("Object name");
 
-            String path = PathUtil.path(config.getHome(), "src", "global",
-                    "app", appName, "object", objectName);
-            if (FileUtil.isFileExists(path)) {
-                out.println("Object with name [" + objectName + "] already exists: " + path);
+            if (!objectName.matches("([a-z0-9]+)")) {
+                out.println("Object name must be lower case and may not contain any special chars or spaces: " + objectName);
                 out.println("Select a different name.");
                 continue;
             }
 
-            if (!objectName.matches("([a-z0-9]+)")) {
-                out.println("Object name must be lower case and may not contain any special chars or spaces: " + objectName);
+            objectFolder = new File(getContext().getSrcFolder(), "global/app/" + appName + "/object/" + objectName);
+
+            if (objectFolder.exists()) {
+                out.println("Object with name [" + objectName + "] already exists: " + objectFolder.getAbsolutePath());
                 out.println("Select a different name.");
                 continue;
             }
@@ -274,16 +278,20 @@ public class NewCliCommand extends BaseCliCommand {
                 "  }\n" +
                 "}";
 
-        String objectSchemaPath = PathUtil.path(config.getAppHome(appName), "object", objectName, "v1", "schema.json");
-        FileUtil.saveStringToFile(objectSchemaContent, objectSchemaPath);
 
-        out.println("Object schema created: " + objectSchemaPath);
+        File objectSchemaFile = new File(objectFolder, "v1/schema.json");
+
+        FileUtil.saveStringToFile(objectSchemaContent, objectSchemaFile.getAbsolutePath());
+
+        out.println("Object schema created: " + objectSchemaFile.getAbsolutePath());
         return objectName;
     }
 
     private void createForm(String appName) {
 
         String formName;
+        File formFile;
+
         while (true) {
 
             formName = in.ask("New form name");
@@ -292,15 +300,16 @@ public class NewCliCommand extends BaseCliCommand {
                 continue;
             }
 
-            if (FileUtil.isFileExists(config.getHome(), "src", "global",
-                    "app", appName, "config", formName + ".json")) {
-                out.println("Form with name [" + formName + "] already exists.");
+            if (!formName.matches("([a-z0-9]+)")) {
+                out.println("Form name must be lower case and may not contain any special chars or spaces: " + formName);
                 out.println("Select a different name.");
                 continue;
             }
 
-            if (!formName.matches("([a-z0-9]+)")) {
-                out.println("Form name must be lower case and may not contain any special chars or spaces: " + formName);
+            formFile = new File(getContext().getSrcFolder(), "global/app/" + appName + "/config/" + formName + ".json");
+
+            if (formFile.exists()) {
+                out.println("Form with name [" + formName + "] already exists.");
                 out.println("Select a different name.");
                 continue;
             }
@@ -311,7 +320,9 @@ public class NewCliCommand extends BaseCliCommand {
         String description = in.ask("Optional description of form", "");
 
         out.println("Select the object schema to connect with this form:");
-        List<File> objectFolders = FileUtil.listFiles(config.getHome(), "src", "global", "app", appName, "object");
+
+        File objectFolder = new File(getContext().getSrcFolder(), "global/app/" + appName + "/object");
+        List<File> objectFolders = FileUtil.listFiles(objectFolder.getAbsolutePath());
         List<String> objectNames = objectFolders.stream().map(File::getName).collect(Collectors.toList());
         objectNames.add("[Do not connect to object schema]");
         objectNames.add("[Create a new object schema]");
@@ -336,28 +347,30 @@ public class NewCliCommand extends BaseCliCommand {
                 "  \"output\": \"" + outputPath + "\"\n" +
                 "}";
 
-        String formConfigPath = PathUtil.path(config.getHome(), "src", "global", "app", appName, "form", formName + ".json");
-        FileUtil.saveStringToFile(formConfigContent, formConfigPath);
+        File formConfigFile = new File(getContext().getSrcFolder(), "global/app/" + appName + "/form/" + formName + ".json");
+        FileUtil.saveStringToFile(formConfigContent, formConfigFile.getAbsolutePath());
 
-        out.println("Form created: " + formConfigPath);
+        out.println("Form created: " + formConfigFile.getAbsolutePath());
     }
 
     private String createApp() {
 
+        File srcFolder = getContext().getSrcFolder();
+
         while (true) {
+
             String appName = in.ask("New app name", null);
 
-            String globalHome = PathUtil.path(config.getHome(), "src", "global");
-            String appPath = PathUtil.path(globalHome, "app", appName);
-
-            if (FileUtil.isFileExists(appPath)) {
-                out.println("App with this name already exists at: " + appPath);
+            if (!appName.matches("([a-z0-9]+)")) {
+                out.println("App name must be lower case and may not contain any special chars or spaces: " + appName);
                 out.println("Select a different name.");
                 continue;
             }
 
-            if (!appName.matches("([a-z0-9]+)")) {
-                out.println("App name must be lower case and may not contain any special chars or spaces: " + appName);
+            File appFolder = new File(srcFolder, "global/app/" + appName);
+
+            if (appFolder.exists()) {
+                out.println("App with this name already exists at: " + appFolder.getAbsolutePath());
                 out.println("Select a different name.");
                 continue;
             }
@@ -383,15 +396,16 @@ public class NewCliCommand extends BaseCliCommand {
                 break;
             }
 
-            FileUtil.createFolders(PathUtil.path(globalHome, "app", appName, "config"));
-            FileUtil.createFolders(PathUtil.path(globalHome, "app", appName, "form"));
-            FileUtil.createFolders(PathUtil.path(globalHome, "app", appName, "list"));
-            FileUtil.createFolders(PathUtil.path(globalHome, "app", appName, "object"));
-            FileUtil.createFolders(PathUtil.path(globalHome, "app", appName, "pipeline"));
-            FileUtil.createFolders(PathUtil.path(globalHome, "app", appName, "script"));
-            FileUtil.createFolders(PathUtil.path(globalHome, "app", appName, "setup"));
-            FileUtil.createFolders(PathUtil.path(globalHome, "app", appName, "test"));
-            FileUtil.createFolders(PathUtil.path(globalHome, "app", appName, "workflow"));
+            File appConfigFolder = new File(appFolder, "config");
+            FileUtil.createFolders(appConfigFolder);
+            FileUtil.createFolders(new File(appFolder, "form"));
+            FileUtil.createFolders(new File(appFolder, "list"));
+            FileUtil.createFolders(new File(appFolder, "object"));
+            FileUtil.createFolders(new File(appFolder, "pipeline"));
+            FileUtil.createFolders(new File(appFolder, "script"));
+            FileUtil.createFolders(new File(appFolder, "setup"));
+            FileUtil.createFolders(new File(appFolder, "test"));
+            FileUtil.createFolders(new File(appFolder, "workflow"));
 
             String appConfigContent = "{\n" +
                     "  \"title\": \"" + title + "\",\n" +
@@ -403,10 +417,10 @@ public class NewCliCommand extends BaseCliCommand {
                     "  \"editions\": [\"basic\", \"enterprise\"]\n" +
                     "}";
 
-            FileUtil.saveStringToFile(appConfigContent,
-                    PathUtil.path(globalHome, "app", appName, "config", "app.json"));
+            File appConfigFile = new File(appConfigFolder, "app.json");
+            FileUtil.saveStringToFile(appConfigContent, appConfigFile.getAbsolutePath());
 
-            out.println("App created: " + appPath);
+            out.println("App created at: " + appFolder.getAbsolutePath());
             return appName;
         }
     }
@@ -424,55 +438,37 @@ public class NewCliCommand extends BaseCliCommand {
                 "     pi new pipeline - Creates a new pipeline file.";
     }
 
-    private String loadApiToken(String username, String password) {
-
-        Object result = getContext().getPipelineRunner().executePipelineUri(
-                "iam.apitoken?username=" + username + "&password=" + password);
-
-        return result + "";
-    }
-
     /**
-     * Shows all locally available apps and lets the user select an app. This selected app will then be stored
-     * in the configuration at {@link ConfigCliService#setSelectedApp(String)}
+     * Lists all apps and lets the user select from this list of existing apps or creating a new one.
      *
      * @param message
      * @return
      */
     public String askForSelectedApp(String message) {
 
-        // If current workdir is inside an app path, use the appName as default
-        config.getHome();
+        File appsRootFolder = new File(getContext().getSrcFolder(), "global/app");
+        List<File> appFolders = Collections.EMPTY_LIST;
 
-        String selectedValue = getContext().getCurrentAppFolderName();
+        if (appsRootFolder.exists()) {
+            appFolders = FileUtil.listFiles(appsRootFolder);
+
+            // If only one app exists, return this.
+            if (appFolders.size() == 1) {
+                return appFolders.get(0).getName();
+            }
+        }
 
         if (message == null) {
             message = "Select the app to apply the action to:";
         }
         out.println(message);
 
-
-        List<File> appFolders = FileUtil.listFiles(config.getHome(), "src", "global", "app");
         List<String> appNames = appFolders.stream().map(File::getName).collect(Collectors.toList());
         appNames.add("[Create new app...]");
 
-        Integer selectedItem = in.choose(
-                appNames, selectedValue,
-                new InputUtil.InputValidator() {
-                    @Override
-                    public String isValid(List<String> items, int selectedItemIndex, String selectedItemValue) {
+        Integer selectedItem = in.choose(appNames, null, null);
 
-                        // Update selected app in the config settings
-                        if (!selectedItemValue.equals(config.getSelectedApp()) &&
-                                (!selectedItemValue.equals("[Create new app...]"))) {
-                            config.setSelectedApp(selectedItemValue);
-                            config.saveConfiguration();
-                        }
-                        return null;
-                    }
-                });
-
-        selectedValue = appNames.get(selectedItem);
+        String selectedValue = appNames.get(selectedItem);
 
         if (selectedValue.equals("[Create new app...]")) {
             selectedValue = createApp();

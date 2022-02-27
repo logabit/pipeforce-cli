@@ -11,13 +11,14 @@ public class InitCliService extends BaseCliContextAware {
 
     public void init(String path) {
 
-        FileUtil.createFolders(PathUtil.path(path, "pipeforce", "src", "global", "app"));
+        FileUtil.createFolders(PathUtil.path(path, "src", "global", "app"));
+        FileUtil.createFolders(PathUtil.path(path, ".pipeforce"));
         createVSCodeWorkspaceFile(path);
     }
 
     public void createVSCodeWorkspaceFile(String path) {
 
-        String apiUrl = getContext().getConfigService().getHubApiUrl("command");
+        String apiUrl = getContext().getCurrentInstance().getHubApiUrl("command");
 
         String vsCodeWorkspace = "" +
                 "{\n" +

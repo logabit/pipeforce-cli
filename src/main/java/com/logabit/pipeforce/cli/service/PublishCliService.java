@@ -3,7 +3,6 @@ package com.logabit.pipeforce.cli.service;
 import com.logabit.pipeforce.cli.BaseCliContextAware;
 import com.logabit.pipeforce.common.util.FileUtil;
 import com.logabit.pipeforce.common.util.JsonUtil;
-import com.logabit.pipeforce.common.util.PathUtil;
 
 import java.io.File;
 import java.util.Collections;
@@ -11,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Manages the .published file inside of each app.
+ * Manages the published.log.json file inside of each app repo.
  *
  * @author sniederm
  * @since 6.0
@@ -27,8 +26,8 @@ public class PublishCliService extends BaseCliContextAware {
     public void load() {
 
         String publishedString = FileUtil.readFileToString(
-                getContext().getConfigService().getHome(),
-                ".published");
+                new File(getContext().getHiddenPipeforceFolder(), "published.log.json")
+        );
 
         this.publishedMap = JsonUtil.jsonStringToMap(publishedString);
     }
@@ -43,8 +42,7 @@ public class PublishCliService extends BaseCliContextAware {
         }
 
         String json = JsonUtil.objectToJsonString(publishedMap);
-        ConfigCliService configService = getContext().getConfigService();
-        FileUtil.saveStringToFile(json, new File(PathUtil.path(configService.getHome(), ".published")));
+        FileUtil.saveStringToFile(json, new File(getContext().getHiddenPipeforceFolder(), "published.log.json"));
     }
 
     /**

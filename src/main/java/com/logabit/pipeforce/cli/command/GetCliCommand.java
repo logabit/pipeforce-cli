@@ -58,7 +58,7 @@ public class GetCliCommand extends BaseCliCommand {
         int createdCounter = 0;
         int skippedCounter = 0;
 
-        String keyPrefix = PathUtil.path("/pipeforce", config.getNamespace());
+        String keyPrefix = PathUtil.path("/pipeforce", getContext().getCurrentInstance().getNamespace());
 
         for (JsonNode node : list) {
 

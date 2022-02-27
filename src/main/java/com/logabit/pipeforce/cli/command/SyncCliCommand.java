@@ -9,6 +9,7 @@ import com.logabit.pipeforce.common.util.PathUtil;
 import com.logabit.pipeforce.common.util.StringUtil;
 import io.methvin.watcher.DirectoryWatcher;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
@@ -60,7 +61,8 @@ public class SyncCliCommand extends BaseCliCommand {
 
             // Create a local backup
             GetCliCommand getCommand = (GetCliCommand) getContext().createCommandInstance("Get");
-            getCommand.get(pathArg, "backup/sync/" + System.currentTimeMillis());
+            File backupFolder = new File(getContext().getHiddenPipeforceFolder(), "backup/sync" + System.currentTimeMillis());
+            getCommand.get(pathArg, backupFolder.getAbsolutePath());
 
             // Delete remote all remote files
             deleteCommand.delete(pathArg);

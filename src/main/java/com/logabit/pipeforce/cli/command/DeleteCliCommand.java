@@ -45,7 +45,7 @@ public class DeleteCliCommand extends BaseCliCommand {
         ArrayNode founds = (ArrayNode) getContext().getPipelineRunner()
                 .executePipelineUri("property.list?filter=" + PathUtil.removeExtensions(pathArg.getRemotePattern()));
 
-        String propHome = PathUtil.path("/pipeforce/" + config.getNamespace());
+        String propHome = PathUtil.path("/pipeforce/" + getContext().getCurrentInstance().getNamespace());
 
         if (founds == null) {
             return;

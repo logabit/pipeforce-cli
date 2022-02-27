@@ -9,7 +9,6 @@ import com.logabit.pipeforce.common.util.PathUtil;
 import org.springframework.beans.BeanUtils;
 
 import java.io.File;
-import java.io.IOException;
 
 /**
  * Manages the CLI configuration.
@@ -37,19 +36,9 @@ public class ConfigCliService extends CliConfig {
             // TODO BeanUtils takes about 200ms -> too much. replace by other approach
             BeanUtils.copyProperties(loadedConfig, this);
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException("Could not load configuration: " + path, e);
         }
-    }
-
-    @JsonIgnore
-    public String getPortalUrl() {
-        return PathUtil.path("https://" + getNamespace() + "." + getHost());
-    }
-
-    @JsonIgnore
-    public String getAppUrl(String appName) {
-        return PathUtil.path(getPortalUrl(), "#/app?name=" + appName);
     }
 
     @JsonIgnore
@@ -75,10 +64,5 @@ public class ConfigCliService extends CliConfig {
     @JsonIgnore
     public String getConfigFilePath() {
         return PathUtil.path(System.getProperty("user.home"), "pipeforce/pipeforce-cli/conf/cli.config.json");
-    }
-
-    @JsonIgnore
-    public String getHubApiUrl(String path) {
-        return PathUtil.path(getProtocol() + "://hub-" + getNamespace() + "." + getHost() + ":" + getPort(), getApiPath(), path);
     }
 }

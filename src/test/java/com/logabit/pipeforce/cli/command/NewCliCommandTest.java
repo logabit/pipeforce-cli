@@ -50,17 +50,17 @@ public class NewCliCommandTest {
     @Mock
     private ConfigCliService configService;
 
-    private String workspaceHome;
+    private File appRepoHome;
 
     @Before
     public void setUp() {
-        workspaceHome = getTestWorkspace();
-        Mockito.when(configService.getHome()).thenReturn(workspaceHome);
+        appRepoHome = createTestAppRepoHome();
+        context.setCurrentWorkDir(appRepoHome);
     }
 
     @After
     public void tearDown() {
-        FileUtil.delete(workspaceHome);
+        FileUtil.delete(appRepoHome);
     }
 
     @Test
@@ -70,7 +70,8 @@ public class NewCliCommandTest {
 
         context.callCommand();
 
-        List<File> files = FileUtil.listFiles(workspaceHome, "src/global/app/someapp");
+        File appHome = new File(appRepoHome, "src/global/app/someapp");
+        List<File> files = FileUtil.listFiles(appHome);
         files.sort(Comparator.comparing(File::getName));
         Assert.assertEquals(9, files.size());
 
@@ -84,7 +85,8 @@ public class NewCliCommandTest {
         Assert.assertEquals("test", files.get(7).getName());
         Assert.assertEquals("workflow", files.get(8).getName());
 
-        String configString = FileUtil.readFileToString(workspaceHome, "src/global/app/someapp/config/app.json");
+        File configFile = new File(appHome, "config/app.json");
+        String configString = FileUtil.readFileToString(configFile);
         JsonNode config = JsonUtil.jsonStringToJsonNode(configString);
 
         Assert.assertEquals("someapp", config.get("title").textValue());
@@ -96,8 +98,6 @@ public class NewCliCommandTest {
     @Test
     public void testNewFormAndNewObjectSchema() throws Exception {
 
-        Mockito.when(configService.getAppHome("someapp1")).thenReturn(PathUtil.path(workspaceHome, "src", "global", "app", "someapp1"));
-
         systemInMock.provideLines("0",
                 "someapp1", null, null, "someicon",
                 "someform", "someformdesc", "1", "someobject");
@@ -105,7 +105,9 @@ public class NewCliCommandTest {
         context.setArgs("new", "form");
         context.callCommand();
 
-        String configString = FileUtil.readFileToString(workspaceHome, "src/global/app/someapp1/config/app.json");
+        File appHome = new File(appRepoHome, "src/global/app/someapp1");
+
+        String configString = FileUtil.readFileToString(new File(appHome, "config/app.json"));
         JsonNode appConfig = JsonUtil.jsonStringToJsonNode(configString);
 
         Assert.assertEquals("someapp1", appConfig.get("title").textValue());
@@ -113,7 +115,7 @@ public class NewCliCommandTest {
         Assert.assertEquals("CAN_APP_SOMEAPP1", appConfig.get("show").textValue());
         Assert.assertEquals("someicon", appConfig.get("icon").textValue());
 
-        String formString = FileUtil.readFileToString(workspaceHome, "src/global/app/someapp1/form/someform.json");
+        String formString = FileUtil.readFileToString(new File(appHome, "form/someform.json"));
         JsonNode formConfig = JsonUtil.jsonStringToJsonNode(formString);
 
         Assert.assertEquals("someform", formConfig.get("title").textValue());
@@ -121,7 +123,7 @@ public class NewCliCommandTest {
         Assert.assertEquals("property.list?filter=global/app/someapp1/object/someobject/v1/schema", formConfig.get("schema").textValue());
         Assert.assertEquals("global/app/someapp1/object/someobject/v1/instance/%23%7Bvar.property.uuid%7D", formConfig.get("output").textValue());
 
-        String schemaString = FileUtil.readFileToString(workspaceHome, "src/global/app/someapp1/object/someobject/v1/schema.json");
+        String schemaString = FileUtil.readFileToString(new File(appHome, "object/someobject/v1/schema.json"));
         JsonNode schemaConfig = JsonUtil.jsonStringToJsonNode(schemaString);
 
         Assert.assertEquals("object", schemaConfig.get("type").textValue());
@@ -131,16 +133,23 @@ public class NewCliCommandTest {
     @Test
     public void testNewListAndNewObjectSchema() throws Exception {
 
-        Mockito.when(configService.getAppHome("someapp1")).thenReturn(PathUtil.path(workspaceHome, "src", "global", "app", "someapp1"));
-
-        systemInMock.provideLines("0",
-                "someapp1", null, null, "someicon",
-                "somelist", "somelistdesc", "1", "someobject");
+        systemInMock.provideLines(
+                "0",
+                "someapp1",
+                null,
+                null,
+                "someicon",
+                "somelist",
+                "somelistdesc",
+                "1",
+                "someobject");
 
         context.setArgs("new", "list");
         context.callCommand();
 
-        String configString = FileUtil.readFileToString(workspaceHome, "src/global/app/someapp1/config/app.json");
+        File appHome = new File(appRepoHome, "src/global/app/someapp1");
+
+        String configString = FileUtil.readFileToString(new File(appHome, "config/app.json"));
         JsonNode appConfig = JsonUtil.jsonStringToJsonNode(configString);
 
         Assert.assertEquals("someapp1", appConfig.get("title").textValue());
@@ -148,7 +157,7 @@ public class NewCliCommandTest {
         Assert.assertEquals("CAN_APP_SOMEAPP1", appConfig.get("show").textValue());
         Assert.assertEquals("someicon", appConfig.get("icon").textValue());
 
-        String formString = FileUtil.readFileToString(workspaceHome, "src/global/app/someapp1/list/somelist.json");
+        String formString = FileUtil.readFileToString(new File(appHome, "list/somelist.json"));
         JsonNode formConfig = JsonUtil.jsonStringToJsonNode(formString);
 
         Assert.assertEquals("somelist", formConfig.get("title").textValue());
@@ -156,7 +165,7 @@ public class NewCliCommandTest {
         Assert.assertEquals("property.value.expression?from=global/app/someapp1/object/someobject/v1/instance/*", formConfig.get("input").textValue());
         Assert.assertEquals("property.list?filter=global/app/someapp1/object/someobject/v1/schema", formConfig.get("schema").textValue());
 
-        String schemaString = FileUtil.readFileToString(workspaceHome, "src/global/app/someapp1/object/someobject/v1/schema.json");
+        String schemaString = FileUtil.readFileToString(new File(appHome, "object/someobject/v1/schema.json"));
         JsonNode schemaConfig = JsonUtil.jsonStringToJsonNode(schemaString);
 
         Assert.assertEquals("object", schemaConfig.get("type").textValue());
@@ -166,12 +175,15 @@ public class NewCliCommandTest {
     @Test
     public void testNewListExistingObjectSchema() throws Exception {
 
-        Mockito.when(configService.getAppHome("someapp1")).thenReturn(PathUtil.path(workspaceHome, "src", "global", "app", "someapp1"));
-
         systemInMock.provideLines("0",
-                "someapp1", null, null, "someicon", // New app
+                "someapp1",
+                null,
+                null,
+                "someicon", // New app
                 "someobject", // New object
-                "0", "somelist", "somelistdesc", "0" // New list
+                "somelist",
+                "somelistdesc",
+                "0" // Do you like to load existing objects into your list? -> 0: someobject
         );
 
         context.setArgs("new", "object");
@@ -180,7 +192,9 @@ public class NewCliCommandTest {
         context.setArgs("new", "list");
         context.callCommand();
 
-        String configString = FileUtil.readFileToString(workspaceHome, "src/global/app/someapp1/config/app.json");
+        File appHome = new File(appRepoHome, "src/global/app/someapp1");
+
+        String configString = FileUtil.readFileToString(new File(appHome, "config/app.json"));
         JsonNode appConfig = JsonUtil.jsonStringToJsonNode(configString);
 
         Assert.assertEquals("someapp1", appConfig.get("title").textValue());
@@ -188,7 +202,7 @@ public class NewCliCommandTest {
         Assert.assertEquals("CAN_APP_SOMEAPP1", appConfig.get("show").textValue());
         Assert.assertEquals("someicon", appConfig.get("icon").textValue());
 
-        String listString = FileUtil.readFileToString(workspaceHome, "src/global/app/someapp1/list/somelist.json");
+        String listString = FileUtil.readFileToString(new File(appHome, "list/somelist.json"));
         JsonNode listConfig = JsonUtil.jsonStringToJsonNode(listString);
 
         Assert.assertEquals("somelist", listConfig.get("title").textValue());
@@ -196,7 +210,7 @@ public class NewCliCommandTest {
         Assert.assertEquals("property.value.expression?from=global/app/someapp1/object/someobject/v1/instance/*", listConfig.get("input").textValue());
         Assert.assertEquals("property.list?filter=global/app/someapp1/object/someobject/v1/schema", listConfig.get("schema").textValue());
 
-        String schemaString = FileUtil.readFileToString(workspaceHome, "src/global/app/someapp1/object/someobject/v1/schema.json");
+        String schemaString = FileUtil.readFileToString(new File(appHome, "object/someobject/v1/schema.json"));
         JsonNode schemaConfig = JsonUtil.jsonStringToJsonNode(schemaString);
 
         Assert.assertEquals("object", schemaConfig.get("type").textValue());
@@ -206,8 +220,13 @@ public class NewCliCommandTest {
     @Test
     public void testNewPipeline() throws Exception {
 
-        systemInMock.provideLines("someapp1", null, null, "someicon",
-                "4", "someapp1", "somepipeline");
+        systemInMock.provideLines(
+                "someapp1",
+                null,
+                null,
+                "someicon",
+                "4",
+                "somepipeline");
 
         context.setArgs("new", "app");
         context.callCommand();
@@ -215,7 +234,9 @@ public class NewCliCommandTest {
         context.setArgs("new");
         context.callCommand();
 
-        String pipelineString = FileUtil.readFileToString(workspaceHome, "src/global/app/someapp1/pipeline/somepipeline.pi.yaml");
+        File appHome = new File(appRepoHome, "src/global/app/someapp1");
+
+        String pipelineString = FileUtil.readFileToString(new File(appHome, "pipeline/somepipeline.pi.yaml"));
         JsonNode pipeline = JsonUtil.yamlStringToJsonNode(pipelineString);
 
         Assert.assertEquals("Hello World", pipeline.get("pipeline").get(0).get("log").get("message").textValue());
@@ -224,10 +245,13 @@ public class NewCliCommandTest {
     @Test
     public void testNewWorkflow() throws Exception {
 
-        Mockito.when(configService.getAppHome("someapp1")).thenReturn(PathUtil.path(workspaceHome, "src", "global", "app", "someapp1"));
-
-        systemInMock.provideLines("someapp1", null, null, "someicon",
-                "5", "someapp1", "someworkflow");
+        systemInMock.provideLines(
+                "someapp1",
+                null,
+                null,
+                "someicon",
+                "5",
+                "someworkflow");
 
         context.setArgs("new", "app");
         context.callCommand();
@@ -235,13 +259,24 @@ public class NewCliCommandTest {
         context.setArgs("new");
         context.callCommand();
 
-        String bpmnString = FileUtil.readFileToString(workspaceHome, "src/global/app/someapp1/workflow/someworkflow.bpmn");
+        File appHome = new File(appRepoHome, "src/global/app/someapp1");
+
+        String bpmnString = FileUtil.readFileToString(new File(appHome, "workflow/someworkflow.bpmn"));
         Document bpmn = XMLUtil.toDOM(bpmnString);
 
         Assert.assertNotNull(((Element) bpmn.getDocumentElement().getElementsByTagName("bpmn:process").item(0)).getTagName());
     }
 
-    private String getTestWorkspace() {
-        return PathUtil.path(System.getProperty("user.home"), "PIPEFORCE_TEST_" + StringUtil.randomString(5));
+    private File createTestAppRepoHome() {
+
+        File testRepo = new File(System.getProperty("user.home"), "PIPEFORCE_TEST_" + StringUtil.randomString(5));
+
+        File srcFolder = new File(testRepo, "src");
+        FileUtil.createFolders(srcFolder);
+
+        File pipeforceFolder = new File(testRepo, ".pipeforce");
+        FileUtil.createFolders(pipeforceFolder);
+
+        return testRepo;
     }
 }

@@ -58,7 +58,7 @@ public class HelpCliCommand extends BaseCliCommand {
 
     private void showCommandDocs(String commandName) {
 
-        String url = config.getHubApiUrl("pipe:pipe.schema.v7");
+        String url = getContext().getCurrentInstance().getHubApiUrl("pipe:pipe.schema.v7");
         Map result = getContext().getRestTemplate().getForObject(url, Map.class);
 
         result = (Map) result.get("properties");

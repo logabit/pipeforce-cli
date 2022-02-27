@@ -63,7 +63,7 @@ public class PublishCliCommand extends BaseCliCommand {
         }
 
         publish(pathArg);
-        out.println("See your changes here: " + config.getPortalUrl());
+        out.println("See your changes here: " + getContext().getCurrentInstance().getPortalUrl());
 
         return 0;
     }
@@ -90,7 +90,7 @@ public class PublishCliCommand extends BaseCliCommand {
         PublishCliService publishService = getContext().getPublishService();
         MimeTypeService mimeTypeService = getContext().getMimeTypeService();
 
-        String srcHome = PathUtil.path(config.getHome(), "src");
+        String srcHome = PathUtil.path(context.getSrcFolder());
 
         publishService.load();
         filesCounter = 0;
@@ -227,7 +227,7 @@ public class PublishCliCommand extends BaseCliCommand {
         Map appConfig = null;
         try {
             appConfig = JsonUtil.jsonStringToMap(FileUtil.readFileToString(appConfigFile));
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new CliException("Could not read file: " + appConfigFile + ": " + e.getMessage(), e);
         }
 

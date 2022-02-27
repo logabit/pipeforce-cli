@@ -3,6 +3,7 @@ package com.logabit.pipeforce.cli.command;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.logabit.pipeforce.cli.CliContext;
 import com.logabit.pipeforce.cli.CommandArgs;
+import com.logabit.pipeforce.cli.config.CliConfig;
 import com.logabit.pipeforce.cli.service.ConfigCliService;
 import com.logabit.pipeforce.cli.service.InstallCliService;
 import com.logabit.pipeforce.cli.service.OutputCliService;
@@ -73,6 +74,10 @@ public class DeleteCliCommandTest {
     @Test
     public void testDeleteProperty() throws Exception {
 
+        CliConfig.Instance instance = new CliConfig.Instance();
+        instance.setNamespace("enterprise");
+        cliContext.setCurrentInstance(instance);
+
         systemInMock.provideLines("1"); // Do you want to delete? 1=yes
 
         String foundProperties = "[\n" +
@@ -119,6 +124,10 @@ public class DeleteCliCommandTest {
     @Test
     public void testDeletePropertyNothingFound() throws Exception {
 
+        CliConfig.Instance instance = new CliConfig.Instance();
+        instance.setNamespace("enterprise");
+        cliContext.setCurrentInstance(instance);
+
         systemInMock.provideLines("1"); // Do you want to delete? 1=yes
 
         String foundProperties = "[]"; // No properties found
@@ -151,6 +160,10 @@ public class DeleteCliCommandTest {
     @Test
     public void testFolderSingleWildcardNoChange() throws Exception {
 
+        CliConfig.Instance instance = new CliConfig.Instance();
+        instance.setNamespace("enterprise");
+        cliContext.setCurrentInstance(instance);
+
         systemInMock.provideLines("1"); // Do you want to delete? 1=yes
 
         DeleteCliCommand deleteCmd = (DeleteCliCommand) cliContext.createCommandInstance("delete");
@@ -167,6 +180,10 @@ public class DeleteCliCommandTest {
     @Test
     public void testFolderDoubleWildcardNoChange() throws Exception {
 
+        CliConfig.Instance instance = new CliConfig.Instance();
+        instance.setNamespace("enterprise");
+        cliContext.setCurrentInstance(instance);
+
         systemInMock.provideLines("1"); // Do you want to delete? 1=yes
 
         DeleteCliCommand deleteCmd = (DeleteCliCommand) cliContext.createCommandInstance("delete");
@@ -182,6 +199,10 @@ public class DeleteCliCommandTest {
 
     @Test
     public void testFolderLeafNoChange() throws Exception {
+
+        CliConfig.Instance instance = new CliConfig.Instance();
+        instance.setNamespace("enterprise");
+        cliContext.setCurrentInstance(instance);
 
         systemInMock.provideLines("1"); // Do you want to delete? 1=yes
 

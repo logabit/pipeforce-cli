@@ -2,6 +2,7 @@ package com.logabit.pipeforce.cli;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.logabit.pipeforce.cli.command.ICliCommand;
+import com.logabit.pipeforce.cli.config.CliConfig;
 import com.logabit.pipeforce.cli.service.AppResourceCliService;
 import com.logabit.pipeforce.cli.service.ConfigCliService;
 import com.logabit.pipeforce.cli.service.InitCliService;
@@ -56,12 +57,16 @@ public class CliContext {
     private AppResourceCliService appResourceService;
     private UpdateCliService updateService;
     private File workDir = new File(System.getProperty("user.dir"));
+    private File srcFolder;
     private CommandArgs args;
     private String command;
     private Integer serverVersionMajor;
     private InputUtil inputUtil;
     private InputStream answerInputStream;
     private InitCliService initService;
+    private File appRepoHome;
+    private File hiddenPipeforceFolder;
+    private CliConfig.Instance currentInstance;
 
     public CliContext(String... args) {
         setArgs(args);
@@ -149,7 +154,7 @@ public class CliContext {
      */
     public ICliCommand callCommand() throws Exception {
 
-        // The very first arg is the command name -> Lookup a class with this name: setup -> SetupCallable
+        // The very first arg is the command name -> Lookup a class with this name. For example: setup -> SetupCliCommand
         ICliCommand command = createCommandInstance(getCommand());
         command.call(args);
         return command;
@@ -188,8 +193,8 @@ public class CliContext {
     public PipelineRunner getPipelineRunner() {
 
         if (pipelineRunner == null) {
-            ConfigCliService cfg = getConfigService();
-            pipelineRunner = new PipelineRunner(cfg.getHubApiUrl("/pipeline"), cfg.getApiToken(), getRestTemplate());
+            pipelineRunner = new PipelineRunner(getCurrentInstance().getHubApiUrl("/pipeline"),
+                    getCurrentInstance().getApiToken(), getRestTemplate());
         }
 
         return pipelineRunner;
@@ -271,6 +276,42 @@ public class CliContext {
         return workDir;
     }
 
+    /**
+     * Searches the path to the src/global/app folder relative to current work dir.
+     * Two locations of the src folder are allowed:
+     * <ul>
+     *     <li>$APP_REPO/src</li>
+     *     <li>$APP_REPO/pipeforce/src</li>
+     * </ul>
+     *
+     * @return
+     * @throws CliException In case no src folder exists.
+     */
+    public File getSrcFolder() {
+
+        if (srcFolder != null) {
+            return srcFolder;
+        }
+
+        File currentWorkDir = getRepoHome();
+        File srcFolder = new File(currentWorkDir, "src");
+
+        if (srcFolder.exists()) {
+            this.srcFolder = srcFolder;
+            return srcFolder;
+        }
+
+        srcFolder = new File(currentWorkDir, "pipeforce/src");
+
+        if (srcFolder.exists()) {
+            this.srcFolder = srcFolder;
+            return srcFolder;
+        }
+
+        throw new CliException("No src folder structure found. Call 'pi init' inside: " +
+                currentWorkDir.getAbsolutePath());
+    }
+
     public void setCurrentWorkDir(File workDir) {
         this.workDir = workDir;
     }
@@ -344,7 +385,7 @@ public class CliContext {
         }
 
         // TODO remove extra new File step here
-        return new CliPathArg(path, (new File(home).getAbsolutePath()));
+        return new CliPathArg(path, getRepoHome().getAbsolutePath());
     }
 
     public InputUtil getInputUtil() {
@@ -376,5 +417,52 @@ public class CliContext {
 
     public String getWorkspaceHome() {
         return PathUtil.path(getUserHome(), "pipeforce");
+    }
+
+    public File getRepoHome() {
+
+        File workDir = getCurrentWorkDir();
+        File hiddenFolder = new File(workDir, ".pipeforce");
+        this.hiddenPipeforceFolder = hiddenFolder;
+        this.appRepoHome = workDir;
+        return appRepoHome;
+    }
+
+    /**
+     * Returns the .pipeforce folder inside the app repository.
+     */
+    public File getHiddenPipeforceFolder() {
+
+        if (this.hiddenPipeforceFolder != null) {
+            return this.hiddenPipeforceFolder;
+        }
+
+        getRepoHome();
+        return this.hiddenPipeforceFolder;
+    }
+
+    /**
+     * Returns the currently selected namespace instance.
+     *
+     * @return
+     */
+    public CliConfig.Instance getCurrentInstance() {
+
+        if (this.currentInstance != null) {
+            return this.currentInstance;
+        }
+
+        String instanceName = getConfigService().getDefaultInstance();
+        this.currentInstance = getConfigService().getInstances().get(instanceName);
+        return this.currentInstance;
+    }
+
+    /**
+     * For testing mainly.
+     *
+     * @param currentInstance
+     */
+    public void setCurrentInstance(CliConfig.Instance currentInstance) {
+        this.currentInstance = currentInstance;
     }
 }

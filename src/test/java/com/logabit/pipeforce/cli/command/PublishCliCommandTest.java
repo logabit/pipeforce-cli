@@ -3,13 +3,13 @@ package com.logabit.pipeforce.cli.command;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.logabit.pipeforce.cli.CliContext;
 import com.logabit.pipeforce.cli.CommandArgs;
+import com.logabit.pipeforce.cli.config.CliConfig;
 import com.logabit.pipeforce.cli.service.ConfigCliService;
 import com.logabit.pipeforce.common.pipeline.PipelineRunner;
 import com.logabit.pipeforce.common.util.FileUtil;
 import com.logabit.pipeforce.common.util.JsonUtil;
 import com.logabit.pipeforce.common.util.ListUtil;
 import com.logabit.pipeforce.common.util.PathUtil;
-import com.logabit.pipeforce.common.util.ReflectionUtil;
 import com.logabit.pipeforce.common.util.StringUtil;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -56,7 +56,7 @@ public class PublishCliCommandTest {
     @InjectMocks
     private CliContext cliContext = new CliContext();
 
-    private String workspaceHome;
+    private File appRepoHome;
 
     @InjectMocks
     private PublishCliCommand publishCommand = new PublishCliCommand();
@@ -65,20 +65,22 @@ public class PublishCliCommandTest {
     @Before
     public void setUp() {
 
-        workspaceHome = getTestWorkspace();
-        Mockito.when(configService.getHome()).thenReturn(workspaceHome);
+        appRepoHome = createTestAppRepoHome();
     }
 
     @After
     public void tearDown() {
-        FileUtil.delete(workspaceHome);
+//        FileUtil.delete(appRepoHome);
     }
 
     @Test
     public void test_NewApp_NewPipeline_NewForm_NewObject_Publish() throws Exception {
 
-        cliContext.setCurrentWorkDir(new File(PathUtil.path(workspaceHome)));
-        Mockito.when(configService.getAppHome("someapp")).thenReturn(PathUtil.path(workspaceHome, "src", "global", "app", "someapp"));
+        cliContext.setCurrentWorkDir(appRepoHome);
+
+        CliConfig.Instance instance = new CliConfig.Instance();
+        instance.setNamespace("enterprise");
+        cliContext.setCurrentInstance(instance);
 
         JsonNode resultNode = JsonUtil.mapToJsonNode(ListUtil.asMap("result", "created"));
         Mockito.when(pipelineRunner.executePipelineJsonNode(Mockito.any(JsonNode.class))).thenReturn(resultNode);
@@ -96,7 +98,8 @@ public class PublishCliCommandTest {
         cliContext.callCommand();
 
         // Copy a binary file to the app for testing
-        FileUtils.copyFile(new File("src/test/resources/logo.png"), new File(PathUtil.path(configService.getHome(), "src/global/app/someapp/template/logo.png")));
+        File targetFile = new File(appRepoHome, "src/global/app/someapp/template/logo.png");
+        FileUtils.copyFile(new File("src/test/resources/logo.png"), targetFile);
 
         systemInMock.provideLines("yes");
         PublishCliCommand publishCommand = (PublishCliCommand) cliContext.createCommandInstance("publish");
@@ -131,7 +134,7 @@ public class PublishCliCommandTest {
         publishCommand.call(CommandArgs.EMPTY); // All in src folder
 
         // Test that lower case values of "show" attribute in app config will be converted to upper case correctly
-        final File appConfig = new File(PathUtil.path(configService.getHome(), "src/global/app/someapp/config/app.json"));
+        final File appConfig = new File(PathUtil.path(cliContext.getRepoHome(), "src/global/app/someapp/config/app.json"));
         String appConfigString = FileUtil.readFileToString(appConfig);
         Map<String, Object> appConfigMap = JsonUtil.jsonStringToMap(appConfigString);
         String showValue = (String) appConfigMap.get("show");
@@ -171,7 +174,16 @@ public class PublishCliCommandTest {
                 publishCommand.prepareLocalPathPattern("global/app/*/pipeline/test"));
     }
 
-    private String getTestWorkspace() {
-        return PathUtil.path(System.getProperty("user.home"), "PIPEFORCE_TEST_" + StringUtil.randomString(5));
+    private File createTestAppRepoHome() {
+
+        File testRepo = new File(System.getProperty("user.home"), "PIPEFORCE_TEST_" + StringUtil.randomString(5));
+
+        File srcFolder = new File(testRepo, "src");
+        FileUtil.createFolders(srcFolder);
+
+        File pipeforceFolder = new File(testRepo, ".pipeforce");
+        FileUtil.createFolders(pipeforceFolder);
+
+        return testRepo;
     }
 }

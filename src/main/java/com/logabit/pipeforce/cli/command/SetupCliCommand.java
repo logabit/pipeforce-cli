@@ -1,6 +1,7 @@
 package com.logabit.pipeforce.cli.command;
 
 import com.logabit.pipeforce.cli.CommandArgs;
+import com.logabit.pipeforce.cli.config.CliConfig;
 import com.logabit.pipeforce.common.util.DateTimeUtil;
 import com.logabit.pipeforce.common.util.PathUtil;
 
@@ -31,23 +32,28 @@ public class SetupCliCommand extends BaseCliCommand {
         String userHome = System.getProperty("user.home");
         String pipeforceHome = PathUtil.path(userHome, "pipeforce");
 
-        config.setNamespace(in.ask("Namespace", config.getNamespace()));
+        CliConfig.Instance instance = new CliConfig.Instance();
+
+        instance.setNamespace(in.ask("Namespace", instance.getNamespace()));
 
         if (advanced) {
-            config.setHost(in.ask("Host", config.getHost()));
-            config.setPort(Integer.parseInt(in.ask("Port", config.getPort() + "")));
-            config.setProtocol(in.ask("Protocol", config.getProtocol()));
-            config.setApiPath(in.ask("API Path", config.getApiPath()));
+            instance.setHost(in.ask("Host", instance.getHost()));
+            instance.setPort(Integer.parseInt(in.ask("Port", instance.getPort() + "")));
+            instance.setProtocol(in.ask("Protocol", instance.getProtocol()));
+            instance.setApiPath(in.ask("API Path", instance.getApiPath()));
         }
 
-        config.setUsername(in.ask("Username", config.getUsername()));
+        instance.setUsername(in.ask("Username", instance.getUsername()));
 
         String password = in.askPassword("Password");
-        config.setApiToken(null);
-        String apitoken = loadApiToken(config.getUsername(), password);
+        instance.setApiToken(null);
+        String apitoken = loadApiToken(instance.getUsername(), password);
 
-        config.setApiToken(apitoken);
-        config.setApiTokenCreated(DateTimeUtil.currentDateTimeAsIso8061());
+        instance.setApiToken(apitoken);
+        instance.setApiTokenCreated(DateTimeUtil.currentDateTimeAsIso8061());
+
+        config.getInstances().put(instance.getName(), instance);
+        config.setDefaultInstance(instance.getName());
         config.saveConfiguration();
 
         if (installed) {
