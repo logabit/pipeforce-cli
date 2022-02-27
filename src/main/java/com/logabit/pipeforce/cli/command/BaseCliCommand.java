@@ -100,8 +100,7 @@ public abstract class BaseCliCommand implements ICliCommand {
             String tmpPath = path.replace('*', '_'); // Windows has problems with * in File object
             File pathFile = new File(tmpPath); // We need it only because of the absolute checking
             if (pathFile.isAbsolute()) {
-                throw new CliException("Absolute path not allowed for security reasons: " + path +
-                        ". Path must be relative to: " + config.getHome());
+                throw new CliException("Absolute path not allowed for security reasons: " + path);
             }
         } else {
             path = "/**";
@@ -117,7 +116,7 @@ public abstract class BaseCliCommand implements ICliCommand {
             src = "src";
         }
 
-        File homeFolder = new File(config.getHome());
+        File homeFolder = getContext().getRepoHome();
         path = PathUtil.path(homeFolder.toURI().toString(), src, path);
         return path;
     }

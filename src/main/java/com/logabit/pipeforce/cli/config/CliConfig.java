@@ -20,7 +20,7 @@ public class CliConfig {
     /**
      * The home folder of the PIPEFORCE installation, defaults to $USER_HOME/pipeforce.
      */
-    private String home = PathUtil.path(System.getProperty("user.home"), "pipeforce");
+    private String installationHome = PathUtil.path(System.getProperty("user.home"), "pipeforce");
 
     /**
      * The date and time this configuration was created.
@@ -67,12 +67,12 @@ public class CliConfig {
         this.defaultInstance = defaultInstance;
     }
 
-    public String getHome() {
-        return home;
+    public String getInstallationHome() {
+        return installationHome;
     }
 
-    public void setHome(String home) {
-        this.home = home;
+    public void setInstallationHome(String home) {
+        this.installationHome = home;
     }
 
     public List<Instance> getInstances() {

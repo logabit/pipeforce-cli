@@ -90,7 +90,7 @@ public class UpdateCliServiceTest {
     @Test
     public void testDownloadAndInstallVersion() throws IOException {
 
-        when(configService.getHome()).thenReturn("/some/home/path");
+        when(configService.getInstallationHome()).thenReturn("/some/home/path");
         UpdateCliService updateCliService = new UpdateCliService();
         updateCliService.setContext(cliContext);
 

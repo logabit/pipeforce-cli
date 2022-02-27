@@ -9,7 +9,9 @@ import com.logabit.pipeforce.cli.service.InstallCliService;
 import com.logabit.pipeforce.cli.service.OutputCliService;
 import com.logabit.pipeforce.cli.service.PublishCliService;
 import com.logabit.pipeforce.common.pipeline.PipelineRunner;
+import com.logabit.pipeforce.common.util.FileUtil;
 import com.logabit.pipeforce.common.util.JsonUtil;
+import com.logabit.pipeforce.common.util.StringUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -62,12 +64,13 @@ public class GetCliCommandTest {
 
     @Mock
     private PipelineRunner pipelineRunner;
+    private File repoHome;
 
     @Before
     public void setUp() {
 
-        cliContext.setCurrentWorkDir(new File("/some/home/pipeforce"));
-        when(configService.getHome()).thenReturn("/some/home/pipeforce");
+        this.repoHome = createTestAppRepoHome();
+        cliContext.setCurrentWorkDir(repoHome);
     }
 
     @Test
@@ -127,7 +130,20 @@ public class GetCliCommandTest {
         Assert.assertEquals("someValue2", new String(allData.get(1)));
 
         List<File> allFiles = fileCaptor.getAllValues();
-        Assert.assertEquals(new File("/some/home/pipeforce/src/global/app/myapp/pipeline/prop1.pi.yaml"), allFiles.get(0));
-        Assert.assertEquals(new File("/some/home/pipeforce/src/global/app/myapp/pipeline/prop2.pi.yaml"), allFiles.get(1));
+        Assert.assertEquals(new File(repoHome, "src/global/app/myapp/pipeline/prop1.pi.yaml"), allFiles.get(0));
+        Assert.assertEquals(new File(repoHome, "src/global/app/myapp/pipeline/prop2.pi.yaml"), allFiles.get(1));
+    }
+
+    private File createTestAppRepoHome() {
+
+        File testRepo = new File(System.getProperty("user.home"), "PIPEFORCE_TEST_" + StringUtil.randomString(5));
+
+        File srcFolder = new File(testRepo, "src");
+        FileUtil.createFolders(srcFolder);
+
+        File pipeforceFolder = new File(testRepo, ".pipeforce");
+        FileUtil.createFolders(pipeforceFolder);
+
+        return testRepo;
     }
 }

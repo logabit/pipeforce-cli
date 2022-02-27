@@ -15,6 +15,6 @@ public class AppResourceCliService extends BaseCliContextAware {
      * @return
      */
     public boolean isAppExists(String appName) {
-        return FileUtil.isFileExists(getContext().getConfigService().getHome(), "app", appName);
+        return FileUtil.isFileExists(getContext().getSrcFolder().getAbsolutePath(), "global", "app", appName);
     }
 }

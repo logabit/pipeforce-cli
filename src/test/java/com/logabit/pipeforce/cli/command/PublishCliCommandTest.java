@@ -159,7 +159,8 @@ public class PublishCliCommandTest {
     @Test
     public void testPreparePath() throws Exception {
 
-        Mockito.when(configService.getHome()).thenReturn("/Users/some/pipeforce");
+        cliContext.setCurrentWorkDir(new File("/Users/some/pipeforce"));
+        publishCommand.setContext(cliContext);
 
         Assert.assertEquals(new File("/Users/some/pipeforce/src/global/app/myapp/**").toURI().toString(),
                 publishCommand.prepareLocalPathPattern("myapp"));

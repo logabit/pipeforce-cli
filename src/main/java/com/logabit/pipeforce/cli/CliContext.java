@@ -250,7 +250,7 @@ public class CliContext {
     public String getCurrentAppFolderName() {
 
         Path workDir = getCurrentWorkDir().toPath();
-        Path pipeforceHome = Paths.get(PathUtil.path(getConfigService().getHome(), "src", "global", "app"));
+        Path pipeforceHome = Paths.get(PathUtil.path(getSrcFolder(), "global", "app"));
         if (workDir.startsWith(pipeforceHome)) {
             Path appFolder = workDir.subpath(pipeforceHome.getNameCount(), pipeforceHome.getNameCount() + 1);
             return appFolder.toFile().getName();
@@ -378,11 +378,6 @@ public class CliContext {
     }
 
     public CliPathArg createPathArg(String path) {
-
-        String home = configService.getHome();
-        if (home == null) {
-            home = "";
-        }
 
         // TODO remove extra new File step here
         return new CliPathArg(path, getRepoHome().getAbsolutePath());

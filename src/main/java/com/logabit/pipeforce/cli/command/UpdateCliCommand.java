@@ -42,7 +42,6 @@ public class UpdateCliCommand extends BaseCliCommand {
 
         if (!versionInfo.isNewerVersionAvailable()) {
             // No update found under given url -> Most recent version is in use. Quit update.
-            out.println("Latest version " + versionInfo.getCurrentVersion() + " already installed.");
             createResult(0, MSG_REJECTED_LATEST_INSTALLED, null);
             return 0;
         }

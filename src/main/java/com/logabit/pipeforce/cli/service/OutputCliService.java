@@ -3,10 +3,13 @@ package com.logabit.pipeforce.cli.service;
 import com.logabit.pipeforce.cli.CliContext;
 import com.logabit.pipeforce.cli.CliContextAware;
 import com.logabit.pipeforce.cli.CliException;
+import com.logabit.pipeforce.cli.Main;
 import com.logabit.pipeforce.common.util.FileUtil;
 import com.logabit.pipeforce.common.util.JsonUtil;
 import com.logabit.pipeforce.common.util.ListUtil;
 import com.logabit.pipeforce.common.util.StringUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -28,6 +31,7 @@ import java.util.UUID;
  */
 public class OutputCliService implements CliContextAware {
 
+    private static final Logger LOG = LoggerFactory.getLogger(Main.class);
     private AnimationRunnable runnable;
     private CliContext context;
     private List<String> outputs = new ArrayList<>();
@@ -44,12 +48,14 @@ public class OutputCliService implements CliContextAware {
                     "errorUuid", UUID.randomUUID().toString());
 
             wrapToRootAndPrint(error);
+            LOG.error(e.getMessage(), e);
             e.printStackTrace();
             return;
         }
 
         String outputSwitch = context.getArgs().getSwitch("-o");
         if (StringUtil.isEqual(outputSwitch, "plain")) {
+            LOG.info(result + "");
             System.out.println(result); // Plain text as it is
         } else {
             Map status = ListUtil.asLinkedMap("value", result);
@@ -61,7 +67,9 @@ public class OutputCliService implements CliContextAware {
     private void wrapToRootAndPrint(Map map) {
 
         Map resultRoot = ListUtil.asLinkedMap("result", map);
-        System.out.println(JsonUtil.objectToYamlString(resultRoot));
+        String yaml = JsonUtil.objectToYamlString(resultRoot);
+        LOG.info(yaml);
+        System.out.println(yaml);
     }
 
     /**
@@ -105,6 +113,7 @@ public class OutputCliService implements CliContextAware {
 
     public void println(String s) {
         outputs.add(s);
+        LOG.info(s);
         System.out.println(s);
     }
 
@@ -114,6 +123,7 @@ public class OutputCliService implements CliContextAware {
 
     public void print(String s) {
         outputs.add(s);
+        LOG.info(s);
         System.out.print(s);
     }
 

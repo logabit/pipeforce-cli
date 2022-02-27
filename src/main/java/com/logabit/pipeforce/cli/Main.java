@@ -3,6 +3,7 @@ package com.logabit.pipeforce.cli;
 import com.logabit.pipeforce.cli.command.HelpCliCommand;
 import com.logabit.pipeforce.cli.command.ICliCommand;
 import com.logabit.pipeforce.cli.command.SetupCliCommand;
+import com.logabit.pipeforce.cli.service.OutputCliService;
 import com.logabit.pipeforce.common.exception.UncheckedClassNotFoundException;
 import com.logabit.pipeforce.common.util.DateTimeUtil;
 import com.logabit.pipeforce.common.util.JsonUtil;
@@ -27,14 +28,17 @@ public class Main {
     public static void main(String[] args) throws Exception {
 
         CliContext ctx = new CliContext(args);
+        OutputCliService out = ctx.getOutputService();
+        String errorMessage = null;
+        LOG.info("Executing command: pi " + StringUtil.concat(" ", args));
+
         try {
-            int exitCode = 0;
             ctx.getConfigService().loadConfiguration();
 
             // The very first arg is the command name -> Lookup a class with this name: setup -> SetupCallable
 
             if (args.length == 0) {
-                System.out.println("USAGE: pi <COMMAND> <SWITCHES>");
+                out.println("USAGE: pi <COMMAND> <SWITCHES>");
                 HelpCliCommand cmd = (HelpCliCommand) ctx.createCommandInstance("help");
                 cmd.call(CommandArgs.EMPTY);
                 return;
@@ -52,42 +56,44 @@ public class Main {
                 }
 
                 ctx.callCommand();
-                LOG.info("Command success: pi " + StringUtil.concat(" ", args));
 
             } catch (UncheckedClassNotFoundException e) {
 
-                System.out.println("PIPEFORCE CLI command [" + cmdName + "] not found.");
+                out.println("PIPEFORCE CLI command [" + cmdName + "] not found.");
                 ICliCommand cmd = ctx.createCommandInstance("help");
                 try {
                     cmd.call(CommandArgs.EMPTY);
                 } catch (Exception exception) {
-                    throw new RuntimeException("Could not execute help command: " + e.getMessage(), e);
+                    LOG.error("Could not execute help command!", e);
                 }
-                exitCode = -1;
 
             } catch (HttpServerErrorException.InternalServerError e) {
 
                 String message = e.getResponseBodyAsString();
 
                 if (JsonUtil.isJsonString(message)) {
-                    System.out.println(JsonUtil.jsonStringToJsonNode(message).toPrettyString());
+                    errorMessage = JsonUtil.jsonStringToJsonNode(message).toPrettyString();
                 } else {
-                    ctx.getOutputService().printResult(e);
+                    errorMessage = e.getMessage();
                 }
 
                 LOG.error("Command caused error: pi " + StringUtil.concat(" ", args), e);
-                exitCode = -1;
 
             } catch (Exception e) {
 
+                errorMessage = e.getMessage();
                 LOG.error("Command caused error: pi " + StringUtil.concat(" ", args), e);
-                ctx.getOutputService().printResult(e);
-                exitCode = -1;
             }
 
 
         } finally {
-            ctx.getConfigService().saveConfiguration();
+
+            if (errorMessage != null) {
+                out.printResult(errorMessage);
+                System.exit(-1);
+            } else {
+                ctx.getConfigService().saveConfiguration();
+            }
         }
     }
 

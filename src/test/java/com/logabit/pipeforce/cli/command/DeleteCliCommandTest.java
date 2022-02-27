@@ -9,7 +9,9 @@ import com.logabit.pipeforce.cli.service.InstallCliService;
 import com.logabit.pipeforce.cli.service.OutputCliService;
 import com.logabit.pipeforce.cli.service.PublishCliService;
 import com.logabit.pipeforce.common.pipeline.PipelineRunner;
+import com.logabit.pipeforce.common.util.FileUtil;
 import com.logabit.pipeforce.common.util.JsonUtil;
+import com.logabit.pipeforce.common.util.StringUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -63,12 +65,13 @@ public class DeleteCliCommandTest {
 
     @Mock
     private PipelineRunner pipelineRunner;
+    private File repoHome;
 
     @Before
     public void setUp() {
 
-        cliContext.setCurrentWorkDir(new File("/some/home/pipeforce"));
-        when(configService.getHome()).thenReturn("/some/home/pipeforce");
+        this.repoHome = createTestAppRepoHome();
+        cliContext.setCurrentWorkDir(repoHome);
     }
 
     @Test
@@ -215,5 +218,18 @@ public class DeleteCliCommandTest {
         List<String> values = uriCaptor.getAllValues();
         Assert.assertEquals(1, values.size());
         Assert.assertEquals("property.list?filter=global/app/myapp/pipeline/someleaf", values.get(0));
+    }
+
+    private File createTestAppRepoHome() {
+
+        File testRepo = new File(System.getProperty("user.home"), "PIPEFORCE_TEST_" + StringUtil.randomString(5));
+
+        File srcFolder = new File(testRepo, "src");
+        FileUtil.createFolders(srcFolder);
+
+        File pipeforceFolder = new File(testRepo, ".pipeforce");
+        FileUtil.createFolders(pipeforceFolder);
+
+        return testRepo;
     }
 }

@@ -32,7 +32,7 @@ public class GetCliCommand extends BaseCliCommand {
         }
 
         CliPathArg pathArg = getContext().createPathArg(args.getOptionKeyAt(0));
-        get(pathArg, "src");
+        get(pathArg, getContext().getSrcFolder());
 
         return 0;
     }
@@ -41,9 +41,9 @@ public class GetCliCommand extends BaseCliCommand {
      * Downloads all properties matching given pattern.
      *
      * @param pathArg
-     * @param localTargetFolderName The folder inside the pipeforce workspace to get files into.
+     * @param targetFolder The folder to download into.
      */
-    public void get(CliPathArg pathArg, String localTargetFolderName) {
+    public void get(CliPathArg pathArg, File targetFolder) {
 
         PublishCliService publishService = getContext().getPublishService();
         publishService.load();
@@ -75,7 +75,7 @@ public class GetCliCommand extends BaseCliCommand {
             out.print("Get " + relLocalPath + " : ");
 
             // e.g. /Users/someUser/pipeforce/src/....
-            String fullLocalPath = PathUtil.path(config.getHome(), localTargetFolderName, relLocalPath);
+            String fullLocalPath = PathUtil.path(targetFolder.getAbsolutePath(), relLocalPath);
 
             long updated = node.get("updated").longValue();
             if (updated == 0) {

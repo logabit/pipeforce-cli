@@ -64,7 +64,6 @@ public class PipelineCliCommandTest {
     public void testRunFile() throws Exception {
         //TODO expect this but system specific "/some/home/pipeforce/src/global/app/myapp/pipeline/hello.pi.yaml"
         when(out.readFileToString(Mockito.anyString())).thenReturn("pipeline:");
-        when(config.getHome()).thenReturn("/some/home/pipeforce");
         cliContext.setCurrentWorkDir(new File("/some/home/pipeforce"));
 
         PipelineCliCommand localRun = (PipelineCliCommand) cliContext.createCommandInstance("pipeline");

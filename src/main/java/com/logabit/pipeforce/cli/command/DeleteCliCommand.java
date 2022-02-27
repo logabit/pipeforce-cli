@@ -61,7 +61,7 @@ public class DeleteCliCommand extends BaseCliCommand {
             String ext = getContext().getMimeTypeService().getFileExtensionForMimeType(type);
             String relPath = key.substring(propHome.length() + 1);
             relPath = relPath + ext;
-            String targetPath = PathUtil.path(config.getHome(), relPath);
+            String targetPath = PathUtil.path(getContext().getSrcFolder(), relPath);
             publishService.remove(targetPath);
         }
 
