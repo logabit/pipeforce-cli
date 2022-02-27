@@ -43,6 +43,9 @@ public class SetupCliCommand extends BaseCliCommand {
             instance.setApiPath(in.ask("API Path", instance.getApiPath()));
         }
 
+        config.getInstances().put(instance.getName(), instance);
+        config.setDefaultInstance(instance.getName());
+
         instance.setUsername(in.ask("Username", instance.getUsername()));
 
         String password = in.askPassword("Password");
@@ -52,8 +55,7 @@ public class SetupCliCommand extends BaseCliCommand {
         instance.setApiToken(apitoken);
         instance.setApiTokenCreated(DateTimeUtil.currentDateTimeAsIso8061());
 
-        config.getInstances().put(instance.getName(), instance);
-        config.setDefaultInstance(instance.getName());
+
         config.saveConfiguration();
 
         if (installed) {
