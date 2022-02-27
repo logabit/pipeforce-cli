@@ -453,7 +453,7 @@ public class CliContext {
         }
 
         String instanceName = getConfigService().getDefaultInstance();
-        this.currentInstance = getConfigService().getInstances().get(instanceName);
+        this.currentInstance = getConfigService().getInstanceByName(instanceName);
         return this.currentInstance;
     }
 

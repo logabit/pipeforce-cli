@@ -43,7 +43,7 @@ public class SetupCliCommand extends BaseCliCommand {
             instance.setApiPath(in.ask("API Path", instance.getApiPath()));
         }
 
-        config.getInstances().put(instance.getName(), instance);
+        config.getInstances().add(instance);
         config.setDefaultInstance(instance.getName());
 
         instance.setUsername(in.ask("Username", instance.getUsername()));

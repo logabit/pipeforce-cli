@@ -6,8 +6,8 @@ import com.logabit.pipeforce.common.util.PathUtil;
 import com.logabit.pipeforce.common.util.StringUtil;
 
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Main configuration for the pi tool.
@@ -45,7 +45,7 @@ public class CliConfig {
     /**
      * The available namespace instances. Key = namespace.host
      */
-    private Map<String, Instance> instances = new HashMap<>();
+    private List<Instance> instances = new ArrayList<>();
 
     /**
      * Contains the url of the default instance.
@@ -75,12 +75,26 @@ public class CliConfig {
         this.home = home;
     }
 
-    public Map<String, Instance> getInstances() {
+    public List<Instance> getInstances() {
         return instances;
     }
 
-    public void setInstances(Map<String, Instance> instances) {
+    public void setInstances(List<Instance> instances) {
         this.instances = instances;
+    }
+
+    @JsonIgnore
+    public Instance getInstanceByName(String name) {
+
+        List<Instance> instances = getInstances();
+
+        for (Instance instance : instances) {
+            if (instance.getName().equals(name)) {
+                return instance;
+            }
+        }
+
+        return null;
     }
 
     public String getConfigCreated() {
@@ -259,6 +273,7 @@ public class CliConfig {
             this.apiTokenCreated = apiTokenCreated;
         }
 
+        @JsonIgnore
         public String getName() {
             return this.namespace + "." + this.host;
         }
