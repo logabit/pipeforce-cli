@@ -8,7 +8,9 @@ import com.logabit.pipeforce.cli.CommandArgs;
 import com.logabit.pipeforce.cli.service.ConfigCliService;
 import com.logabit.pipeforce.cli.service.OutputCliService;
 import com.logabit.pipeforce.common.pipeline.PipelineRunner;
+import com.logabit.pipeforce.common.util.FileUtil;
 import com.logabit.pipeforce.common.util.JsonUtil;
+import com.logabit.pipeforce.common.util.StringUtil;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,6 +47,7 @@ public class PipelineCliCommandTest {
 
     @Mock
     private ConfigCliService config;
+    private File homeRepo;
 
     @Test
     public void testRunRemote() throws Exception {
@@ -58,13 +61,15 @@ public class PipelineCliCommandTest {
 
         List<String> values = uriCaptor.getAllValues();
         Assert.assertEquals("call?uri=property:global/app/myapp/pipeline/hello", values.get(0));
+
+        this.homeRepo = createTestAppRepoHome();
+        cliContext.setCurrentWorkDir(homeRepo);
     }
 
     @Test
     public void testRunFile() throws Exception {
         //TODO expect this but system specific "/some/home/pipeforce/src/global/app/myapp/pipeline/hello.pi.yaml"
         when(out.readFileToString(Mockito.anyString())).thenReturn("pipeline:");
-        cliContext.setCurrentWorkDir(new File("/some/home/pipeforce"));
 
         PipelineCliCommand localRun = (PipelineCliCommand) cliContext.createCommandInstance("pipeline");
         localRun.call(new CommandArgs("src/global/app/myapp/pipeline/hello.pi.yaml"));
@@ -120,5 +125,18 @@ public class PipelineCliCommandTest {
         ArrayNode result = (ArrayNode) allValues.get(0);
         Assert.assertEquals("/pipeforce/enterprise/global/app/myapp/pipeline/prop1", result.get(0).get("key").textValue());
         Assert.assertEquals("/pipeforce/enterprise/global/app/myapp/pipeline/prop2", result.get(1).get("key").textValue());
+    }
+
+    private File createTestAppRepoHome() {
+
+        File testRepo = new File(System.getProperty("user.home"), "PIPEFORCE_TEST_" + StringUtil.randomString(5));
+
+        File srcFolder = new File(testRepo, "src");
+        FileUtil.createFolders(srcFolder);
+
+        File pipeforceFolder = new File(testRepo, ".pipeforce");
+        FileUtil.createFolders(pipeforceFolder);
+
+        return testRepo;
     }
 }

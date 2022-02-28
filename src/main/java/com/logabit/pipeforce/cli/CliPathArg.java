@@ -1,63 +1,59 @@
 
 package com.logabit.pipeforce.cli;
 
-import com.logabit.pipeforce.common.util.PathUtil;
-
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
  * Represents a path argument in the CLI.
+ * <p>
+ * Such a path argument can be a path pointing to a real existing local file
+ * or a path pattern.
+ * <p>
  * Holds a localPattern which is an absolute path to a file, folder or a pattern (ant style)
  * and a remotePattern which will be applied to the server.
  * Any time the user can type-in a path argument, you should wrap it into this class since
- * it converts relatively to the PIPEFORCE home and and current work dir.
+ * it converts relatively to the PIPEFORCE home and current work dir.
  */
 public class CliPathArg {
 
-    private final Path home;
-    private final Path src;
-    private final String localPattern;
-    private final String remotePattern;
-    private String encodedPath;
-    private String path;
-    private static final String ASTERISK = "%1Xc";
+    private final File srcHome;
+    private String pattern;
+    private String encodedPattern;
+
+    private static final String ASTERISK = "__1Xc__";
 
     /**
-     * @param path Can be an absolute local src "/Users/someUser/pipeforce/src/global/app..." or relative
-     *             local "src/global/app/..." or a remote path starting with "global/..."
-     * @param home
+     * @param pattern Can be an absolute local src "/Users/someUser/pipeforce/src/global/app..." or relative
+     *                local "src/global/app/..." or a remote path starting with "global/..."
+     * @param srcHome The path to the source home folder (= the folder which contains the global/app/.. resources).
      */
-    public CliPathArg(String path, String home) {
+    public CliPathArg(String pattern, File srcHome) {
 
-        this.home = Paths.get(home);
-        this.src = Paths.get(home, "src");
+        this.srcHome = srcHome;
 
-        Path p = Paths.get(encodePath(path));
-
+        Path p = Paths.get(encodePath(pattern));
         if (p.isAbsolute()) {
-            if (!p.startsWith(this.home)) {
-                throw new IllegalArgumentException("Absolute path [" + p + "] doesn't point to resource " +
-                        "inside [" + this.src + "]!");
-            }
-
-            path = path.substring(this.home.toString().length() + 1);
+            throw new CliException("Absolute path not supported: " + pattern + ". Path must be relative to: " +
+                    srcHome.getAbsolutePath());
         }
 
-        if (path.startsWith("global/")) {
-            this.path = path;
-        } else if (path.startsWith("src")) {
-            this.path = path.substring("src/".length());
+        pattern = pattern.replaceAll("\\\\", "/");
+
+        if (pattern.startsWith("global/")) {
+            pattern = pattern;
+        } else if (pattern.startsWith("src/")) {
+            pattern = pattern.substring("src/".length());
+        } else if (pattern.startsWith("pipeforce/src/")) {
+            pattern = pattern.substring("pipeforce/src/".length());
         } else {
-            throw new IllegalArgumentException("Unrecognized path: " + path);
+            throw new IllegalArgumentException("Unrecognized path: " + pattern);
         }
 
         // Replace * by ASTERISK to avoid platform problems
-        this.encodedPath = encodePath(this.path);
-
-        this.localPattern = toExternalForm(toPattern(encodePath(getLocalPathAbsolute()))).replaceAll("\\\\", "/");
-        this.remotePattern = toExternalForm(toPattern(this.encodedPath)).replaceAll("\\\\", "/");
+        this.encodedPattern = encodePath(pattern);
+        this.pattern = pattern;
     }
 
     /**
@@ -108,27 +104,51 @@ public class CliPathArg {
         return path;
     }
 
+    public File getLocalFile() {
+
+        if (isPattern()) {
+            throw new CliException("Cannot return file since arg is a pattern: " + encodedPattern);
+        }
+
+        return new File(this.srcHome, this.pattern);
+    }
+
+    /**
+     * For testing purposes.
+     *
+     * @param file
+     * @return
+     */
     public boolean isDir(File file) {
         return file.isDirectory();
     }
 
     /**
      * Returns the local path pattern as absolute path.
-     * Use {@link #isPattern()} to detect whether it is a pattern or a 100% valid path.
+     * <p>
+     * For example if pattern was 'global/app/**' and srcHome was '/Users/foo/src' returns '/Users/foo/src/global/app/**'.
+     * <p>
+     * Use {@link #isPattern()} to detect whether it is a pattern or a local path.
      *
      * @return
      */
     public String getLocalPattern() {
-        return this.localPattern;
+
+        File f = new File(this.srcHome, this.encodedPattern);
+        String localPattern = toPattern(f.getAbsolutePath());
+        return toExternalForm(localPattern).replaceAll("\\\\", "/");
     }
 
     /**
      * Returns the remote key pattern.
+     * <p>
+     * For example if given pattern was 'src\global\app\**' returns 'global/app/**'.
      *
-     * @return
+     * @return The key pattern ready to be applied remotely.
      */
     public String getRemotePattern() {
-        return this.remotePattern;
+
+        return toExternalForm(toPattern(this.encodedPattern)).replaceAll("\\\\", "/");
     }
 
     /**
@@ -137,47 +157,6 @@ public class CliPathArg {
      * @return
      */
     public boolean isPattern() {
-        return this.encodedPath.contains(ASTERISK);
-    }
-
-    /**
-     * Returns the local path relative to workspace.
-     *
-     * @return
-     */
-    public String getLocalPathRelative() {
-        return PathUtil.path("src", this.path);
-    }
-
-    public String getLocalPathAbsolute() {
-        return this.home.resolve(getLocalPathRelative()).toString();
-    }
-
-    public String getRemotePath() {
-        return this.path;
-    }
-
-    /**
-     * Returns true in case this path points to a local directory AND it exists locally.
-     *
-     * @return
-     */
-    public boolean isLocalDirectory() {
-        File file = new File(getLocalPathAbsolute());
-        return file.isDirectory();
-    }
-
-    /**
-     * Returns true in case this path points to a local file AND this file exists.
-     *
-     * @return
-     */
-    public boolean isLocalFileExists() {
-        File file = new File(getLocalPathAbsolute());
-        return file.exists();
-    }
-
-    public File getLocalFile() {
-        return new File(getLocalPathAbsolute());
+        return this.encodedPattern.contains(ASTERISK);
     }
 }

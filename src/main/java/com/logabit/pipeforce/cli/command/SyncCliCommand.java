@@ -42,16 +42,17 @@ public class SyncCliCommand extends BaseCliCommand {
         this.deleteCommand = (DeleteCliCommand) getContext().createCommandInstance("Delete");
 
         CliPathArg pathArg = getContext().createPathArg(path);
-
         if (pathArg.isPattern()) {
             throw new CliException("Patterns not allowed. Point to a local existing folder path to sync.");
         }
 
-        if (!pathArg.isLocalFileExists()) {
-            throw new CliException("Local path doesnt exist: " + path);
+        File watchFolder = pathArg.getLocalFile();
+
+        if (!watchFolder.exists()) {
+            throw new CliException("Local path doesnt exist: " + watchFolder.getAbsolutePath());
         }
 
-        if (!pathArg.isLocalDirectory()) {
+        if (!watchFolder.isDirectory()) {
             throw new CliException("Local path must point to a directory: " + path);
         }
 
@@ -69,7 +70,7 @@ public class SyncCliCommand extends BaseCliCommand {
         }
 
         PublishCliService publishService = getContext().getPublishService();
-        publishService.removeFolder(pathArg.getLocalPathAbsolute());
+        publishService.removeFolder(watchFolder.getAbsolutePath());
         publishService.save();
 
         // Upload all files from watch folder
@@ -77,7 +78,7 @@ public class SyncCliCommand extends BaseCliCommand {
 
         // See: https://github.com/gmethvin/directory-watcher
         DirectoryWatcher.builder()
-                .path(pathArg.getLocalFile().toPath())
+                .path(watchFolder.toPath())
                 .listener(event -> {
 
                     Path eventPath = event.path();

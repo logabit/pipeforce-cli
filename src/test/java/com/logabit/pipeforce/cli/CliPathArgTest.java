@@ -17,7 +17,7 @@ public class CliPathArgTest {
     public void testPathArgs() {
 
         // Workspace home
-        String home = "/User/someUser/pipeforce";
+        String home = "/User/someUser/pipeforce/src";
 
         CliPathArg pathArg = createPathArg("src/global/app/*/pipeline/*", home, false);
         Assert.assertEquals("/User/someUser/pipeforce/src/global/app/*/pipeline/*", pathArg.getLocalPattern());
@@ -89,15 +89,16 @@ public class CliPathArgTest {
         Assert.assertEquals("global/app/**", pathArg.getRemotePattern());
         Assert.assertFalse(pathArg.isPattern());
 
-        pathArg = createPathArg("/User/someUser/pipeforce/src/global/app/", home, true);
-        Assert.assertEquals("/User/someUser/pipeforce/src/global/app/**", pathArg.getLocalPattern());
-        Assert.assertEquals("global/app/**", pathArg.getRemotePattern());
-        Assert.assertFalse(pathArg.isPattern());
+        try {
+            pathArg = createPathArg("/User/someUser/pipeforce/src/global/app/", home, true);
+            Assert.fail("Exception expected, not thrown.");
+        } catch (Exception e) {
+        }
     }
 
     private CliPathArg createPathArg(String path, String home, boolean expectDir) {
 
-        CliPathArg orig = new CliPathArg(path, home) {
+        CliPathArg orig = new CliPathArg(path, new File(home)) {
 
             public boolean isDir(File file) {
                 return expectDir;

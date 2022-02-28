@@ -380,7 +380,7 @@ public class CliContext {
     public CliPathArg createPathArg(String path) {
 
         // TODO remove extra new File step here
-        return new CliPathArg(path, getRepoHome().getAbsolutePath());
+        return new CliPathArg(path, getSrcFolder());
     }
 
     public InputUtil getInputUtil() {
