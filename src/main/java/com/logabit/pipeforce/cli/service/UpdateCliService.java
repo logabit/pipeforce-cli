@@ -73,22 +73,23 @@ public class UpdateCliService extends BaseCliContextAware {
         }
 
         ConfigCliService config = getContext().getConfigService();
-        String jarLatestPath = PathUtil.path(config.getInstallationHome(), "bin", "pipeforce-cli.jar");
-        File updateJarFile = new File(jarLatestPath);
+
+        String downloadedJarPath = PathUtil.path(config.getInstallationHome(), "bin", "pipeforce-cli", "pipeforce-cli-downloaded.jar");
+        File downloadedJarFile = new File(downloadedJarPath);
 
         HttpEntity entity = response.getEntity();
         if (entity != null) {
-            try (OutputStream os = getContext().getOutputService().createOutputStream(updateJarFile)) {
+            try (OutputStream os = getContext().getOutputService().createOutputStream(downloadedJarFile)) {
                 IOUtil.copy(entity.getContent(), os);
             } catch (Exception e) {
                 throw new CliException("Could not save download from [" + downloadUrl + "] to file [" +
-                        updateJarFile + "]: " + e.getMessage(), e);
+                        downloadedJarFile + "]: " + e.getMessage(), e);
             }
         }
 
-        String jarPath = PathUtil.path(config.getInstallationHome(), "bin", "pipeforce-cli.jar");
-        File jarFile = new File(jarPath);
-        getContext().getOutputService().moveFile(updateJarFile, jarFile);
+        String installedJarPath = PathUtil.path(config.getInstallationHome(), "bin", "pipeforce-cli", "pipeforce-cli.jar");
+        File installedJarFile = new File(installedJarPath);
+        getContext().getOutputService().moveFile(downloadedJarFile, installedJarFile);
     }
 
     protected JsonNode downloadGitHubLatest() {
