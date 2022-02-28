@@ -89,7 +89,7 @@ To automatically build, test and create a stable release, set a tag of format: `
 must be the release version. Example:
 
 ```
-git tag v8.0.0-RELEASE
+git tag v3.0.0-RELEASE
 git push origin --tags
 ```
 
@@ -103,6 +103,6 @@ format: `v<version>-RC<number>` whereas `<version>` must be the designated relea
 must be the number of the releae candidate. Example:
 
 ```
-git tag v8.0.0-RC1
+git tag v3.0.0-RC1
 git push origin --tags
 ```
