@@ -53,8 +53,7 @@ public class CliConfig {
      */
     private String defaultInstance;
 
-    private String installedReleaseName;
-    private String installedVersion;
+    private String installedReleaseTag;
 
     /**
      * The default instance key as: namespace.host
@@ -132,17 +131,7 @@ public class CliConfig {
     }
 
     @JsonIgnore
-    public String getInstalledReleaseName() {
-
-        if (!StringUtil.isEmpty(installedReleaseName)) {
-            return installedReleaseName;
-        }
-
-        // Mainly for testing purposes to be able to switch versions:
-        if (System.getProperty("CURRENT_RELEASE_NAME") != null) {
-            installedReleaseName = System.getProperty("CURRENT_RELEASE_NAME");
-            return installedReleaseName;
-        }
+    public String getReleaseTagFromJar() {
 
         // This version is set by Maven build, so load it and write it to the CLI config for easier access
         InputStream is = InstallCliService.class.getClassLoader().getResourceAsStream("version.txt");
@@ -151,34 +140,32 @@ public class CliConfig {
             throw new IllegalStateException("Could not read from classpath:version.txt file!");
         }
 
-        installedReleaseName = StringUtil.fromInputStream(is).trim();
-
-        return installedReleaseName;
+        return StringUtil.fromInputStream(is).trim();
     }
 
     @JsonIgnore
     public String getInstalledJarPath() {
-        return PathUtil.path(getInstallationHome(), "bin", "pipeforce-cli-" + getInstalledVersion() + ".jar");
+        return PathUtil.path(getInstallationHome(), "bin", "pipeforce-cli-" + getInstalledReleaseTag() + ".jar");
     }
 
     /**
-     * @param installedVersion
+     * @param installedReleaseTag
      */
-    public void setInstalledVersion(String installedVersion) {
-        this.installedVersion = installedVersion;
+    public void setInstalledReleaseTag(String installedReleaseTag) {
+        this.installedReleaseTag = installedReleaseTag;
     }
 
-    public String getInstalledVersion() {
+    public String getInstalledReleaseTag() {
 
-        if (this.installedVersion != null) {
-            return this.installedVersion;
+        if (this.installedReleaseTag != null) {
+            return this.installedReleaseTag;
         }
 
         UpdateCliService.VersionInfo versionInfo = new UpdateCliService.VersionInfo(
-                getInstalledReleaseName(), null, null);
-        this.installedVersion = versionInfo.getCurrentVersion();
+                getReleaseTagFromJar(), null, null);
+        this.installedReleaseTag = versionInfo.getCurrentVersion();
 
-        return installedVersion;
+        return installedReleaseTag;
     }
 
     /**

@@ -73,7 +73,7 @@ public class UpdateCliServiceTest {
         when(entity.getContent()).thenReturn(FileUtil.readFileToInputStream(new File("src/test/resources/github.latest.test.json")));
         when(httpResponse.getEntity()).thenReturn(entity);
 
-        when(configService.getInstalledReleaseName()).thenReturn("v7.9.9-RC1"); // This is the currently installed version
+        when(configService.getReleaseTagFromJar()).thenReturn("v7.9.9-RC1"); // This is the currently installed version
 
         UpdateCliService updateCliService = new UpdateCliService();
         updateCliService.setContext(cliContext);

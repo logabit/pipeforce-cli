@@ -60,7 +60,7 @@ public class SetupCliCommand extends BaseCliCommand {
 
         if (installed) {
             out.println();
-            out.println("PIPEFORCE CLI " + config.getInstalledReleaseName() + " successfully installed to: " + pipeforceHome);
+            out.println("PIPEFORCE CLI " + config.getReleaseTagFromJar() + " successfully installed to: " + pipeforceHome);
             out.println();
             out.println("Tip 1: Install VS Code: https://code.visualstudio.com/download");
             out.println("Tip 2: Install YAML plugin: https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml");

@@ -33,17 +33,36 @@ public class UpdateCliCommand extends BaseCliCommand {
             return -1;
         }
 
+        String tag = null;
         if (args.getLength() > 1) {
             out.println("USAGE: " + getUsageHelp());
             return -1;
+        } else if (args.getLength() == 1) {
+            tag = args.getOptionKeyAt(0);
         }
+
+        UpdateCliService.VersionInfo versionInfo;
+        if (tag == null) {
+            versionInfo = this.updateToLatest();
+        } else {
+            versionInfo = this.updateToTag(tag);
+        }
+
+        getContext().getOutputService().println("Update from " + versionInfo.getCurrentVersion() + " to " +
+                versionInfo.getLatestVersion() + " was successful.");
+        // The next time a command is executed, it will use the new version...
+
+        return 0;
+    }
+
+    private UpdateCliService.VersionInfo updateToLatest() {
 
         UpdateCliService.VersionInfo versionInfo = getContext().getUpdateService().getVersionInfo();
 
         if (!versionInfo.isNewerVersionAvailable()) {
             // No update found under given url -> Most recent version is in use. Quit update.
             createResult(0, MSG_REJECTED_LATEST_INSTALLED, null);
-            return 0;
+            return versionInfo;
         }
 
         // Update found. Ask user whether he wants to download + install update.
@@ -54,25 +73,30 @@ public class UpdateCliCommand extends BaseCliCommand {
         if (selection == 0) {
             // No was selected. So do not update. Quit.
             createResult(0, MSG_REJECTED_USER_CANCELLED, null);
-            return 0;
+            return versionInfo;
         }
 
         getContext().getUpdateService().downloadAndUpdateVersion(versionInfo);
+        return versionInfo;
+    }
 
-        getContext().getOutputService().println("Update from " + versionInfo.getCurrentVersion() + " to " +
-                versionInfo.getLatestVersion() + " was successful.");
+    private UpdateCliService.VersionInfo updateToTag(String tag) {
 
-        // The next time a command is executed, it will use the new version...
+        String url = "https://github.com/logabit/pipeforce-cli/releases/download/" + tag + "/pipeforce-cli.jar";
+        String currentReleaseName = getContext().getConfigService().getReleaseTagFromJar();
+        UpdateCliService.VersionInfo versionInfo = new UpdateCliService.VersionInfo(currentReleaseName, tag, url);
 
-        createResult(0, MSG_SUCCESS, null);
-        return 0;
+        getContext().getUpdateService().downloadAndUpdateVersion(versionInfo);
+
+        return versionInfo;
     }
 
     public String getUsageHelp() {
-        return "pi update\n" +
+        return "pi update [tag]\n" +
                 "   Checks for newer version and installs it.\n" +
                 "   Note: Doesnt work with native launcher on Mac.\n" +
                 "   Examples:\n" +
-                "     pi update - Checks for the latest version.\n";
+                "     pi update - Checks for the latest version.\n" +
+                "     pi update v3.0.3-RC1 - Downloads and updates to the exact version tag.\n";
     }
 }

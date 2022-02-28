@@ -45,7 +45,7 @@ public class UpdateCliService extends BaseCliContextAware {
             }
         }
 
-        String currentReleaseName = getContext().getConfigService().getInstalledReleaseName();
+        String currentReleaseName = getContext().getConfigService().getReleaseTagFromJar();
         VersionInfo latestInfo = new VersionInfo(currentReleaseName, releaseName, downloadUrl);
         return latestInfo;
     }
@@ -56,6 +56,10 @@ public class UpdateCliService extends BaseCliContextAware {
      * @param versionInfo
      */
     public void downloadAndUpdateVersion(VersionInfo versionInfo) {
+
+        if (versionInfo.getCurrentReleaseName().equals(versionInfo.getLatestReleaseName())) {
+            return; // Nothing to update
+        }
 
         // Download the latest jar to the $USER_HOME/pipeforce/bin folder
         String downloadUrl = versionInfo.getLatestDownloadUrl();
@@ -74,7 +78,8 @@ public class UpdateCliService extends BaseCliContextAware {
 
         ConfigCliService config = getContext().getConfigService();
 
-        String downloadedJarPath = PathUtil.path(config.getInstallationHome(), "pipeforce-cli", "bin", "pipeforce-cli.jar");
+        String downloadedJarPath = PathUtil.path(config.getInstallationHome(), "pipeforce-cli", "bin",
+                "pipeforce-cli-" + versionInfo.getLatestReleaseName() + ".jar");
         File downloadedJarFile = new File(downloadedJarPath);
 
         HttpEntity entity = response.getEntity();
@@ -87,13 +92,9 @@ public class UpdateCliService extends BaseCliContextAware {
             }
         }
 
-        getContext().getConfigService().setInstalledVersion(versionInfo.getLatestVersion());
-
-        String installedJarPath = getContext().getConfigService().getInstalledJarPath();
-        File installedJarFile = new File(installedJarPath);
-        getContext().getOutputService().moveFile(downloadedJarFile, installedJarFile);
-
+        getContext().getConfigService().setInstalledReleaseTag(versionInfo.getLatestVersion());
         getContext().getConfigService().saveConfiguration();
+        getContext().getInstallService().createPiScript();
     }
 
     protected JsonNode downloadGitHubLatest() {

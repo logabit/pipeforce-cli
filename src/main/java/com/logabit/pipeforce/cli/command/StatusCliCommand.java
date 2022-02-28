@@ -38,7 +38,7 @@ public class StatusCliCommand extends BaseCliCommand {
         cliStatus.put("apiTokenCreated", instance.getApiTokenCreated());
         cliStatus.put("configLastUpdated", config.getConfigUpdated());
         cliStatus.put("home", config.getInstallationHome());
-        cliStatus.put("version", config.getInstalledReleaseName());
+        cliStatus.put("version", config.getReleaseTagFromJar());
         cliStatus.put("lastUpdateCheck", DateTimeUtil.timestampToIso8061(config.getUpdateCheckLast()));
 
         status.put("cli", cliStatus);

@@ -9,7 +9,6 @@ import org.apache.commons.lang3.SystemUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
 
 /**
  * Service for all install / uninstall steps of the CLI tool.
@@ -26,15 +25,11 @@ public class InstallCliService extends BaseCliContextAware {
      */
     public boolean install() {
 
-        boolean installed;
-
-        String path = getDefaultInstallationPath();
-
         this.createUserFolders();
 
-        installed = this.copyJar(path);
+        boolean installed = this.copyJar();
 
-        this.createPiScript(path);
+        this.createPiScript();
 
         return installed;
     }
@@ -54,18 +49,19 @@ public class InstallCliService extends BaseCliContextAware {
     /**
      * Copies the downloaded jar file (given on the command line) to the final installation path.
      *
-     * @param installationPath
      * @return
      */
-    private boolean copyJar(String installationPath) {
+    private boolean copyJar() {
 
-        String jarTargetPath = PathUtil.path(installationPath, CLI_JAR_FILENAME);
+        String jarReleaseTag = getContext().getConfigService().getReleaseTagFromJar();
+        String installationHome = getContext().getConfigService().getInstallationHome();
+        String jarTargetPath = PathUtil.path(installationHome, "bin", "pipeforce-cli-" + jarReleaseTag + ".jar");
 
         if (FileUtil.isFileExists(jarTargetPath)) {
             return false;
         }
 
-        // Do not execute installation if lanched via MacOS launcher
+        // Do not execute installation if launched via MacOS launcher
         if (getContext().isJpackageLaunched()) {
             return false;
         }
@@ -82,7 +78,6 @@ public class InstallCliService extends BaseCliContextAware {
                     "the setup command inside the same folder, the " + CLI_JAR_FILENAME + " exists!");
         }
 
-        getContext().getConfigService().getInstalledReleaseName();
         File targetJar = new File(jarTargetPath);
         try {
             targetJar.getParentFile().mkdirs();
@@ -92,6 +87,9 @@ public class InstallCliService extends BaseCliContextAware {
                     " to " + targetJar + ": " + e.getMessage(), e);
         }
 
+        getContext().getConfigService().setInstalledReleaseTag(jarReleaseTag);
+        getContext().getConfigService().saveConfiguration();
+
         return true;
     }
 
@@ -99,11 +97,11 @@ public class InstallCliService extends BaseCliContextAware {
      * Creates a new pi script in the PIPEFORCE installation folder.
      * Overwrites any existing one.
      */
-    public void createPiScript(String path) {
+    public void createPiScript() {
 
         String scriptContent;
         String jarTargetPath = getContext().getConfigService().getInstalledJarPath();
-        File scriptFile = new File(PathUtil.path(path, "pi"));
+        File scriptFile = new File(PathUtil.path(getContext().getConfigService().getInstallationHome(), "bin", "pi"));
 
         // Create a pi script depending on the operating system
         if (SystemUtils.OS_NAME.toLowerCase().contains("win")) {
@@ -113,7 +111,7 @@ public class InstallCliService extends BaseCliContextAware {
                     "java -XX:TieredStopAtLevel=1 -jar " + jarTargetPath + " %*";
 
             // Windows needs the .bat suffix -> Change path
-            scriptFile = new File(PathUtil.path(path, "pi.bat"));
+            scriptFile = new File(scriptFile.getAbsolutePath() + ".bat");
 
         } else if (getContext().isJpackageLaunched() && getContext().isOsMac()) {
 
@@ -144,15 +142,5 @@ public class InstallCliService extends BaseCliContextAware {
                 throw new RuntimeException("Could not execute chmod: " + command + ": " + e.getMessage(), e);
             }
         }
-    }
-
-    /**
-     * Returns the default installation path depending on the given OS.
-     *
-     * @return
-     */
-    public String getDefaultInstallationPath() {
-
-        return Paths.get(getContext().getConfigService().getInstallationHome(), "bin").toFile().getAbsolutePath();
     }
 }
