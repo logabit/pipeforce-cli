@@ -34,7 +34,7 @@ public class CliPathArg {
         this.home = Paths.get(home);
         this.src = Paths.get(home, "src");
 
-        Path p = Paths.get(path);
+        Path p = Paths.get(encodePath(path));
 
         if (p.isAbsolute()) {
             if (!p.startsWith(this.home)) {
