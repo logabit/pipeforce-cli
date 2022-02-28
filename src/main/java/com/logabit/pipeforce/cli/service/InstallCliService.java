@@ -135,11 +135,13 @@ public class InstallCliService extends BaseCliContextAware {
 
         FileUtil.saveStringToFile(scriptContent, scriptFile.getAbsolutePath());
 
-        String command = "chmod u+x " + scriptFile.getAbsolutePath();
-        try {
-            Runtime.getRuntime().exec(command);
-        } catch (IOException e) {
-            throw new RuntimeException("Could not execute chmod: " + command + ": " + e.getMessage(), e);
+        if (!getContext().isOsWin()) {
+            String command = "chmod u+x " + scriptFile.getAbsolutePath();
+            try {
+                Runtime.getRuntime().exec(command);
+            } catch (IOException e) {
+                throw new RuntimeException("Could not execute chmod: " + command + ": " + e.getMessage(), e);
+            }
         }
     }
 
