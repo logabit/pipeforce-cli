@@ -82,6 +82,7 @@ public class InstallCliService extends BaseCliContextAware {
                     "the setup command inside the same folder, the " + CLI_JAR_FILENAME + " exists!");
         }
 
+        getContext().getConfigService().getInstalledReleaseName();
         File targetJar = new File(jarTargetPath);
         try {
             targetJar.getParentFile().mkdirs();
@@ -101,7 +102,7 @@ public class InstallCliService extends BaseCliContextAware {
     public void createPiScript(String path) {
 
         String scriptContent;
-        String jarTargetPath = PathUtil.path(path, CLI_JAR_FILENAME);
+        String jarTargetPath = getContext().getConfigService().getInstalledJarPath();
         File scriptFile = new File(PathUtil.path(path, "pi"));
 
         // Create a pi script depending on the operating system
@@ -152,7 +153,6 @@ public class InstallCliService extends BaseCliContextAware {
      */
     public String getDefaultInstallationPath() {
 
-        String userHomePath = System.getProperty("user.home");
-        return Paths.get(userHomePath, "pipeforce", "pipeforce-cli", "bin").toFile().getAbsolutePath();
+        return Paths.get(getContext().getConfigService().getInstallationHome(), "bin").toFile().getAbsolutePath();
     }
 }

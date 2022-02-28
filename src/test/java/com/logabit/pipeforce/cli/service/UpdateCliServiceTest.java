@@ -2,6 +2,7 @@ package com.logabit.pipeforce.cli.service;
 
 import com.logabit.pipeforce.cli.CliContext;
 import com.logabit.pipeforce.common.util.FileUtil;
+import com.logabit.pipeforce.common.util.PathUtil;
 import com.logabit.pipeforce.common.util.StringUtil;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -91,6 +92,7 @@ public class UpdateCliServiceTest {
     public void testDownloadAndInstallVersion() throws IOException {
 
         when(configService.getInstallationHome()).thenReturn("/some/home/path");
+        when(configService.getInstalledJarPath()).thenReturn("/some/home/path/pipeforce-cli/bin/pipeforce-cli-8.5.5.jar");
         UpdateCliService updateCliService = new UpdateCliService();
         updateCliService.setContext(cliContext);
 
@@ -120,8 +122,8 @@ public class UpdateCliServiceTest {
         ArgumentCaptor<File> newJar = ArgumentCaptor.forClass(File.class);
         verify(outputService, times(1)).moveFile(currentJar.capture(), newJar.capture());
 
-        Assert.assertEquals("/some/home/path/pipeforce-cli/bin/pipeforce-cli-downloaded.jar", currentJar.getValue().getAbsolutePath());
-        Assert.assertEquals("/some/home/path/pipeforce-cli/bin/pipeforce-cli.jar", newJar.getValue().getAbsolutePath());
+        Assert.assertEquals("/some/home/path/pipeforce-cli/bin/pipeforce-cli.jar", PathUtil.toUnixPath(currentJar.getValue().getAbsolutePath(), false));
+        Assert.assertEquals("/some/home/path/pipeforce-cli/bin/pipeforce-cli-8.5.5.jar", PathUtil.toUnixPath(newJar.getValue().getAbsolutePath(), false));
 
     }
 }

@@ -2,6 +2,7 @@ package com.logabit.pipeforce.cli.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.logabit.pipeforce.cli.service.InstallCliService;
+import com.logabit.pipeforce.cli.service.UpdateCliService;
 import com.logabit.pipeforce.common.util.PathUtil;
 import com.logabit.pipeforce.common.util.StringUtil;
 
@@ -18,9 +19,9 @@ import java.util.List;
 public class CliConfig {
 
     /**
-     * The home folder of the PIPEFORCE installation, defaults to $USER_HOME/pipeforce.
+     * The home folder of the PIPEFORCE installation, defaults to $USER_HOME/pipeforce/pipeforce-cli.
      */
-    private String installationHome = PathUtil.path(System.getProperty("user.home"), "pipeforce");
+    private String installationHome = PathUtil.path(System.getProperty("user.home"), "pipeforce", "pipeforce-cli");
 
     /**
      * The date and time this configuration was created.
@@ -52,6 +53,7 @@ public class CliConfig {
      */
     private String defaultInstance;
 
+    private String installedReleaseName;
     private String installedVersion;
 
     /**
@@ -132,14 +134,14 @@ public class CliConfig {
     @JsonIgnore
     public String getInstalledReleaseName() {
 
-        if (!StringUtil.isEmpty(installedVersion)) {
-            return installedVersion;
+        if (!StringUtil.isEmpty(installedReleaseName)) {
+            return installedReleaseName;
         }
 
         // Mainly for testing purposes to be able to switch versions:
         if (System.getProperty("CURRENT_RELEASE_NAME") != null) {
-            installedVersion = System.getProperty("CURRENT_RELEASE_NAME");
-            return installedVersion;
+            installedReleaseName = System.getProperty("CURRENT_RELEASE_NAME");
+            return installedReleaseName;
         }
 
         // This version is set by Maven build, so load it and write it to the CLI config for easier access
@@ -149,19 +151,34 @@ public class CliConfig {
             throw new IllegalStateException("Could not read from classpath:version.txt file!");
         }
 
-        installedVersion = StringUtil.fromInputStream(is).trim();
+        installedReleaseName = StringUtil.fromInputStream(is).trim();
 
-        return installedVersion;
+        return installedReleaseName;
+    }
+
+    @JsonIgnore
+    public String getInstalledJarPath() {
+        return PathUtil.path(getInstallationHome(), "bin", "pipeforce-cli-" + getInstalledVersion() + ".jar");
     }
 
     /**
-     * Mainly for testing purposes.
-     *
      * @param installedVersion
      */
-    @JsonIgnore
     public void setInstalledVersion(String installedVersion) {
         this.installedVersion = installedVersion;
+    }
+
+    public String getInstalledVersion() {
+
+        if (this.installedVersion != null) {
+            return this.installedVersion;
+        }
+
+        UpdateCliService.VersionInfo versionInfo = new UpdateCliService.VersionInfo(
+                getInstalledReleaseName(), null, null);
+        this.installedVersion = versionInfo.getCurrentVersion();
+
+        return installedVersion;
     }
 
     /**
