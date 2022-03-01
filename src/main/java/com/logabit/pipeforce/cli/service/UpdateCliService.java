@@ -78,7 +78,7 @@ public class UpdateCliService extends BaseCliContextAware {
 
         ConfigCliService config = getContext().getConfigService();
 
-        String downloadedJarPath = PathUtil.path(config.getInstallationHome(), "pipeforce-cli", "bin",
+        String downloadedJarPath = PathUtil.path(config.getInstallationHome(), "bin",
                 "pipeforce-cli-" + versionInfo.getLatestReleaseTag() + ".jar");
         File downloadedJarFile = new File(downloadedJarPath);
 
