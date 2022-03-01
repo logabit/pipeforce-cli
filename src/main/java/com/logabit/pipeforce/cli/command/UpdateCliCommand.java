@@ -76,6 +76,7 @@ public class UpdateCliCommand extends BaseCliCommand {
             return versionInfo;
         }
 
+        createResult(0, MSG_SUCCESS, null);
         getContext().getUpdateService().downloadAndUpdateVersion(versionInfo);
         return versionInfo;
     }
@@ -86,6 +87,7 @@ public class UpdateCliCommand extends BaseCliCommand {
         String currentReleaseName = getContext().getConfigService().getReleaseTagFromJar();
         UpdateCliService.VersionInfo versionInfo = new UpdateCliService.VersionInfo(currentReleaseName, tag, url);
 
+        createResult(0, MSG_REJECTED_USER_CANCELLED, null);
         getContext().getUpdateService().downloadAndUpdateVersion(versionInfo);
 
         return versionInfo;

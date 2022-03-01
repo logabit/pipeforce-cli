@@ -57,7 +57,7 @@ public class UpdateCliService extends BaseCliContextAware {
      */
     public void downloadAndUpdateVersion(VersionInfo versionInfo) {
 
-        if (versionInfo.getCurrentReleaseName().equals(versionInfo.getLatestReleaseName())) {
+        if (versionInfo.getCurrentReleaseTag().equals(versionInfo.getLatestReleaseTag())) {
             return; // Nothing to update
         }
 
@@ -79,7 +79,7 @@ public class UpdateCliService extends BaseCliContextAware {
         ConfigCliService config = getContext().getConfigService();
 
         String downloadedJarPath = PathUtil.path(config.getInstallationHome(), "pipeforce-cli", "bin",
-                "pipeforce-cli-" + versionInfo.getLatestReleaseName() + ".jar");
+                "pipeforce-cli-" + versionInfo.getLatestReleaseTag() + ".jar");
         File downloadedJarFile = new File(downloadedJarPath);
 
         HttpEntity entity = response.getEntity();
@@ -92,7 +92,7 @@ public class UpdateCliService extends BaseCliContextAware {
             }
         }
 
-        getContext().getConfigService().setInstalledReleaseTag(versionInfo.getLatestVersion());
+        getContext().getConfigService().setInstalledReleaseTag(versionInfo.getLatestReleaseTag());
         getContext().getConfigService().saveConfiguration();
         getContext().getInstallService().createPiScript();
     }
@@ -132,21 +132,21 @@ public class UpdateCliService extends BaseCliContextAware {
 
         private Boolean newer;
 
-        private String latestReleaseName;
+        private String latestReleaseTag;
         private String latestVersion;
         private String latestDownloadUrl;
 
-        private String currentReleaseName;
+        private String currentReleaseTag;
         private String currentVersion;
 
-        public VersionInfo(String currentReleaseName, String latestReleaseName, String latestDownloadUrl) {
-            this.currentReleaseName = currentReleaseName;
-            this.latestReleaseName = latestReleaseName;
+        public VersionInfo(String currentReleaseNameTag, String latestReleaseTag, String latestDownloadUrl) {
+            this.currentReleaseTag = currentReleaseNameTag;
+            this.latestReleaseTag = latestReleaseTag;
             this.latestDownloadUrl = latestDownloadUrl;
         }
 
-        public String getLatestReleaseName() {
-            return latestReleaseName;
+        public String getLatestReleaseTag() {
+            return latestReleaseTag;
         }
 
         public String getLatestVersion() {
@@ -155,7 +155,7 @@ public class UpdateCliService extends BaseCliContextAware {
                 return this.latestVersion;
             }
 
-            String releaseName = getLatestReleaseName();
+            String releaseName = getLatestReleaseTag();
             this.latestVersion = toPlainVersion(releaseName);
             return this.latestVersion;
         }
@@ -170,13 +170,13 @@ public class UpdateCliService extends BaseCliContextAware {
                 return this.currentVersion;
             }
 
-            String releaseName = getCurrentReleaseName();
+            String releaseName = getCurrentReleaseTag();
             this.currentVersion = toPlainVersion(releaseName);
             return this.currentVersion;
         }
 
-        public String getCurrentReleaseName() {
-            return this.currentReleaseName;
+        public String getCurrentReleaseTag() {
+            return this.currentReleaseTag;
         }
 
         /**
@@ -222,7 +222,7 @@ public class UpdateCliService extends BaseCliContextAware {
                 return this.newer;
             }
 
-            String version = toPlainVersion(this.currentReleaseName);
+            String version = toPlainVersion(this.currentReleaseTag);
             this.newer = this.isNewer(version);
             return this.newer;
         }

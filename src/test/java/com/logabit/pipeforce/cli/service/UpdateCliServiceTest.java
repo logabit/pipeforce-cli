@@ -2,7 +2,6 @@ package com.logabit.pipeforce.cli.service;
 
 import com.logabit.pipeforce.cli.CliContext;
 import com.logabit.pipeforce.common.util.FileUtil;
-import com.logabit.pipeforce.common.util.PathUtil;
 import com.logabit.pipeforce.common.util.StringUtil;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -15,6 +14,8 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.ByteArrayOutputStream;
@@ -80,9 +81,9 @@ public class UpdateCliServiceTest {
 
         UpdateCliService.VersionInfo versionInfo = updateCliService.getVersionInfo();
         Assert.assertNotNull(versionInfo);
-        Assert.assertEquals("v7.9.9-RC1", versionInfo.getCurrentReleaseName());
+        Assert.assertEquals("v7.9.9-RC1", versionInfo.getCurrentReleaseTag());
         Assert.assertEquals("7.9.9", versionInfo.getCurrentVersion());
-        Assert.assertEquals("v8.0.0-RC37", versionInfo.getLatestReleaseName());
+        Assert.assertEquals("v8.0.0-RC37", versionInfo.getLatestReleaseTag());
         Assert.assertEquals("8.0.0", versionInfo.getLatestVersion());
         Assert.assertEquals(true, versionInfo.isNewerVersionAvailable());
         Assert.assertEquals("https://github.com/logabit/pipeforce-cli/releases/download/v8.0.0-RC37/pipeforce-cli.jar", versionInfo.getLatestDownloadUrl());
@@ -91,39 +92,41 @@ public class UpdateCliServiceTest {
     @Test
     public void testDownloadAndInstallVersion() throws IOException {
 
-        when(configService.getInstallationHome()).thenReturn("/some/home/path");
-        when(configService.getInstalledJarPath()).thenReturn("/some/home/path/pipeforce-cli/bin/pipeforce-cli-8.5.5.jar");
-        UpdateCliService updateCliService = new UpdateCliService();
-        updateCliService.setContext(cliContext);
+        // https://www.baeldung.com/mockito-mock-static-methods
+        try (MockedStatic<FileUtil> fileUtil = Mockito.mockStatic(FileUtil.class)) {
 
-        // Mock download response
+            when(configService.getInstallationHome()).thenReturn("/some/home/path");
+            when(configService.getInstalledJarPath()).thenReturn("/some/home/path/pipeforce-cli/bin/pipeforce-cli-8.5.5.jar");
+            UpdateCliService updateCliService = new UpdateCliService();
+            updateCliService.setContext(cliContext);
 
-        HttpResponse downloadResponse = mock(HttpResponse.class);
-        HttpEntity httpEntity = mock(HttpEntity.class);
-        when(httpEntity.getContent()).thenReturn(StringUtil.toInputStream("downloadedData"));
-        when(downloadResponse.getEntity()).thenReturn(httpEntity);
+            // Mock download response
 
-        StatusLine downloadResponseStatusLine = mock(StatusLine.class);
-        when(downloadResponseStatusLine.getStatusCode()).thenReturn(200);
-        when(downloadResponse.getStatusLine()).thenReturn(downloadResponseStatusLine);
-        when(httpClient.execute(any(HttpGet.class))).thenReturn(downloadResponse);
+            HttpResponse downloadResponse = mock(HttpResponse.class);
+            HttpEntity httpEntity = mock(HttpEntity.class);
+            when(httpEntity.getContent()).thenReturn(StringUtil.toInputStream("downloadedData"));
+            when(downloadResponse.getEntity()).thenReturn(httpEntity);
 
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        when(outputService.createOutputStream(any(File.class))).thenReturn(bos);
+            StatusLine downloadResponseStatusLine = mock(StatusLine.class);
+            when(downloadResponseStatusLine.getStatusCode()).thenReturn(200);
+            when(downloadResponse.getStatusLine()).thenReturn(downloadResponseStatusLine);
+            when(httpClient.execute(any(HttpGet.class))).thenReturn(downloadResponse);
 
-        UpdateCliService.VersionInfo version = new UpdateCliService.VersionInfo(
-                "v7.0.0-RC12", "v8.5.5-RELEASE", "http://someUrl");
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            when(outputService.createOutputStream(any(File.class))).thenReturn(bos);
 
-        updateCliService.downloadAndUpdateVersion(version);
+            UpdateCliService.VersionInfo version = new UpdateCliService.VersionInfo(
+                    "v7.0.0-RC12", "v8.5.5-RELEASE", "http://someUrl");
 
-        Assert.assertEquals("downloadedData", new String(bos.toByteArray()));
+            updateCliService.downloadAndUpdateVersion(version);
 
-        ArgumentCaptor<File> currentJar = ArgumentCaptor.forClass(File.class);
-        ArgumentCaptor<File> newJar = ArgumentCaptor.forClass(File.class);
-        verify(outputService, times(1)).moveFile(currentJar.capture(), newJar.capture());
+            Assert.assertEquals("downloadedData", new String(bos.toByteArray()));
 
-        Assert.assertEquals("/some/home/path/pipeforce-cli/bin/pipeforce-cli.jar", PathUtil.toUnixPath(currentJar.getValue().getAbsolutePath(), false));
-        Assert.assertEquals("/some/home/path/pipeforce-cli/bin/pipeforce-cli-8.5.5.jar", PathUtil.toUnixPath(newJar.getValue().getAbsolutePath(), false));
+            ArgumentCaptor<String> installedReleaseTag = ArgumentCaptor.forClass(String.class);
 
+            verify(configService, times(1)).setInstalledReleaseTag(installedReleaseTag.capture());
+
+            Assert.assertEquals("v8.5.5-RELEASE", installedReleaseTag.getValue());
+        }
     }
 }
