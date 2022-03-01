@@ -82,10 +82,10 @@ public class PipelineCliCommand extends BaseCliCommand {
     }
 
     public String getUsageHelp() {
-        return "pi pipeline <file|remote|uri> <PATH>\n" +
-                "   Executes a pipeline locally or remote depending on existing src/ or global/ path.\n" +
+        return "pi pipeline <PATH>\n" +
+                "   Executes a pipeline locally or remote depending on prefix src/ or global/ of path.\n" +
                 "   Examples:\n" +
-                "     pi pipeline src/global/app/myapp/pipeline/hello.pi.yaml - Executes a local file.\n" +
+                "     pi pipeline src/global/app/myapp/pipeline/hello.pi.yaml - Executes a local pipeline.\n" +
                 "     pi pipeline global/app/myapp/hello - Executes a remote pipeline.\n" +
                 "     pi pipeline \"datetime?format=dd.MM.YY\" - Executes a pipeline uri.";
     }
