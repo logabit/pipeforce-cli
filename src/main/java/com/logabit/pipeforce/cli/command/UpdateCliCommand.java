@@ -48,8 +48,8 @@ public class UpdateCliCommand extends BaseCliCommand {
             versionInfo = this.updateToTag(tag);
         }
 
-        getContext().getOutputService().println("Update from " + versionInfo.getCurrentVersion() + " to " +
-                versionInfo.getLatestVersion() + " was successful.");
+        getContext().getOutputService().println("Update from " + versionInfo.getCurrentReleaseTag() + " to " +
+                versionInfo.getLatestReleaseTag() + " was successful.");
         // The next time a command is executed, it will use the new version...
 
         return 0;
