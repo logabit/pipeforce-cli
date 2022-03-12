@@ -46,13 +46,9 @@ public class UpdateCliCommand extends BaseCliCommand {
             versionInfo = this.updateToTag(tag);
         }
 
-        if (versionInfo.isNewerVersionAvailable()) {
-            getContext().getOutputService().println("Update from " + versionInfo.getCurrentReleaseTag() + " to " +
-                    versionInfo.getLatestReleaseTag() + " was successful.");
-        } else {
-            getContext().getOutputService().println("Update skipped since current version and target version are " +
-                    "equal: " + versionInfo.getCurrentReleaseTag());
-        }
+        getContext().getOutputService().println("Update from " + versionInfo.getCurrentReleaseTag() + " to " +
+                versionInfo.getLatestReleaseTag() + " was done.");
+
         // The next time a command is executed, it will use the new version...
 
         return 0;
