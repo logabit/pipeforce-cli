@@ -54,6 +54,7 @@ public class CliConfig {
     private String defaultInstance;
 
     private String installedReleaseTag;
+    private String releaseTagFromJar;
 
     /**
      * The default instance key as: namespace.host
@@ -133,6 +134,17 @@ public class CliConfig {
     @JsonIgnore
     public String getReleaseTagFromJar() {
 
+        // For testing purposes only
+        if (this.releaseTagFromJar != null) {
+            return this.releaseTagFromJar;
+        }
+
+        // For testing purposes. Set for example -DCURRENT_VERSION_TAG=v.1.2.3-RELEASE
+        String currentVersion = System.getProperty("CURRENT_VERSION_TAG");
+        if (!StringUtil.isEmpty(currentVersion)) {
+            return currentVersion;
+        }
+
         // This version is set by Maven build, so load it and write it to the CLI config for easier access
         InputStream is = InstallCliService.class.getClassLoader().getResourceAsStream("version.txt");
 
@@ -163,9 +175,8 @@ public class CliConfig {
 
         UpdateCliService.VersionInfo versionInfo = new UpdateCliService.VersionInfo(
                 getReleaseTagFromJar(), null, null);
-        this.installedReleaseTag = versionInfo.getCurrentVersion();
 
-        return installedReleaseTag;
+        return versionInfo.getCurrentReleaseTag();
     }
 
     /**

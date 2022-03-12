@@ -28,20 +28,28 @@ public class UpdateCliService extends BaseCliContextAware {
      */
     public VersionInfo getVersionInfo() {
 
-        JsonNode gitHubInfo = downloadGitHubLatest();
+        /*
+           For testing, set this VM property to the version to the latest "fake" version.
+           In this case the version info is not downloaded from GitHub.
+         */
+        String releaseName = System.getProperty("LATEST_VERSION_TAG");
+        String downloadUrl = "https://github.com/logabit/pipeforce-cli/releases/download/" + releaseName + "/pipeforce-cli.jar";
 
-        String releaseName = gitHubInfo.get("name").textValue();
+        if (StringUtil.isEmpty(releaseName)) {
+            JsonNode gitHubInfo = downloadGitHubLatest();
 
-        String version = releaseName.substring(1);
-        version = version.split("-")[0];
-        String downloadUrl = "";
+            releaseName = gitHubInfo.get("name").textValue();
 
-        ArrayNode assets = (ArrayNode) gitHubInfo.get("assets");
+            String version = releaseName.substring(1);
+            version = version.split("-")[0];
 
-        for (JsonNode asset : assets) {
+            ArrayNode assets = (ArrayNode) gitHubInfo.get("assets");
 
-            if (asset.get("browser_download_url").textValue().endsWith("pipeforce-cli.jar")) {
-                downloadUrl = asset.get("browser_download_url").textValue();
+            for (JsonNode asset : assets) {
+
+                if (asset.get("browser_download_url").textValue().endsWith("pipeforce-cli.jar")) {
+                    downloadUrl = asset.get("browser_download_url").textValue();
+                }
             }
         }
 
@@ -222,7 +230,7 @@ public class UpdateCliService extends BaseCliContextAware {
                 return this.newer;
             }
 
-            String version = toPlainVersion(this.currentReleaseTag);
+            String version = this.toPlainVersion(this.currentReleaseTag);
             this.newer = this.isNewer(version);
             return this.newer;
         }

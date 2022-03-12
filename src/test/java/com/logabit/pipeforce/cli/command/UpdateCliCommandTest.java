@@ -78,35 +78,13 @@ public class UpdateCliCommandTest {
 
 
     @Test
-    public void testNewVersionAvailable_andUserSelectsNo() throws Exception {
-
-        systemInMock.provideLines(
-                "0" // User is asked to update -> Selects no
-        );
+    public void testNewVersionAvailable() throws Exception {
 
         UpdateCliService.VersionInfo versionInfo = new UpdateCliService.VersionInfo(
                 "v7.0.0-RC12", "v8.5.5-RELEASE", "versionInfo");
 
         when(updateCliService.getVersionInfo()).thenReturn(versionInfo);
-
-        UpdateCliCommand update = (UpdateCliCommand) cliContext.createCommandInstance("update");
-        update.call(CommandArgs.EMPTY);
-
-        CommandResult result = update.getResult();
-        Assert.assertEquals(UpdateCliCommand.MSG_REJECTED_USER_CANCELLED, result.getMessage());
-    }
-
-    @Test
-    public void testNewVersionAvailable_andUserSelectsYes() throws Exception {
-
-        systemInMock.provideLines(
-                "1" // User is asked to update -> Selects yes
-        );
-
-        UpdateCliService.VersionInfo versionInfo = new UpdateCliService.VersionInfo(
-                "v7.0.0-RC12", "v8.5.5-RELEASE", "versionInfo");
-
-        when(updateCliService.getVersionInfo()).thenReturn(versionInfo);
+        when(configService.getReleaseTagFromJar()).thenReturn("v7.0.0-RC12");
 
         UpdateCliCommand update = (UpdateCliCommand) cliContext.createCommandInstance("update");
         update.call(CommandArgs.EMPTY);
@@ -116,10 +94,27 @@ public class UpdateCliCommandTest {
     }
 
     @Test
-    public void testNewVersionAvailable_andNoAvailable() throws Exception {
+    public void testSameVersionAvailable() throws Exception {
 
         UpdateCliService.VersionInfo versionInfo = new UpdateCliService.VersionInfo(
                 "v8.5.5-RELEASE", "v8.5.5-RELEASE", "versionInfo");
+
+        UpdateCliService updateService = mock(UpdateCliService.class);
+        ReflectionUtil.setFieldValue(cliContext, "updateService", updateService);
+        when(updateService.getVersionInfo()).thenReturn(versionInfo);
+
+        UpdateCliCommand update = (UpdateCliCommand) cliContext.createCommandInstance("update");
+        update.call(CommandArgs.EMPTY);
+
+        CommandResult result = update.getResult();
+        Assert.assertEquals(UpdateCliCommand.MSG_REJECTED_LATEST_INSTALLED, result.getMessage());
+    }
+
+    @Test
+    public void testOlderVersionAvailable() throws Exception {
+
+        UpdateCliService.VersionInfo versionInfo = new UpdateCliService.VersionInfo(
+                "v8.5.5-RELEASE", "v7.5.5-RELEASE", "versionInfo");
 
         UpdateCliService updateService = mock(UpdateCliService.class);
         ReflectionUtil.setFieldValue(cliContext, "updateService", updateService);

@@ -2,7 +2,6 @@ package com.logabit.pipeforce.cli.command;
 
 import com.logabit.pipeforce.cli.CommandArgs;
 import com.logabit.pipeforce.cli.service.UpdateCliService;
-import com.logabit.pipeforce.common.util.ListUtil;
 import com.logabit.pipeforce.common.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +12,6 @@ import org.slf4j.LoggerFactory;
 public class UpdateCliCommand extends BaseCliCommand {
 
     public static final String MSG_REJECTED_LATEST_INSTALLED = "update.rejected.latest.installed";
-    public static final String MSG_REJECTED_USER_CANCELLED = "update.rejected.user.cancelled";
     public static final String MSG_REJECTED_MAC_NATIVE = "update.rejected.mac.native";
     public static final String MSG_SUCCESS = "update.success";
 
@@ -48,8 +46,13 @@ public class UpdateCliCommand extends BaseCliCommand {
             versionInfo = this.updateToTag(tag);
         }
 
-        getContext().getOutputService().println("Update from " + versionInfo.getCurrentReleaseTag() + " to " +
-                versionInfo.getLatestReleaseTag() + " was successful.");
+        if (versionInfo.isNewerVersionAvailable()) {
+            getContext().getOutputService().println("Update from " + versionInfo.getCurrentReleaseTag() + " to " +
+                    versionInfo.getLatestReleaseTag() + " was successful.");
+        } else {
+            getContext().getOutputService().println("Update skipped since current version and target version are " +
+                    "equal: " + versionInfo.getCurrentReleaseTag());
+        }
         // The next time a command is executed, it will use the new version...
 
         return 0;
@@ -65,20 +68,7 @@ public class UpdateCliCommand extends BaseCliCommand {
             return versionInfo;
         }
 
-        // Update found. Ask user whether he wants to download + install update.
-        out.println("A newer version of PIPEFORCE CLI has been detected: " +
-                versionInfo.getLatestVersion() + ". Download and install?");
-        Integer selection = in.choose(ListUtil.asList("no", "yes"), "yes");
-
-        if (selection == 0) {
-            // No was selected. So do not update. Quit.
-            createResult(0, MSG_REJECTED_USER_CANCELLED, null);
-            return versionInfo;
-        }
-
-        createResult(0, MSG_SUCCESS, null);
-        getContext().getUpdateService().downloadAndUpdateVersion(versionInfo);
-        return versionInfo;
+        return this.updateToTag(versionInfo.getLatestReleaseTag());
     }
 
     private UpdateCliService.VersionInfo updateToTag(String tag) {
@@ -87,7 +77,7 @@ public class UpdateCliCommand extends BaseCliCommand {
         String currentReleaseName = getContext().getConfigService().getReleaseTagFromJar();
         UpdateCliService.VersionInfo versionInfo = new UpdateCliService.VersionInfo(currentReleaseName, tag, url);
 
-        createResult(0, MSG_REJECTED_USER_CANCELLED, null);
+        createResult(0, MSG_SUCCESS, null);
         getContext().getUpdateService().downloadAndUpdateVersion(versionInfo);
 
         return versionInfo;
@@ -98,7 +88,7 @@ public class UpdateCliCommand extends BaseCliCommand {
                 "   Checks for newer version and installs it.\n" +
                 "   Note: Doesnt work with native launcher on Mac.\n" +
                 "   Examples:\n" +
-                "     pi update - Checks for the latest version.\n" +
+                "     pi update - Checks for the latest version and updates if available.\n" +
                 "     pi update v3.0.3-RC1 - Downloads and updates to the exact version tag.\n";
     }
 }

@@ -4,6 +4,7 @@ import com.logabit.pipeforce.cli.command.HelpCliCommand;
 import com.logabit.pipeforce.cli.command.ICliCommand;
 import com.logabit.pipeforce.cli.command.SetupCliCommand;
 import com.logabit.pipeforce.cli.service.OutputCliService;
+import com.logabit.pipeforce.cli.service.UpdateCliService;
 import com.logabit.pipeforce.common.exception.UncheckedClassNotFoundException;
 import com.logabit.pipeforce.common.util.DateTimeUtil;
 import com.logabit.pipeforce.common.util.JsonUtil;
@@ -102,22 +103,38 @@ public class Main {
      */
     private static void checkForUpdate(CliContext ctx) {
 
+        // If update command was called -> No extra check required here...
+        if ("update".equals(ctx.getCommand())) {
+            return;
+        }
+
         try {
-            long lastUpdateCheck = ctx.getConfigService().getUpdateCheckLast();
 
-            // If the last update check was longer than 24h ago -> check for update
-            long currentTimeMillis = System.currentTimeMillis();
+            String releaseName = System.getProperty("LATEST_VERSION_TAG");
 
-            long timePassedSinceLastCheck = currentTimeMillis - lastUpdateCheck;
+            // In case a "fake" release tag was set as property -> Skip last update date calculation
+            if (StringUtil.isEmpty(releaseName)) {
+                long lastUpdateCheck = ctx.getConfigService().getUpdateCheckLast();
 
-            ctx.getConfigService().setUpdateCheckLast(currentTimeMillis);
+                // If the last update check was longer than 24h ago -> check for update
+                long currentTimeMillis = System.currentTimeMillis();
 
-            if (timePassedSinceLastCheck < DateTimeUtil.ONE_DAY) {
-                return; // No update check
+                long timePassedSinceLastCheck = currentTimeMillis - lastUpdateCheck;
+
+                ctx.getConfigService().setUpdateCheckLast(currentTimeMillis);
+
+                if (timePassedSinceLastCheck < DateTimeUtil.ONE_DAY) {
+                    return; // No update check
+                }
             }
 
-            ICliCommand updateCommand = ctx.createCommandInstance("update");
-            updateCommand.call(CommandArgs.EMPTY);
+            UpdateCliService.VersionInfo versionInfo = ctx.getUpdateService().getVersionInfo();
+            if (versionInfo.isNewerVersionAvailable()) {
+                // Update found. Ask user whether he wants to download + install update.
+                ctx.getOutputService().println("Warning: Your CLI version " + versionInfo.getCurrentReleaseTag() +
+                        " is outdated. Latest available version: " + versionInfo.getLatestVersion() + ". Auto-update with: pi update");
+            }
+
         } catch (Exception e) {
             LOG.error("Error happened in checking for updates: " + e.getMessage(), e);
         }
