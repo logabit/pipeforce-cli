@@ -85,6 +85,6 @@ public class UpdateCliCommand extends BaseCliCommand {
                 "   Note: Doesnt work with native launcher on Mac.\n" +
                 "   Examples:\n" +
                 "     pi update - Checks for the latest version and updates if available.\n" +
-                "     pi update v3.0.3-RC1 - Downloads and updates to the exact version tag.\n";
+                "     pi update v3.0.3-RC1 - Downloads and updates to the exact version tag.";
     }
 }
