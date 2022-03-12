@@ -307,5 +307,10 @@ public class CliConfig {
         public String getHubApiUrl(String path) {
             return PathUtil.path(getProtocol() + "://hub-" + getNamespace() + "." + getHost() + ":" + getPort(), getApiPath(), path);
         }
+
+        @Override
+        public String toString() {
+            return getName() + " [protocol: " + getProtocol() + ", port: " + getPort() + ", username: " + getUsername() + "]";
+        }
     }
 }
