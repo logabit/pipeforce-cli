@@ -85,13 +85,42 @@ public class CliConfig {
         this.instances = instances;
     }
 
+    /**
+     * Expects the fully qualified instance name like namespace.domain.tld (for example dev.pipeforce.org)
+     * and returns the instance config for this if exists. Otherwise, returns null.
+     *
+     * @param name
+     * @return
+     */
     @JsonIgnore
-    public Instance getInstanceByName(String name) {
+    public Instance getInstanceByQualifiedName(String name) {
 
         List<Instance> instances = getInstances();
 
         for (Instance instance : instances) {
             if (instance.getName().equals(name)) {
+                return instance;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns the instance configuration with given namespace and host.
+     * If no such instance exists, returns null.
+     *
+     * @param namespace
+     * @param host
+     * @return
+     */
+    @JsonIgnore
+    public Instance getInstanceByNamespaceAndHost(String namespace, String host) {
+
+        List<Instance> instances = getInstances();
+
+        for (Instance instance : instances) {
+            if (instance.getNamespace().equals(namespace) && instance.getHost().equals(host)) {
                 return instance;
             }
         }
