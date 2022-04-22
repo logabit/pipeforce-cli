@@ -1,7 +1,5 @@
 # PIPEFORCE CLI
 
-![build status](https://github.com/logabit/pipeforce-cli/actions/workflows/release.yml/badge.svg)
-
 PIPEFORCE CLI is a command line interface which can be used to:
 
 - Manage the PIPEFORCE Cloud remotely.
