@@ -32,29 +32,34 @@ public class SetupCliCommand extends BaseCliCommand {
         String userHome = System.getProperty("user.home");
         String pipeforceHome = PathUtil.path(userHome, "pipeforce");
 
-        CliConfig.Instance instance = new CliConfig.Instance();
+        String namespace = in.ask("Namespace", null);
+        String host = in.ask("Host", "pipeforce.net");
+        String port = in.ask("Port", "443");
+        String protocol = in.ask("Protocol", "https");
+        String apiPath = in.ask("API Path", "/api/v3");
+        String username = in.ask("Username", null);
+        String password = in.askPassword("Password");
 
-        instance.setNamespace(in.ask("Namespace", instance.getNamespace()));
+        CliConfig.Instance instance = config.getInstanceByNamespaceAndHost(namespace, host);
 
-        if (advanced) {
-            instance.setHost(in.ask("Host", instance.getHost()));
-            instance.setPort(Integer.parseInt(in.ask("Port", instance.getPort() + "")));
-            instance.setProtocol(in.ask("Protocol", instance.getProtocol()));
-            instance.setApiPath(in.ask("API Path", instance.getApiPath()));
+        if (instance == null) {
+            instance = new CliConfig.Instance();
+            instance.setNamespace(namespace);
+            instance.setHost(host);
+            config.getInstances().add(instance);
         }
 
-        config.getInstances().add(instance);
+        instance.setPort(Integer.parseInt(port));
+        instance.setProtocol(protocol);
+        instance.setApiPath(apiPath);
+        instance.setUsername(username);
+
         config.setDefaultInstance(instance.getName());
 
-        instance.setUsername(in.ask("Username", instance.getUsername()));
-
-        String password = in.askPassword("Password");
         instance.setApiToken(null);
-        String apitoken = loadApiToken(instance.getUsername(), password);
-
-        instance.setApiToken(apitoken);
+        String apiToken = loadApiToken(instance.getUsername(), password);
+        instance.setApiToken(apiToken);
         instance.setApiTokenCreated(DateTimeUtil.currentDateTimeAsIso8061());
-
 
         config.saveConfiguration();
 
@@ -73,10 +78,9 @@ public class SetupCliCommand extends BaseCliCommand {
 
     public String getUsageHelp() {
         return "pi setup [advanced] [path]\n" +
-                "   Optionally installs the CLI + runs the (advanced) setup wizard.\n" +
+                "   Optionally installs the CLI + (re-)runs the setup wizard.\n" +
                 "   Examples: \n" +
-                "     pi setup\n" +
-                "     pi setup advanced";
+                "     pi setup";
     }
 
     private String loadApiToken(String username, String password) {

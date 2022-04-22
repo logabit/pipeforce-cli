@@ -12,7 +12,7 @@ import java.util.List;
  * @author sniederm
  * @since 3.0.9
  */
-public class InstancesCliCommand extends BaseCliCommand {
+public class InstanceCliCommand extends BaseCliCommand {
 
     @Override
     public int call(CommandArgs args) throws Exception {
@@ -50,7 +50,7 @@ public class InstancesCliCommand extends BaseCliCommand {
 
     public String getUsageHelp() {
         return "pi instances\n" +
-                "   Show and switch server instances.\n" +
-                "   Example: pi instances";
+                "   Shows active server instance and allows to change it.\n" +
+                "   Example: pi instance";
     }
 }
