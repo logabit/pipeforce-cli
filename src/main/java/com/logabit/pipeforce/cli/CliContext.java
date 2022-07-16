@@ -7,6 +7,7 @@ import com.logabit.pipeforce.cli.service.AppResourceCliService;
 import com.logabit.pipeforce.cli.service.ConfigCliService;
 import com.logabit.pipeforce.cli.service.InitCliService;
 import com.logabit.pipeforce.cli.service.InstallCliService;
+import com.logabit.pipeforce.cli.service.KubectlCliService;
 import com.logabit.pipeforce.cli.service.OutputCliService;
 import com.logabit.pipeforce.cli.service.PublishCliService;
 import com.logabit.pipeforce.cli.service.UpdateCliService;
@@ -67,6 +68,7 @@ public class CliContext {
     private File appRepoHome;
     private File hiddenPipeforceFolder;
     private CliConfig.Instance currentInstance;
+    private KubectlCliService kubectlService;
 
     public CliContext(String... args) {
         setArgs(args);
@@ -334,6 +336,16 @@ public class CliContext {
         }
 
         return initService;
+    }
+
+    public KubectlCliService getKubectlService() {
+
+        if (this.kubectlService == null) {
+            this.kubectlService = new KubectlCliService();
+            initComponent(kubectlService);
+        }
+
+        return kubectlService;
     }
 
     public AppResourceCliService getAppResourceService() {
