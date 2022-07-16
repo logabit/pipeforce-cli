@@ -38,7 +38,7 @@ public class CommandArgs {
 
         for (String arg : args) {
 
-            if (arg.startsWith("-")) {
+            if (arg.startsWith("-") && !(arg.startsWith("--"))) {
                 String[] split = StringUtil.split(arg, ":");
                 this.switches.put(split[0], split.length == 2 ? split[1] : null);
                 continue;

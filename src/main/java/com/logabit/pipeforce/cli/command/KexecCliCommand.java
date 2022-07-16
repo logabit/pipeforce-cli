@@ -26,6 +26,18 @@ public class KexecCliCommand extends BaseCliCommand {
             throw new CliException("Specify a command!");
         }
 
+        // If command is a -- : Use any subsequent arg as arg for the remote command (same as kubectl exec does)
+        if ("--".equals(command)) {
+
+            command = "";
+            String[] originalArgs = args.getOriginalArgs();
+
+            for (int i = 2; i < originalArgs.length; i++) {
+
+                command = command + " " + originalArgs[i];
+            }
+        }
+
         String namespace = getContext().getCurrentInstance().getNamespace();
         String result = getContext().getKubectlService().exec(namespace, serviceName, command);
         out.println(result);
