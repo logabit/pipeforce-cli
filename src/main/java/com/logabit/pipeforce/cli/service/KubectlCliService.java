@@ -102,9 +102,7 @@ public class KubectlCliService extends BaseCliContextAware {
             if (pr.exitValue() == 0) {
                 BufferedReader stdInput = new BufferedReader(new InputStreamReader(pr.getInputStream()));
                 String result = StringUtil.fromReader(stdInput);
-
-                String r = "".equals(result) ? "" : " -> " + result;
-                System.out.println(command + r);
+                System.out.println(command);
                 return result;
             }
         } catch (Exception e) {
