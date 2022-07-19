@@ -40,7 +40,9 @@ public class KubectlCliService extends BaseCliContextAware {
             throw new CliException("Cannot upload: No pod found for service: " + serviceName);
         }
 
+        remotePath = Util.convertToLinuxPath(remotePath);
         localPath = Util.convertToLinuxPath(localPath);
+
         String cmd = "kubectl cp --no-preserve=true " + localPath + " " + namespace + "/" + pods.get(0) + ":" + remotePath;
         localExec(cmd);
 
@@ -127,7 +129,9 @@ public class KubectlCliService extends BaseCliContextAware {
             throw new CliException("Cannot download: No pod found for service: " + service);
         }
 
+        remotePath = Util.convertToLinuxPath(remotePath);
         localPath = Util.convertToLinuxPath(localPath);
+
         String cmd = "kubectl cp " + namespace + "/" + pod + ":" + remotePath + " " + localPath;
         localExec(cmd);
     }

@@ -79,7 +79,10 @@ public class Util {
      */
     public static String convertToLinuxPath(String path) {
 
-        path = path.replace(":", "");
+        String[] split = path.split(":");
+        if(split.length > 1) {
+            path = split[1];
+        }
         path = path.replace("\\", "/");
         return path;
     }

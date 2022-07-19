@@ -14,6 +14,6 @@ public class UtilTest {
     public void tesConvertToLinuxPath() {
 
         String path = Util.convertToLinuxPath("C:\\testing\\");
-        Assert.assertEquals("C/testing/", path);
+        Assert.assertEquals("/testing/", path);
     }
 }
