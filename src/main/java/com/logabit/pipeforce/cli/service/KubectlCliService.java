@@ -40,10 +40,12 @@ public class KubectlCliService extends BaseCliContextAware {
             throw new CliException("Cannot upload: No pod found for service: " + serviceName);
         }
 
-        remotePath = Util.convertToLinuxPath(remotePath);
-        localPath = Util.convertToLinuxPath(localPath);
+        remotePath = Util.convertToLinuxPath(remotePath) + "\"";
+        localPath = "\"" + Util.convertToLinuxPath(localPath) + "\"";
 
-        String cmd = "kubectl cp --no-preserve=true " + localPath + " " + namespace + "/" + pods.get(0) + ":" + remotePath;
+        String cmd = "kubectl cp --no-preserve=true " +
+                localPath + " \"" + namespace + "/" + pods.get(0) + ":" + remotePath + "\"";
+
         localExec(cmd);
 
         if (!isEmpty(owner)) {
@@ -132,7 +134,7 @@ public class KubectlCliService extends BaseCliContextAware {
         remotePath = Util.convertToLinuxPath(remotePath);
         localPath = Util.convertToLinuxPath(localPath);
 
-        String cmd = "kubectl cp " + namespace + "/" + pod + ":" + remotePath + " " + localPath;
+        String cmd = "kubectl cp \"" + namespace + "/" + pod + ":" + remotePath + "\" \"" + localPath + "\"";
         localExec(cmd);
     }
 }
