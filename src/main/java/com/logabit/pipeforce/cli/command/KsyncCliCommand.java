@@ -2,6 +2,7 @@ package com.logabit.pipeforce.cli.command;
 
 import com.logabit.pipeforce.cli.CliException;
 import com.logabit.pipeforce.cli.CommandArgs;
+import com.logabit.pipeforce.cli.Util;
 import com.logabit.pipeforce.common.util.StringUtil;
 import io.methvin.watcher.DirectoryWatcher;
 
@@ -104,7 +105,8 @@ public class KsyncCliCommand extends BaseCliCommand {
                 r = "-R ";
             }
 
-            getContext().getKubectlService().exec(namespace, service, "rm " + r + remotePath);
+            String p = Util.convertToLinuxPath(remotePath + "");
+            getContext().getKubectlService().exec(namespace, service, "rm " + r + p);
 
         } catch (Exception e) {
             out.println(e.getMessage());
