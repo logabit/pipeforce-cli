@@ -34,7 +34,7 @@ public class KexecCliCommand extends BaseCliCommand {
 
             for (int i = 2; i < originalArgs.length; i++) {
 
-                command = command + " " + originalArgs[i];
+                command = command + " \"" + originalArgs[i] + "\"";
             }
         }
 
@@ -47,9 +47,9 @@ public class KexecCliCommand extends BaseCliCommand {
 
     public String getUsageHelp() {
 
-        return "pi kexec <SERVICE> <COMMAND>\n" +
+        return "pi kexec <SERVICE> -- <COMMAND>\n" +
                 "   Executes the given command inside the given service container. \n" +
                 "   Examples: \n" +
-                "     pi kexec hub ls - Lists the resources of the service container hub.";
+                "     pi kexec hub -- ls - Lists the resources of the service container hub.";
     }
 }
