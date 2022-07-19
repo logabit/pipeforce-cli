@@ -40,9 +40,10 @@ public class KdownloadCliCommand extends BaseCliCommand {
 
     public String getUsageHelp() {
 
-        return "pi kupload <SERVICE> <LOCAL_PATH> <REMOTE_PATH>\n" +
+        return "pi kdownload <SERVICE> <REMOTE_PATH> <LOCAL_PATH>\n" +
                 "   Uploads the <LOCAL_PATH> resource into <REMOTE_PATH> inside the <SERVICE> container. \n" +
                 "   Examples: \n" +
-                "     pi kupload orders /Users/foo/myfile /var/www/html/ - Uploads a single file into orders microservice.";
+                "     pi kdownload orders /var/www/html/index.html /Users/foo/ - Downloads a single file to Linux. \n" +
+                "     pi kdownload orders /var/file C/testing - Downloads to Windows C:\\testing folder. \n";
     }
 }

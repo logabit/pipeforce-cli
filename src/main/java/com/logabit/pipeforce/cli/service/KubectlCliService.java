@@ -2,6 +2,7 @@ package com.logabit.pipeforce.cli.service;
 
 import com.logabit.pipeforce.cli.BaseCliContextAware;
 import com.logabit.pipeforce.cli.CliException;
+import com.logabit.pipeforce.cli.Util;
 import com.logabit.pipeforce.common.util.StringUtil;
 
 import java.io.BufferedReader;
@@ -39,6 +40,7 @@ public class KubectlCliService extends BaseCliContextAware {
             throw new CliException("Cannot upload: No pod found for service: " + serviceName);
         }
 
+        localPath = Util.convertToLinuxPath(localPath);
         String cmd = "kubectl cp --no-preserve=true " + localPath + " " + namespace + "/" + pods.get(0) + ":" + remotePath;
         localExec(cmd);
 
@@ -95,6 +97,9 @@ public class KubectlCliService extends BaseCliContextAware {
 
         Process pr;
         try {
+
+            System.out.println(command);
+
             Runtime rt = Runtime.getRuntime();
             pr = rt.exec(command);
 
@@ -102,7 +107,6 @@ public class KubectlCliService extends BaseCliContextAware {
             if (pr.exitValue() == 0) {
                 BufferedReader stdInput = new BufferedReader(new InputStreamReader(pr.getInputStream()));
                 String result = StringUtil.fromReader(stdInput);
-                System.out.println(command);
                 return result;
             }
         } catch (Exception e) {
@@ -120,9 +124,10 @@ public class KubectlCliService extends BaseCliContextAware {
         String pod = getFirstPodByServiceName(namespace, service);
 
         if (isEmpty(pod)) {
-            throw new CliException("Cannot upload: No pod found for service: " + service);
+            throw new CliException("Cannot download: No pod found for service: " + service);
         }
 
+        localPath = Util.convertToLinuxPath(localPath);
         String cmd = "kubectl cp " + namespace + "/" + pod + ":" + remotePath + " " + localPath;
         localExec(cmd);
     }

@@ -69,4 +69,18 @@ public class Util {
 
         return yaml;
     }
+
+    /**
+     * Since some tools like kubectl do not allow drive letters C: and backwardslashes \ we have
+     * to rewrite inputs like C:\testing to C/testing.
+     *
+     * @param path
+     * @return
+     */
+    public static String convertToLinuxPath(String path) {
+
+        path = path.replace(":", "");
+        path = path.replace("\\", "/");
+        return path;
+    }
 }
