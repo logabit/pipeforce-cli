@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.logabit.pipeforce.common.util.Create.newList;
+import static com.logabit.pipeforce.common.util.Create.newListFromArray;
 import static com.logabit.pipeforce.common.util.StringUtil.isEmpty;
 
 /**
@@ -43,21 +45,25 @@ public class KubectlCliService extends BaseCliContextAware {
         remotePath = Util.convertToLinuxPath(remotePath);
         localPath = "\"" + Util.convertToLinuxPath(localPath) + "\"";
 
-        String cmd = "kubectl cp --no-preserve=true " +
-                localPath + " \"" + namespace + "/" + pods.get(0) + ":" + remotePath + "\"";
-
-        localExec(cmd);
+        localExec("kubectl",
+                "cp",
+                "--no-preserve=true",
+                localPath,
+                namespace + "/" + pods.get(0) + ":" + remotePath);
 
         if (!isEmpty(owner)) {
-            exec(namespace, serviceName, "chown -R " + owner + " " + remotePath);
+            exec(namespace, serviceName, "chown", "-R ", owner, remotePath);
         }
     }
 
-    public String exec(String namespace, String serviceName, String command) {
+    public String exec(String namespace, String serviceName, String... command) {
 
         String pod = getFirstPodByServiceName(namespace, serviceName);
 
-        String cmd = "kubectl exec -n " + namespace + " " + pod + " -- " + command;
+        List<String> list = newList("kubectl", "exec", "-n", namespace, pod, "--");
+        list.addAll(newListFromArray(command));
+        String[] cmd = list.toArray(new String[list.size()]);
+
         return localExec(cmd);
     }
 
@@ -74,8 +80,13 @@ public class KubectlCliService extends BaseCliContextAware {
             return this.serviceToPodCache.get(key);
         }
 
-        String c = "kubectl -n " + namespace + " get pods -l pipeforce.io/app=" + serviceName + " -o jsonpath={.items[*].metadata.name}";
-        String result = localExec(c);
+        //String c = "kubectl -n " + namespace + " get pods -l pipeforce.io/app=" + serviceName + " -o jsonpath={.items[*].metadata.name}";
+        String result = localExec("kubectl",
+                "-n", namespace,
+                "get",
+                "pods",
+                "-l", "pipeforce.io/app=" + serviceName,
+                "-o", "jsonpath={.items[*].metadata.name}");
 
         if (result == null) {
             result = "";
@@ -97,29 +108,32 @@ public class KubectlCliService extends BaseCliContextAware {
         return pods.get(0);
     }
 
-    private String localExec(String command) {
+    private String localExec(String... command) {
 
         Process pr;
         try {
 
-            System.out.println(command);
+            System.out.println(StringUtil.concat(" ", command));
 
             Runtime rt = Runtime.getRuntime();
             pr = rt.exec(command);
 
             pr.waitFor();
-            if (pr.exitValue() == 0) {
-                BufferedReader stdInput = new BufferedReader(new InputStreamReader(pr.getInputStream()));
-                String result = StringUtil.fromReader(stdInput);
-                return result;
+            BufferedReader stdInput = new BufferedReader(new InputStreamReader(pr.getInputStream()));
+            String result = StringUtil.fromReader(stdInput);
+
+            if (pr.exitValue() > 0) {
+                BufferedReader stdError = new BufferedReader(new InputStreamReader(pr.getErrorStream()));
+                String error = StringUtil.fromReader(stdError);
+                result = result + error;
+                throw new RuntimeException(result);
             }
+
+            return result;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
-        BufferedReader stdError = new BufferedReader(new InputStreamReader(pr.getErrorStream()));
-        String error = StringUtil.fromReader(stdError);
-        throw new RuntimeException(error);
 
     }
 
@@ -134,7 +148,6 @@ public class KubectlCliService extends BaseCliContextAware {
         remotePath = Util.convertToLinuxPath(remotePath);
         localPath = Util.convertToLinuxPath(localPath);
 
-        String cmd = "kubectl cp \"" + namespace + "/" + pod + ":" + remotePath + "\" \"" + localPath + "\"";
-        localExec(cmd);
+        localExec("kubectl", "cp", namespace + "/" + pod + ":" + remotePath, localPath);
     }
 }

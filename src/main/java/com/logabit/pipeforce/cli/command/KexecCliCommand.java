@@ -27,19 +27,19 @@ public class KexecCliCommand extends BaseCliCommand {
         }
 
         // If command is a -- : Use any subsequent arg as arg for the remote command (same as kubectl exec does)
+        String[] cmd = null;
         if ("--".equals(command)) {
 
-            command = "";
             String[] originalArgs = args.getOriginalArgs();
+            cmd = new String[originalArgs.length - 2];
 
             for (int i = 2; i < originalArgs.length; i++) {
-
-                command = command + " \"" + originalArgs[i] + "\"";
+                cmd[i - 2] = originalArgs[i];
             }
         }
 
         String namespace = getContext().getCurrentInstance().getNamespace();
-        String result = getContext().getKubectlService().exec(namespace, serviceName, command);
+        String result = getContext().getKubectlService().exec(namespace, serviceName, cmd);
         out.println(result);
 
         return 0;

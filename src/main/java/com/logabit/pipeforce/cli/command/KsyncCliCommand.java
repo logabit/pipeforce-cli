@@ -100,13 +100,8 @@ public class KsyncCliCommand extends BaseCliCommand {
         try {
             Path remotePath = relativeToRemote(path);
 
-            String r = "";
-            if (isDir) {
-                r = "-R ";
-            }
-
-            String p = "\"" + Util.convertToLinuxPath(remotePath + "") + "\"";
-            getContext().getKubectlService().exec(namespace, service, "rm " + r + p);
+            String p = Util.convertToLinuxPath(remotePath + "");
+            getContext().getKubectlService().exec(namespace, service, "rm", "-R", p);
 
         } catch (Exception e) {
             out.println(e.getMessage());
