@@ -43,7 +43,7 @@ public class KubectlCliService extends BaseCliContextAware {
         }
 
         remotePath = Util.convertToLinuxPath(remotePath);
-        localPath = "\"" + Util.convertToLinuxPath(localPath) + "\"";
+        localPath = Util.convertToLinuxPath(localPath);
 
         localExec("kubectl",
                 "cp",
