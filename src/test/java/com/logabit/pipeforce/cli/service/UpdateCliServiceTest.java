@@ -71,7 +71,7 @@ public class UpdateCliServiceTest {
         when(httpResponse.getStatusLine()).thenReturn(statusLine);
 
         HttpEntity entity = mock(HttpEntity.class);
-        when(entity.getContent()).thenReturn(FileUtil.readFileToInputStream(new File("src/test/resources/github.latest.test.json")));
+        when(entity.getContent()).thenReturn(FileUtil.fileToInputStream(new File("src/test/resources/github.latest.test.json")));
         when(httpResponse.getEntity()).thenReturn(entity);
 
         when(configService.getReleaseTagFromJar()).thenReturn("v7.9.9-RC1"); // This is the currently installed version

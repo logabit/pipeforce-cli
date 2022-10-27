@@ -16,7 +16,7 @@ public class Util {
 
     public static void main(String[] args) {
 
-        String keyfileJson = FileUtil.readFileToString("file://Users/sniederm/git/secret-test/keyfile.json");
+        String keyfileJson = FileUtil.pathItemsToString("file://Users/sniederm/git/secret-test/keyfile.json");
         String yaml = createSecretFromGoogleArtifactRegistry("us-east1-docker.pkg.dev", "latest", keyfileJson, "tmh-container-registry");
         System.out.println(yaml);
     }

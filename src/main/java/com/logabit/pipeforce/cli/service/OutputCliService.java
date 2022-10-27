@@ -160,7 +160,7 @@ public class OutputCliService implements CliContextAware {
     }
 
     public String readFileToString(String path) {
-        return FileUtil.readFileToString(path);
+        return FileUtil.pathItemsToString(path);
     }
 
     @Override

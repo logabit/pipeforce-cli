@@ -135,7 +135,7 @@ public class PublishCliCommandTest {
 
         // Test that lower case values of "show" attribute in app config will be converted to upper case correctly
         final File appConfig = new File(PathUtil.path(cliContext.getRepoHome(), "src/global/app/someapp/config/app.json"));
-        String appConfigString = FileUtil.readFileToString(appConfig);
+        String appConfigString = FileUtil.fileToString(appConfig);
         Map<String, Object> appConfigMap = JsonUtil.jsonStringToMap(appConfigString);
         String showValue = (String) appConfigMap.get("show");
         appConfigMap.put("show", showValue.toLowerCase());
@@ -151,7 +151,7 @@ public class PublishCliCommandTest {
         Assert.assertEquals(1, publishCommand.getPublishedCounter());
 
         // Make sure appConfig's show attribute was converted to upper case
-        appConfigString = FileUtil.readFileToString(appConfig);
+        appConfigString = FileUtil.fileToString(appConfig);
         appConfigMap = JsonUtil.jsonStringToMap(appConfigString);
         Assert.assertEquals("CAN_APP_SOMEAPP", appConfigMap.get("show"));
     }

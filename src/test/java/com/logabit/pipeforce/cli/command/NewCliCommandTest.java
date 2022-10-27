@@ -5,7 +5,6 @@ import com.logabit.pipeforce.cli.CliContext;
 import com.logabit.pipeforce.cli.service.ConfigCliService;
 import com.logabit.pipeforce.common.util.FileUtil;
 import com.logabit.pipeforce.common.util.JsonUtil;
-import com.logabit.pipeforce.common.util.PathUtil;
 import com.logabit.pipeforce.common.util.StringUtil;
 import com.logabit.pipeforce.common.util.XMLUtil;
 import org.junit.After;
@@ -18,7 +17,6 @@ import org.junit.contrib.java.lang.system.TextFromStandardInputStream;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -86,7 +84,7 @@ public class NewCliCommandTest {
         Assert.assertEquals("workflow", files.get(8).getName());
 
         File configFile = new File(appHome, "config/app.json");
-        String configString = FileUtil.readFileToString(configFile);
+        String configString = FileUtil.fileToString(configFile);
         JsonNode config = JsonUtil.jsonStringToJsonNode(configString);
 
         Assert.assertEquals("someapp", config.get("title").textValue());
@@ -107,7 +105,7 @@ public class NewCliCommandTest {
 
         File appHome = new File(appRepoHome, "src/global/app/someapp1");
 
-        String configString = FileUtil.readFileToString(new File(appHome, "config/app.json"));
+        String configString = FileUtil.fileToString(new File(appHome, "config/app.json"));
         JsonNode appConfig = JsonUtil.jsonStringToJsonNode(configString);
 
         Assert.assertEquals("someapp1", appConfig.get("title").textValue());
@@ -115,7 +113,7 @@ public class NewCliCommandTest {
         Assert.assertEquals("CAN_APP_SOMEAPP1", appConfig.get("show").textValue());
         Assert.assertEquals("someicon", appConfig.get("icon").textValue());
 
-        String formString = FileUtil.readFileToString(new File(appHome, "form/someform.json"));
+        String formString = FileUtil.fileToString(new File(appHome, "form/someform.json"));
         JsonNode formConfig = JsonUtil.jsonStringToJsonNode(formString);
 
         Assert.assertEquals("someform", formConfig.get("title").textValue());
@@ -123,7 +121,7 @@ public class NewCliCommandTest {
         Assert.assertEquals("property.list?filter=global/app/someapp1/object/someobject/v1/schema", formConfig.get("schema").textValue());
         Assert.assertEquals("global/app/someapp1/object/someobject/v1/instance/%23%7Bvar.property.uuid%7D", formConfig.get("output").textValue());
 
-        String schemaString = FileUtil.readFileToString(new File(appHome, "object/someobject/v1/schema.json"));
+        String schemaString = FileUtil.fileToString(new File(appHome, "object/someobject/v1/schema.json"));
         JsonNode schemaConfig = JsonUtil.jsonStringToJsonNode(schemaString);
 
         Assert.assertEquals("object", schemaConfig.get("type").textValue());
@@ -149,7 +147,7 @@ public class NewCliCommandTest {
 
         File appHome = new File(appRepoHome, "src/global/app/someapp1");
 
-        String configString = FileUtil.readFileToString(new File(appHome, "config/app.json"));
+        String configString = FileUtil.fileToString(new File(appHome, "config/app.json"));
         JsonNode appConfig = JsonUtil.jsonStringToJsonNode(configString);
 
         Assert.assertEquals("someapp1", appConfig.get("title").textValue());
@@ -157,7 +155,7 @@ public class NewCliCommandTest {
         Assert.assertEquals("CAN_APP_SOMEAPP1", appConfig.get("show").textValue());
         Assert.assertEquals("someicon", appConfig.get("icon").textValue());
 
-        String formString = FileUtil.readFileToString(new File(appHome, "list/somelist.json"));
+        String formString = FileUtil.fileToString(new File(appHome, "list/somelist.json"));
         JsonNode formConfig = JsonUtil.jsonStringToJsonNode(formString);
 
         Assert.assertEquals("somelist", formConfig.get("title").textValue());
@@ -165,7 +163,7 @@ public class NewCliCommandTest {
         Assert.assertEquals("property.value.expression?from=global/app/someapp1/object/someobject/v1/instance/*", formConfig.get("input").textValue());
         Assert.assertEquals("property.list?filter=global/app/someapp1/object/someobject/v1/schema", formConfig.get("schema").textValue());
 
-        String schemaString = FileUtil.readFileToString(new File(appHome, "object/someobject/v1/schema.json"));
+        String schemaString = FileUtil.fileToString(new File(appHome, "object/someobject/v1/schema.json"));
         JsonNode schemaConfig = JsonUtil.jsonStringToJsonNode(schemaString);
 
         Assert.assertEquals("object", schemaConfig.get("type").textValue());
@@ -194,7 +192,7 @@ public class NewCliCommandTest {
 
         File appHome = new File(appRepoHome, "src/global/app/someapp1");
 
-        String configString = FileUtil.readFileToString(new File(appHome, "config/app.json"));
+        String configString = FileUtil.fileToString(new File(appHome, "config/app.json"));
         JsonNode appConfig = JsonUtil.jsonStringToJsonNode(configString);
 
         Assert.assertEquals("someapp1", appConfig.get("title").textValue());
@@ -202,7 +200,7 @@ public class NewCliCommandTest {
         Assert.assertEquals("CAN_APP_SOMEAPP1", appConfig.get("show").textValue());
         Assert.assertEquals("someicon", appConfig.get("icon").textValue());
 
-        String listString = FileUtil.readFileToString(new File(appHome, "list/somelist.json"));
+        String listString = FileUtil.fileToString(new File(appHome, "list/somelist.json"));
         JsonNode listConfig = JsonUtil.jsonStringToJsonNode(listString);
 
         Assert.assertEquals("somelist", listConfig.get("title").textValue());
@@ -210,7 +208,7 @@ public class NewCliCommandTest {
         Assert.assertEquals("property.value.expression?from=global/app/someapp1/object/someobject/v1/instance/*", listConfig.get("input").textValue());
         Assert.assertEquals("property.list?filter=global/app/someapp1/object/someobject/v1/schema", listConfig.get("schema").textValue());
 
-        String schemaString = FileUtil.readFileToString(new File(appHome, "object/someobject/v1/schema.json"));
+        String schemaString = FileUtil.fileToString(new File(appHome, "object/someobject/v1/schema.json"));
         JsonNode schemaConfig = JsonUtil.jsonStringToJsonNode(schemaString);
 
         Assert.assertEquals("object", schemaConfig.get("type").textValue());
@@ -236,7 +234,7 @@ public class NewCliCommandTest {
 
         File appHome = new File(appRepoHome, "src/global/app/someapp1");
 
-        String pipelineString = FileUtil.readFileToString(new File(appHome, "pipeline/somepipeline.pi.yaml"));
+        String pipelineString = FileUtil.fileToString(new File(appHome, "pipeline/somepipeline.pi.yaml"));
         JsonNode pipeline = JsonUtil.yamlStringToJsonNode(pipelineString);
 
         Assert.assertEquals("Hello World", pipeline.get("pipeline").get(0).get("log").get("message").textValue());
@@ -261,7 +259,7 @@ public class NewCliCommandTest {
 
         File appHome = new File(appRepoHome, "src/global/app/someapp1");
 
-        String bpmnString = FileUtil.readFileToString(new File(appHome, "workflow/someworkflow.bpmn"));
+        String bpmnString = FileUtil.fileToString(new File(appHome, "workflow/someworkflow.bpmn"));
         Document bpmn = XMLUtil.toDOM(bpmnString);
 
         Assert.assertNotNull(((Element) bpmn.getDocumentElement().getElementsByTagName("bpmn:process").item(0)).getTagName());

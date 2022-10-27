@@ -226,7 +226,7 @@ public class PublishCliCommand extends BaseCliCommand {
 
         Map appConfig = null;
         try {
-            appConfig = JsonUtil.jsonStringToMap(FileUtil.readFileToString(appConfigFile));
+            appConfig = JsonUtil.jsonStringToMap(FileUtil.fileToString(appConfigFile));
         } catch (Exception e) {
             throw new CliException("Could not read file: " + appConfigFile + ": " + e.getMessage(), e);
         }

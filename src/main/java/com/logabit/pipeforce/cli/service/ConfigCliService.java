@@ -30,7 +30,7 @@ public class ConfigCliService extends CliConfig {
         }
 
         try {
-            String json = FileUtil.readFileToString(configFile);
+            String json = FileUtil.fileToString(configFile);
             CliConfig loadedConfig = JsonUtil.jsonStringToObject(json, CliConfig.class);
 
             // TODO BeanUtils takes about 200ms -> too much. replace by other approach

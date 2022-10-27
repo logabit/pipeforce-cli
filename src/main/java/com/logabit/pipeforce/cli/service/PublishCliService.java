@@ -25,7 +25,7 @@ public class PublishCliService extends BaseCliContextAware {
      */
     public void load() {
 
-        String publishedString = FileUtil.readFileToString(
+        String publishedString = FileUtil.fileToString(
                 new File(getContext().getHiddenPipeforceFolder(), "published.log.json")
         );
 

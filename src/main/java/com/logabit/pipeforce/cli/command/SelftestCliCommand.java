@@ -55,7 +55,7 @@ public class SelftestCliCommand extends BaseCliCommand {
             String logoPath = Paths.get(appPath, "template", "logo.png").toString();
             File logoFile = new File(logoPath);
             logoFile.getParentFile().mkdirs();
-            Resource r = FileUtil.readAsResource("classpath:media/logo.png");
+            Resource r = FileUtil.resourcePathToResource("classpath:media/logo.png");
             FileOutputStream fos = new FileOutputStream(logoFile);
             IOUtil.copyAndClose(r.getInputStream(), fos);
             String origLogoHash = HashUtil.createHash(logoFile, HashUtil.HashType.MD5);
@@ -81,7 +81,7 @@ public class SelftestCliCommand extends BaseCliCommand {
             if (!new File(confPath).exists()) {
                 confPath = Paths.get(appPath, "config", appName + ".json").toString();
             }
-            String config = FileUtil.readFileToString(confPath);
+            String config = FileUtil.pathItemsToString(confPath);
             Map jsonMap = JsonUtil.jsonStringToMap(config);
             if (!jsonMap.get("description").equals(description)) {
                 throw new CliException("Description of downloaded app config [" +
