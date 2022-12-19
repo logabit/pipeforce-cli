@@ -11,7 +11,9 @@ import com.logabit.pipeforce.cli.service.KubectlCliService;
 import com.logabit.pipeforce.cli.service.OutputCliService;
 import com.logabit.pipeforce.cli.service.PublishCliService;
 import com.logabit.pipeforce.cli.service.UpdateCliService;
+import com.logabit.pipeforce.cli.service.UploadCliService;
 import com.logabit.pipeforce.common.content.service.MimeTypeService;
+import com.logabit.pipeforce.common.pipeline.CommandRunner;
 import com.logabit.pipeforce.common.pipeline.PipelineRunner;
 import com.logabit.pipeforce.common.util.Create;
 import com.logabit.pipeforce.common.util.InputUtil;
@@ -69,6 +71,8 @@ public class CliContext {
     private File hiddenPipeforceFolder;
     private CliConfig.Instance currentInstance;
     private KubectlCliService kubectlService;
+    private CommandRunner commandRunner;
+    private UploadCliService uploadService;
 
     public CliContext(String... args) {
         setArgs(args);
@@ -202,6 +206,16 @@ public class CliContext {
         return pipelineRunner;
     }
 
+    public CommandRunner getCommandRunner() {
+
+        if (commandRunner == null) {
+            commandRunner = new CommandRunner(getCurrentInstance().getHubApiUrl(""),
+                    getCurrentInstance().getApiToken(), getRestTemplate());
+        }
+
+        return commandRunner;
+    }
+
     public RestTemplate getRestTemplate() {
 
         if (restTemplate != null) {
@@ -268,6 +282,15 @@ public class CliContext {
         }
 
         return publishService;
+    }
+
+    public UploadCliService getUploadService() {
+        if (uploadService == null) {
+            uploadService = new UploadCliService();
+            initComponent(uploadService);
+        }
+
+        return uploadService;
     }
 
     public String getUserHome() {
