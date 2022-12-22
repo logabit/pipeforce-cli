@@ -82,8 +82,7 @@ public class UploadCliService extends BaseCliContextAware {
                             "checksum", finalMd5,
                             "key", propertyKey,
                             "name", file.getName()
-                    )
-                    , null);
+                    ), null);
 
         } catch (Exception e) {
             throw new CliException("Could not upload file: " + file + ": " + e.getMessage(), e);
