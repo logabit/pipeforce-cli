@@ -26,7 +26,7 @@ Or [download](https://www.oracle.com/java/technologies/downloads/) and install J
 
 ## Installation
 
-1. Download latest [pipeforce-cli.jar](https://github.com/logabit/pipeforce-cli/releases/latest).
+1. Download latest [pipeforce-cli.jar](https://github.com/logabit/pipeforce-cli/releases/latest). Make sure the name of the downloaded file is `pipeforce-cli.jar`. Rename it in case your browser has named it to something like `pipeforce-cli(1).jar` or similar.
 2. Run this command in order to install it:
 
 ```
