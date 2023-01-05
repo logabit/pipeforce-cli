@@ -5,7 +5,7 @@ PIPEFORCE CLI is a command line interface which can be used to:
 - Manage the PIPEFORCE Cloud remotely.
 - Connect On Premises systems with PIPEFORCE Cloud.
 - Automate build processes.
-- Easily excecute single cloud commands or pipelines in the terminal.
+- Easily excecute single cloud commands or pipelines on the terminal.
 - Develop integrations, apps, workflows and reports.
 - Run and monitor tests.
 - Automate and execute business workflows.
