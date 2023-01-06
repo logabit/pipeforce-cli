@@ -69,7 +69,7 @@ public class SetupCliCommand extends BaseCliCommand {
             out.println();
             out.println("Tip 1: Install VS Code: https://code.visualstudio.com/download");
             out.println("Tip 2: Install YAML plugin: https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml");
-            out.println("Tip 3: Study PIPEFORCE tutorials: https://docs.pipeforce.io");
+            out.println("Tip 3: Study PIPEFORCE tutorials: https://docs.pipeforce.org");
             out.println();
         }
 
