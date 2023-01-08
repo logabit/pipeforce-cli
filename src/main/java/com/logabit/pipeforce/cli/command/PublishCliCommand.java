@@ -54,9 +54,17 @@ public class PublishCliCommand extends BaseCliCommand {
 
         String path = args.getOptionKeyAt(0);
 
+        // pi publish
         if (StringUtil.isEmpty(path)) {
             path = "src/**";
         }
+
+        // pi publish myapp
+        if (!path.contains("/") && !path.contains("\\")) {
+            path = "src/global/app/" + path + "/**";
+        }
+
+        // In all other cases we expect: pi publish src/global/...
 
         CliPathArg pathArg = getContext().createPathArg(path);
 
@@ -263,8 +271,9 @@ public class PublishCliCommand extends BaseCliCommand {
                 "   <PATH_PATTERN> must point to resources inside the src folder.\n" +
                 "   Examples: \n" +
                 "     pi publish - Publishes all resources inside src folder.\n" +
-                "     pi publish src/global/app/myapp/** - Publishes content of myapp recursively.\n" +
-                "     pi publish src/global/app/myapp/ - Short-cut of global/app/myapp/**.\n" +
+                "     pi publish myapp - Publishes all app resources inside src/global/app/myapp/**.\n" +
+                "     pi publish src/global/app/myapp/** - Publishes resources of myapp recursively.\n" +
+                "     pi publish src/global/app/myapp/ - Same as global/app/myapp/**.\n" +
                 "     pi publish src/global/app/*/pipeline/* - Publishes all pipelines of all apps.";
     }
 
