@@ -47,6 +47,15 @@ public class PublishCliCommand extends BaseCliCommand {
             return -1;
         }
 
+        // Make sure publish is executed always inside init folder for security reasons
+        File workDir = getContext().getCurrentWorkDir();
+        File pipeforceFolder = new File(workDir, ".pipeforce");
+        File srcFolder = new File(workDir, "src");
+        if (!(pipeforceFolder.exists() || srcFolder.exists())) {
+            out.println("Publish may not be executed outside a workspace folder!");
+            return -1;
+        }
+
         String path = args.getOptionKeyAt(0);
 
         if (StringUtil.isEmpty(path)) {
