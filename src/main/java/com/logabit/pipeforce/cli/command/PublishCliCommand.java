@@ -51,7 +51,7 @@ public class PublishCliCommand extends BaseCliCommand {
         File workDir = getContext().getCurrentWorkDir();
         File pipeforceFolder = new File(workDir, ".pipeforce");
         File srcFolder = new File(workDir, "src");
-        if (!(pipeforceFolder.exists() || srcFolder.exists())) {
+        if (!(pipeforceFolder.exists() && srcFolder.exists())) {
             out.println("Publish may not be executed outside a workspace folder!");
             return -1;
         }
