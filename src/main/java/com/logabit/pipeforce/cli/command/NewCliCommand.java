@@ -399,10 +399,11 @@ public class NewCliCommand extends BaseCliCommand {
             File appConfigFolder = new File(appFolder, "config");
             FileUtil.createFolders(appConfigFolder);
             FileUtil.createFolders(new File(appFolder, "form"));
+            FileUtil.createFolders(new File(appFolder, "function"));
             FileUtil.createFolders(new File(appFolder, "list"));
             FileUtil.createFolders(new File(appFolder, "object"));
             FileUtil.createFolders(new File(appFolder, "pipeline"));
-            FileUtil.createFolders(new File(appFolder, "script"));
+            FileUtil.createFolders(new File(appFolder, "resource/public"));
             FileUtil.createFolders(new File(appFolder, "setup"));
             FileUtil.createFolders(new File(appFolder, "test"));
             FileUtil.createFolders(new File(appFolder, "workflow"));
