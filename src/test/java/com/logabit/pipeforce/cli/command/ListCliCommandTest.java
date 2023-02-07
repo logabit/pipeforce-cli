@@ -62,7 +62,7 @@ public class ListCliCommandTest {
 
         String foundProperties = "[\n" +
                 "  {\n" +
-                "    \"key\": \"/pipeforce/enterprise/global/app/myapp/pipeline/prop1\",\n" +
+                "    \"path\": \"/pipeforce/enterprise/global/app/myapp/pipeline/prop1\",\n" +
                 "    \"uuid\": \"a656bc2d-9a2f-40b5-9eb7-fb0f7cc78b94\",\n" +
                 "    \"value\": \"someValue1ččč\",\n" +
                 "    \"defaultValue\": null,\n" +
@@ -72,7 +72,7 @@ public class ListCliCommandTest {
                 "    \"timeToLive\": null\n" +
                 "  },\n" +
                 "  {\n" +
-                "    \"key\": \"/pipeforce/enterprise/global/app/myapp/pipeline/prop2\",\n" +
+                "    \"path\": \"/pipeforce/enterprise/global/app/myapp/pipeline/prop2\",\n" +
                 "    \"uuid\": \"f9e714a1-dcaf-4da6-908b-2571b7dcd8c7\",\n" +
                 "    \"value\": \"someValue2\",\n" +
                 "    \"defaultValue\": null,\n" +
@@ -94,7 +94,7 @@ public class ListCliCommandTest {
         verify(pipelineRunner, times(1)).executePipelineUri(uriCaptor.capture());
 
         List<String> values = uriCaptor.getAllValues();
-        Assert.assertEquals("property.list?filter=global/app/myapp/**", ListUtil.lastElement(values));
+        Assert.assertEquals("property.list?pattern=global/app/myapp/**", ListUtil.lastElement(values));
 
         // Converts global/*/myapp/** -> global/*/myapp/**
 
@@ -105,7 +105,7 @@ public class ListCliCommandTest {
         verify(pipelineRunner, times(2)).executePipelineUri(uriCaptor.capture());
 
         values = uriCaptor.getAllValues();
-        Assert.assertEquals("property.list?filter=global/*/myapp/**", ListUtil.lastElement(values));
+        Assert.assertEquals("property.list?pattern=global/*/myapp/**", ListUtil.lastElement(values));
 
         // Converts global/app/myapp -> global/app/myapp
 
@@ -116,7 +116,7 @@ public class ListCliCommandTest {
         verify(pipelineRunner, times(3)).executePipelineUri(uriCaptor.capture());
 
         values = uriCaptor.getAllValues();
-        Assert.assertEquals("property.list?filter=global/app/myapp", ListUtil.lastElement(values));
+        Assert.assertEquals("property.list?pattern=global/app/myapp", ListUtil.lastElement(values));
 
     }
 }

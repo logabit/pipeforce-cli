@@ -39,7 +39,7 @@ public class UploadCliService extends BaseCliContextAware {
         Result attachmentPutResult = commandRunner.executeCommand(
                 "property.attachment.put",
                 newMap(
-                        "key", propertyKey,
+                        "path", propertyKey,
                         "name", file.getName()
                 ), null);
 
@@ -53,7 +53,7 @@ public class UploadCliService extends BaseCliContextAware {
                 Result chunkUploadResult = commandRunner.executeCommand(
                         "property.attachment.chunk.put",
                         newMap(
-                                "key", propertyKey,
+                                "path", propertyKey,
                                 "name", file.getName()
                         ),
                         chunk
@@ -80,7 +80,7 @@ public class UploadCliService extends BaseCliContextAware {
             commandRunner.executeCommand("property.attachment.checksum",
                     newMap(
                             "checksum", finalMd5,
-                            "key", propertyKey,
+                            "path", propertyKey,
                             "name", file.getName()
                     ), null);
 
@@ -101,13 +101,13 @@ public class UploadCliService extends BaseCliContextAware {
 
     private void createPropertyIfNotExists(String propertyKey) {
         Result propertyExistsResult = getCommandRunner().executeCommand("property.exists",
-                newMap("key", propertyKey), null);
+                newMap("path", propertyKey), null);
 
         if (!toBoolean(propertyExistsResult.getValue())) {
             Result propertyCreateResult = getCommandRunner().executeCommand(
                     "property.schema.put",
                     newMap(
-                            "key", propertyKey
+                            "path", propertyKey
                     ), null);
         }
     }

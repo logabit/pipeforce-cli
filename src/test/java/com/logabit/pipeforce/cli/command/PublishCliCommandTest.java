@@ -30,6 +30,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
+import static com.logabit.pipeforce.common.property.IProperty.FIELD_PATH;
 import static org.junit.contrib.java.lang.system.TextFromStandardInputStream.emptyStandardInputStream;
 
 /**
@@ -111,11 +112,11 @@ public class PublishCliCommandTest {
         List<JsonNode> allNodes = publishNode.getAllValues();
 
         Assert.assertEquals(new File("global/app/someapp/config/app"),
-                new File(allNodes.get(0).get("pipeline").get(0).get("property.schema.put").get("key").textValue()));
+                new File(allNodes.get(0).get("pipeline").get(0).get("property.schema.put").get(FIELD_PATH).textValue()));
         Assert.assertEquals("application/json", allNodes.get(1).get("pipeline").get(0).get("property.schema.put").get("type").textValue());
 
         Assert.assertEquals(new File("global/app/someapp/template/logo"),
-                new File(allNodes.get(4).get("pipeline").get(0).get("property.schema.put").get("key").textValue()));
+                new File(allNodes.get(4).get("pipeline").get(0).get("property.schema.put").get(FIELD_PATH).textValue()));
         Assert.assertEquals("image/png;encoding=base64", allNodes.get(4).get("pipeline").get(0).get("property.schema.put").get("type").textValue());
 
         Assert.assertEquals(5, publishCommand.getFilesCounter());

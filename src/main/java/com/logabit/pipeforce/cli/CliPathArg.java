@@ -140,11 +140,11 @@ public class CliPathArg {
     }
 
     /**
-     * Returns the remote key pattern.
+     * Returns the remote path pattern.
      * <p>
      * For example if given pattern was 'src\global\app\**' returns 'global/app/**'.
      *
-     * @return The key pattern ready to be applied remotely.
+     * @return The path pattern ready to be applied remotely.
      */
     public String getRemotePattern() {
 

@@ -7,6 +7,7 @@ import com.logabit.pipeforce.cli.CommandArgs;
 import com.logabit.pipeforce.cli.service.PublishCliService;
 import com.logabit.pipeforce.common.content.model.ContentType;
 import com.logabit.pipeforce.common.content.service.MimeTypeService;
+import com.logabit.pipeforce.common.property.IProperty;
 import com.logabit.pipeforce.common.util.EncodeUtil;
 import com.logabit.pipeforce.common.util.ListUtil;
 import com.logabit.pipeforce.common.util.PathUtil;
@@ -58,18 +59,18 @@ public class GetCliCommand extends BaseCliCommand {
         int createdCounter = 0;
         int skippedCounter = 0;
 
-        String keyPrefix = PathUtil.path("/pipeforce", getContext().getCurrentInstance().getNamespace());
+        String pathPrefix = PathUtil.path("/pipeforce", getContext().getCurrentInstance().getNamespace());
 
         for (JsonNode node : list) {
 
             // /pipeforce/NAMESPACE/global/app/...
-            String key = node.get("key").textValue();
+            String path = node.get(IProperty.FIELD_PATH).textValue();
 
             String type = node.get("type").textValue();
             ContentType contentType = new ContentType(type);
 
             // /pipeforce/NAMESPACE/global/app... -> global/app...
-            String relLocalPath = key.substring(keyPrefix.length());
+            String relLocalPath = path.substring(pathPrefix.length());
             String ext = mimeTypeService.getFileExtensionForMimeType(type);
             relLocalPath = relLocalPath + ext;
             out.print("Get " + relLocalPath + " : ");
@@ -154,7 +155,7 @@ public class GetCliCommand extends BaseCliCommand {
     }
 
     public String getUsageHelp() {
-        return "pi get <PROPERTY_KEY_PATTERN>\n" +
+        return "pi get <PROPERTY_PATH_PATTERN>\n" +
                 "   Downloads all remote properties of the pattern into its local folder inside src.\n" +
                 "   Examples:\n" +
                 "     pi get global/app/myapp/** - Downloads all resources recursively.\n" +

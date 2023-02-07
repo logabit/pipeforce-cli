@@ -23,6 +23,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.io.File;
 import java.util.List;
 
+import static com.logabit.pipeforce.common.property.IProperty.FIELD_PATH;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -85,7 +86,7 @@ public class PipelineCliCommandTest {
 
         String foundProperties = "[\n" +
                 "  {\n" +
-                "    \"key\": \"/pipeforce/enterprise/global/app/myapp/pipeline/prop1\",\n" +
+                "    \"path\": \"/pipeforce/enterprise/global/app/myapp/pipeline/prop1\",\n" +
                 "    \"uuid\": \"a656bc2d-9a2f-40b5-9eb7-fb0f7cc78b94\",\n" +
                 "    \"value\": \"someValue1\",\n" +
                 "    \"defaultValue\": null,\n" +
@@ -95,7 +96,7 @@ public class PipelineCliCommandTest {
                 "    \"timeToLive\": null\n" +
                 "  },\n" +
                 "  {\n" +
-                "    \"key\": \"/pipeforce/enterprise/global/app/myapp/pipeline/prop2\",\n" +
+                "    \"path\": \"/pipeforce/enterprise/global/app/myapp/pipeline/prop2\",\n" +
                 "    \"uuid\": \"f9e714a1-dcaf-4da6-908b-2571b7dcd8c7\",\n" +
                 "    \"value\": \"someValue2\",\n" +
                 "    \"defaultValue\": null,\n" +
@@ -123,8 +124,8 @@ public class PipelineCliCommandTest {
 
         List<Object> allValues = resultCaptor.getAllValues();
         ArrayNode result = (ArrayNode) allValues.get(0);
-        Assert.assertEquals("/pipeforce/enterprise/global/app/myapp/pipeline/prop1", result.get(0).get("key").textValue());
-        Assert.assertEquals("/pipeforce/enterprise/global/app/myapp/pipeline/prop2", result.get(1).get("key").textValue());
+        Assert.assertEquals("/pipeforce/enterprise/global/app/myapp/pipeline/prop1", result.get(0).get(FIELD_PATH).textValue());
+        Assert.assertEquals("/pipeforce/enterprise/global/app/myapp/pipeline/prop2", result.get(1).get(FIELD_PATH).textValue());
     }
 
     private File createTestAppRepoHome() {

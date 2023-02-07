@@ -71,17 +71,18 @@ public class NewCliCommandTest {
         File appHome = new File(appRepoHome, "src/global/app/someapp");
         List<File> files = FileUtil.listFiles(appHome);
         files.sort(Comparator.comparing(File::getName));
-        Assert.assertEquals(9, files.size());
+        Assert.assertEquals(10, files.size());
 
         Assert.assertEquals("config", files.get(0).getName());
         Assert.assertEquals("form", files.get(1).getName());
-        Assert.assertEquals("list", files.get(2).getName());
-        Assert.assertEquals("object", files.get(3).getName());
-        Assert.assertEquals("pipeline", files.get(4).getName());
-        Assert.assertEquals("script", files.get(5).getName());
-        Assert.assertEquals("setup", files.get(6).getName());
-        Assert.assertEquals("test", files.get(7).getName());
-        Assert.assertEquals("workflow", files.get(8).getName());
+        Assert.assertEquals("function", files.get(2).getName());
+        Assert.assertEquals("list", files.get(3).getName());
+        Assert.assertEquals("object", files.get(4).getName());
+        Assert.assertEquals("pipeline", files.get(5).getName());
+        Assert.assertEquals("resource", files.get(6).getName());
+        Assert.assertEquals("setup", files.get(7).getName());
+        Assert.assertEquals("test", files.get(8).getName());
+        Assert.assertEquals("workflow", files.get(9).getName());
 
         File configFile = new File(appHome, "config/app.json");
         String configString = FileUtil.fileToString(configFile);

@@ -85,7 +85,7 @@ public class DeleteCliCommandTest {
 
         String foundProperties = "[\n" +
                 "  {\n" +
-                "    \"key\": \"/pipeforce/enterprise/global/app/myapp/pipeline/prop1\",\n" +
+                "    \"path\": \"/pipeforce/enterprise/global/app/myapp/pipeline/prop1\",\n" +
                 "    \"uuid\": \"a656bc2d-9a2f-40b5-9eb7-fb0f7cc78b94\",\n" +
                 "    \"value\": \"someValue1\",\n" +
                 "    \"defaultValue\": null,\n" +
@@ -95,7 +95,7 @@ public class DeleteCliCommandTest {
                 "    \"timeToLive\": null\n" +
                 "  },\n" +
                 "  {\n" +
-                "    \"key\": \"/pipeforce/enterprise/global/app/myapp/pipeline/prop2\",\n" +
+                "    \"path\": \"/pipeforce/enterprise/global/app/myapp/pipeline/prop2\",\n" +
                 "    \"uuid\": \"f9e714a1-dcaf-4da6-908b-2571b7dcd8c7\",\n" +
                 "    \"value\": \"someValue2\",\n" +
                 "    \"defaultValue\": null,\n" +
@@ -117,8 +117,8 @@ public class DeleteCliCommandTest {
 
         List<String> values = uriCaptor.getAllValues();
         Assert.assertEquals("property.list?filter=global/app/myapp/pipeline/**", values.get(0));
-        Assert.assertEquals("property.schema.delete?key=/pipeforce/enterprise/global/app/myapp/pipeline/prop1", values.get(1));
-        Assert.assertEquals("property.schema.delete?key=/pipeforce/enterprise/global/app/myapp/pipeline/prop2", values.get(2));
+        Assert.assertEquals("property.schema.delete?path=/pipeforce/enterprise/global/app/myapp/pipeline/prop1", values.get(1));
+        Assert.assertEquals("property.schema.delete?path=/pipeforce/enterprise/global/app/myapp/pipeline/prop2", values.get(2));
 
         verify(publishCliService, times(1)).load();
         verify(publishCliService, times(1)).save();

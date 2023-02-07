@@ -9,6 +9,8 @@ import com.logabit.pipeforce.common.util.PathUtil;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.logabit.pipeforce.common.property.IProperty.FIELD_PATH;
+
 /**
  * Lists the all property keys matching given property key pattern.
  *
@@ -32,11 +34,11 @@ public class ListCliCommand extends BaseCliCommand {
         out.showProgress("");
         try {
             ArrayNode list = (ArrayNode) getContext().getPipelineRunner()
-                    .executePipelineUri("property.list?filter=" + pathArg.getRemotePattern());
+                    .executePipelineUri("property.list?pattern=" + pathArg.getRemotePattern());
 
             List<String> keys = new ArrayList<>();
             for (JsonNode node : list) {
-                keys.add(node.get("key").textValue().substring(keyPrefix.length()));
+                keys.add(node.get(FIELD_PATH).textValue().substring(keyPrefix.length()));
             }
 
             out.printResult(keys);

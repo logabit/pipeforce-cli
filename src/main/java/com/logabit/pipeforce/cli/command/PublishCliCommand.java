@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.logabit.pipeforce.common.property.IProperty.FIELD_PATH;
+
 /**
  * Publishes all resources of a given app to the server.
  *
@@ -150,7 +152,7 @@ public class PublishCliCommand extends BaseCliCommand {
             }
 
             ObjectNode pipelineArgs = JsonUtil.createObjectNode();
-            pipelineArgs.put("key", propertyKey);
+            pipelineArgs.put(FIELD_PATH, propertyKey);
             pipelineArgs.put("type", type.toString());
             pipelineArgs.put("existStrategy", "update");
             pipelineArgs.put("evalValue", "false");
@@ -203,7 +205,7 @@ public class PublishCliCommand extends BaseCliCommand {
     }
 
     /**
-     * Is it a config property with key path global/app/MYAPP/config/...
+     * Is it a config property with path global/app/MYAPP/config/...
      *
      * @param propertyKey
      * @return

@@ -8,6 +8,8 @@ import com.logabit.pipeforce.cli.service.PublishCliService;
 import com.logabit.pipeforce.common.util.ListUtil;
 import com.logabit.pipeforce.common.util.PathUtil;
 
+import static com.logabit.pipeforce.common.property.IProperty.FIELD_PATH;
+
 /**
  * Deletes the given remote property.
  *
@@ -52,14 +54,14 @@ public class DeleteCliCommand extends BaseCliCommand {
         }
 
         for (JsonNode found : founds) {
-            String key = found.get("key").textValue();
-            out.println("Delete: " + key);
-            getContext().getPipelineRunner().executePipelineUri("property.schema.delete?key=" + key);
+            String path = found.get(FIELD_PATH).textValue();
+            out.println("Delete: " + path);
+            getContext().getPipelineRunner().executePipelineUri("property.schema.delete?path=" + path);
 
             // Remove entry from .published file
             String type = found.get("type").textValue();
             String ext = getContext().getMimeTypeService().getFileExtensionForMimeType(type);
-            String relPath = key.substring(propHome.length() + 1);
+            String relPath = path.substring(propHome.length() + 1);
             relPath = relPath + ext;
             String targetPath = PathUtil.path(getContext().getSrcFolder(), relPath);
             publishService.remove(targetPath);
@@ -69,7 +71,7 @@ public class DeleteCliCommand extends BaseCliCommand {
     }
 
     public String getUsageHelp() {
-        return "pi delete <PROPERTY_KEY_PATTERN>\n" +
+        return "pi delete <PROPERTY_PATH_PATTERN>\n" +
                 "   Deletes the given remote property or properties from server.\n" +
                 "   Doesn't delete any local file.\n" +
                 "   Examples:\n" +

@@ -84,7 +84,7 @@ public class GetCliCommandTest {
 
         String foundProperties = "[\n" +
                 "  {\n" +
-                "    \"key\": \"/pipeforce/enterprise/global/app/myapp/pipeline/prop1\",\n" +
+                "    \"path\": \"/pipeforce/enterprise/global/app/myapp/pipeline/prop1\",\n" +
                 "    \"uuid\": \"a656bc2d-9a2f-40b5-9eb7-fb0f7cc78b94\",\n" +
                 "    \"value\": \"someValue1ččč\",\n" +
                 "    \"defaultValue\": null,\n" +
@@ -94,7 +94,7 @@ public class GetCliCommandTest {
                 "    \"timeToLive\": null\n" +
                 "  },\n" +
                 "  {\n" +
-                "    \"key\": \"/pipeforce/enterprise/global/app/myapp/pipeline/prop2\",\n" +
+                "    \"path\": \"/pipeforce/enterprise/global/app/myapp/pipeline/prop2\",\n" +
                 "    \"uuid\": \"f9e714a1-dcaf-4da6-908b-2571b7dcd8c7\",\n" +
                 "    \"value\": \"someValue2\",\n" +
                 "    \"defaultValue\": null,\n" +
