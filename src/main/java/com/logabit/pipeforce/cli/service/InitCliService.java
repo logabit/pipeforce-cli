@@ -14,13 +14,12 @@ import java.io.File;
 public class InitCliService extends BaseCliContextAware {
 
     public static final String FOLDER_NAME_PIPEFORCE = ".pipeforce";
-    public static final String FOLDER_NAME_SRC = "src";
     public static final String FOLDER_NAME_GLOBAL = "global";
     public static final String FOLDER_NAME_APP = "app";
 
     public void init(String path) {
 
-        FileUtil.createFolders(PathUtil.path(path, FOLDER_NAME_SRC, FOLDER_NAME_GLOBAL, FOLDER_NAME_APP));
+        FileUtil.createFolders(PathUtil.path(path, getContext().getConfigService().getPropertiesHome(), FOLDER_NAME_GLOBAL, FOLDER_NAME_APP));
         FileUtil.createFolders(PathUtil.path(path, FOLDER_NAME_PIPEFORCE));
         createVSCodeWorkspaceFile(path);
         createPipeforceConfigYamlFile(path);
@@ -36,7 +35,7 @@ public class InitCliService extends BaseCliContextAware {
         // Make sure publish is executed always inside init folder for security reasons
         File workDir = getContext().getCurrentWorkDir();
         File pipeforceFolder = new File(workDir, ".pipeforce");
-        File srcFolder = new File(workDir, "src");
+        File srcFolder = new File(workDir, getContext().getConfigService().getPropertiesHome());
         return (pipeforceFolder.exists() && srcFolder.exists());
     }
 
