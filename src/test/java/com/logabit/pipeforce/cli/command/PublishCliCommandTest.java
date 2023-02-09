@@ -5,6 +5,7 @@ import com.logabit.pipeforce.cli.CliContext;
 import com.logabit.pipeforce.cli.CommandArgs;
 import com.logabit.pipeforce.cli.config.CliConfig;
 import com.logabit.pipeforce.cli.service.ConfigCliService;
+import com.logabit.pipeforce.common.model.WorkspaceConfig;
 import com.logabit.pipeforce.common.pipeline.PipelineRunner;
 import com.logabit.pipeforce.common.util.FileUtil;
 import com.logabit.pipeforce.common.util.JsonUtil;
@@ -67,7 +68,10 @@ public class PublishCliCommandTest {
     public void setUp() {
 
         appRepoHome = createTestAppRepoHome();
-        Mockito.when(configService.getPropertiesHome()).thenReturn("src");
+
+        WorkspaceConfig config = new WorkspaceConfig();
+        config.setPropertiesHome("properties");
+        Mockito.when(configService.getWorkspaceConfig()).thenReturn(config);
     }
 
     @After
@@ -100,12 +104,12 @@ public class PublishCliCommandTest {
         cliContext.callCommand();
 
         // Copy a binary file to the app for testing
-        File targetFile = new File(appRepoHome, "src/global/app/someapp/template/logo.png");
+        File targetFile = new File(appRepoHome, "properties/global/app/someapp/template/logo.png");
         FileUtils.copyFile(new File("src/test/resources/logo.png"), targetFile);
 
         systemInMock.provideLines("yes");
         PublishCliCommand publishCommand = (PublishCliCommand) cliContext.createCommandInstance("publish");
-        publishCommand.call(new CommandArgs("src/global/app/someapp/**"));
+        publishCommand.call(new CommandArgs("properties/global/app/someapp/**"));
 
         ArgumentCaptor<JsonNode> publishNode = ArgumentCaptor.forClass(JsonNode.class);
         Mockito.verify(pipelineRunner, Mockito.atLeastOnce()).executePipelineJsonNode(publishNode.capture());
@@ -136,7 +140,7 @@ public class PublishCliCommandTest {
         publishCommand.call(CommandArgs.EMPTY); // All in src folder
 
         // Test that lower case values of "show" attribute in app config will be converted to upper case correctly
-        final File appConfig = new File(PathUtil.path(cliContext.getRepoHome(), "src/global/app/someapp/config/app.json"));
+        final File appConfig = new File(PathUtil.path(cliContext.getRepoHome(), "properties/global/app/someapp/config/app.json"));
         String appConfigString = FileUtil.fileToString(appConfig);
         Map<String, Object> appConfigMap = JsonUtil.jsonStringToMap(appConfigString);
         String showValue = (String) appConfigMap.get("show");
@@ -146,7 +150,7 @@ public class PublishCliCommandTest {
 
         systemInMock.provideLines("yes");
         publishCommand = (PublishCliCommand) cliContext.createCommandInstance("publish");
-        publishCommand.call(new CommandArgs("src/global/app/**")); // All in src folder
+        publishCommand.call(new CommandArgs("properties/global/app/**")); // All in src folder
 
         // appConfig file have changed -> 1 to upload
         Assert.assertEquals(5, publishCommand.getFilesCounter());
@@ -164,16 +168,16 @@ public class PublishCliCommandTest {
         cliContext.setCurrentWorkDir(new File("/Users/some/pipeforce"));
         publishCommand.setContext(cliContext);
 
-        Assert.assertEquals(new File("/Users/some/pipeforce/src/global/app/myapp/**").toURI().toString(),
+        Assert.assertEquals(new File("/Users/some/pipeforce/properties/global/app/myapp/**").toURI().toString(),
                 publishCommand.prepareLocalPathPattern("myapp"));
 
-        Assert.assertEquals(new File("/Users/some/pipeforce/src/global/app/myapp/**").toURI().toString(),
+        Assert.assertEquals(new File("/Users/some/pipeforce/properties/global/app/myapp/**").toURI().toString(),
                 publishCommand.prepareLocalPathPattern("global/app/myapp/**"));
 
-        Assert.assertEquals(new File("/Users/some/pipeforce/src/global/app/myapp/pipeline/test").toURI().toString(),
+        Assert.assertEquals(new File("/Users/some/pipeforce/properties/global/app/myapp/pipeline/test").toURI().toString(),
                 publishCommand.prepareLocalPathPattern("global/app/myapp/pipeline/test"));
 
-        Assert.assertEquals(new File("/Users/some/pipeforce/src/global/app/*/pipeline/test").toURI().toString(),
+        Assert.assertEquals(new File("/Users/some/pipeforce/properties/global/app/*/pipeline/test").toURI().toString(),
                 publishCommand.prepareLocalPathPattern("global/app/*/pipeline/test"));
     }
 
@@ -181,7 +185,7 @@ public class PublishCliCommandTest {
 
         File testRepo = new File(System.getProperty("user.home"), "PIPEFORCE_TEST_" + StringUtil.randomString(5));
 
-        File srcFolder = new File(testRepo, "src");
+        File srcFolder = new File(testRepo, "properties");
         FileUtil.createFolders(srcFolder);
 
         File pipeforceFolder = new File(testRepo, ".pipeforce");

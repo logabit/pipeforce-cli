@@ -1,15 +1,14 @@
 package com.logabit.pipeforce.cli.service;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.logabit.pipeforce.cli.CliContext;
 import com.logabit.pipeforce.cli.CliContextAware;
 import com.logabit.pipeforce.cli.config.CliConfig;
+import com.logabit.pipeforce.common.model.WorkspaceConfig;
 import com.logabit.pipeforce.common.util.DateTimeUtil;
 import com.logabit.pipeforce.common.util.FileUtil;
 import com.logabit.pipeforce.common.util.JsonUtil;
 import com.logabit.pipeforce.common.util.PathUtil;
-import com.logabit.pipeforce.common.util.StringUtil;
 import org.springframework.beans.BeanUtils;
 
 import java.io.File;
@@ -67,14 +66,8 @@ public class ConfigCliService extends CliConfig implements CliContextAware {
         }
 
         String json = FileUtil.fileToString(configFile);
-        JsonNode workspaceConfig = JsonUtil.jsonStringToJsonNode(json);
-        String propertiesHome = workspaceConfig.get("propertiesHome").textValue();
-
-        if (StringUtil.isEmpty("propertiesHome")) {
-            return;
-        }
-
-        globalConfig.setPropertiesHome(propertiesHome);
+        WorkspaceConfig workspaceConfig = JsonUtil.jsonStringToObject(json, WorkspaceConfig.class);
+        globalConfig.setWorkspaceConfig(workspaceConfig);
     }
 
     @JsonIgnore

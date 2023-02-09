@@ -58,12 +58,12 @@ public class PublishCliCommand extends BaseCliCommand {
 
         // pi publish
         if (StringUtil.isEmpty(path)) {
-            path = config.getPropertiesHome() + "/**";
+            path = config.getWorkspaceConfig().getPropertiesHome() + "/**";
         }
 
         // pi publish myapp
         if (!path.contains("/") && !path.contains("\\")) {
-            path = config.getPropertiesHome() + "/global/app/" + path + "/**";
+            path = config.getWorkspaceConfig().getPropertiesHome() + "/global/app/" + path + "/**";
         }
 
         // In all other cases we expect: pi publish properties/global/...

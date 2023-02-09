@@ -1,7 +1,7 @@
 package com.logabit.pipeforce.cli.service;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.logabit.pipeforce.cli.BaseCliContextAware;
+import com.logabit.pipeforce.common.model.WorkspaceConfig;
 import com.logabit.pipeforce.common.util.FileUtil;
 import com.logabit.pipeforce.common.util.JsonUtil;
 import com.logabit.pipeforce.common.util.PathUtil;
@@ -19,7 +19,8 @@ public class InitCliService extends BaseCliContextAware {
 
     public void init(String path) {
 
-        FileUtil.createFolders(PathUtil.path(path, getContext().getConfigService().getPropertiesHome(), FOLDER_NAME_GLOBAL, FOLDER_NAME_APP));
+        FileUtil.createFolders(PathUtil.path(path, getContext().getConfigService().getWorkspaceConfig().getPropertiesHome(),
+                FOLDER_NAME_GLOBAL, FOLDER_NAME_APP));
         FileUtil.createFolders(PathUtil.path(path, FOLDER_NAME_PIPEFORCE));
         createVSCodeWorkspaceFile(path);
         createPipeforceConfigYamlFile(path);
@@ -35,7 +36,7 @@ public class InitCliService extends BaseCliContextAware {
         // Make sure publish is executed always inside init folder for security reasons
         File workDir = getContext().getCurrentWorkDir();
         File pipeforceFolder = new File(workDir, ".pipeforce");
-        File srcFolder = new File(workDir, getContext().getConfigService().getPropertiesHome());
+        File srcFolder = new File(workDir, getContext().getConfigService().getWorkspaceConfig().getPropertiesHome());
         return (pipeforceFolder.exists() && srcFolder.exists());
     }
 
@@ -71,9 +72,8 @@ public class InitCliService extends BaseCliContextAware {
 
     public void createPipeforceConfigYamlFile(String path) {
 
-        ObjectNode configNode = JsonUtil.createObjectNode();
-        configNode.put("propertiesHome", "properties");
-        String configPath = PathUtil.path(path, ".pipeforce/config.json");
-        FileUtil.saveStringToFile(configNode.toPrettyString(), FileUtil.getOrCreateFile(configPath));
+        WorkspaceConfig config = new WorkspaceConfig();
+        String configPath = PathUtil.path(path, WorkspaceConfig.DEFAULT_LOCATION);
+        FileUtil.saveStringToFile(JsonUtil.objectToJsonString(config), FileUtil.getOrCreateFile(configPath));
     }
 }

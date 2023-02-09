@@ -7,6 +7,7 @@ import com.logabit.pipeforce.cli.CliContext;
 import com.logabit.pipeforce.cli.CommandArgs;
 import com.logabit.pipeforce.cli.service.ConfigCliService;
 import com.logabit.pipeforce.cli.service.OutputCliService;
+import com.logabit.pipeforce.common.model.WorkspaceConfig;
 import com.logabit.pipeforce.common.pipeline.PipelineRunner;
 import com.logabit.pipeforce.common.util.FileUtil;
 import com.logabit.pipeforce.common.util.JsonUtil;
@@ -48,14 +49,15 @@ public class PipelineCliCommandTest {
     private OutputCliService out;
 
     @Mock
-    private ConfigCliService config;
+    private ConfigCliService configService;
 
     private File homeRepo;
 
     @Before
     public void setUp() {
 
-        Mockito.when(config.getPropertiesHome()).thenReturn("properties");
+        WorkspaceConfig config = new WorkspaceConfig();
+        Mockito.when(configService.getWorkspaceConfig()).thenReturn(config);
         this.homeRepo = createTestAppRepoHome();
         cliContext.setCurrentWorkDir(homeRepo);
     }

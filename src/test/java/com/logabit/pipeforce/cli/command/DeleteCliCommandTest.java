@@ -8,6 +8,7 @@ import com.logabit.pipeforce.cli.service.ConfigCliService;
 import com.logabit.pipeforce.cli.service.InstallCliService;
 import com.logabit.pipeforce.cli.service.OutputCliService;
 import com.logabit.pipeforce.cli.service.PublishCliService;
+import com.logabit.pipeforce.common.model.WorkspaceConfig;
 import com.logabit.pipeforce.common.pipeline.PipelineRunner;
 import com.logabit.pipeforce.common.util.FileUtil;
 import com.logabit.pipeforce.common.util.JsonUtil;
@@ -71,7 +72,8 @@ public class DeleteCliCommandTest {
     @Before
     public void setUp() {
 
-        Mockito.when(configService.getPropertiesHome()).thenReturn("properties");
+        WorkspaceConfig config = new WorkspaceConfig();
+        Mockito.when(configService.getWorkspaceConfig()).thenReturn(config);
         this.repoHome = createTestAppRepoHome();
         cliContext.setCurrentWorkDir(repoHome);
 

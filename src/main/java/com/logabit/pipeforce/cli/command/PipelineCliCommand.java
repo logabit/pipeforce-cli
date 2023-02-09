@@ -43,7 +43,7 @@ public class PipelineCliCommand extends BaseCliCommand {
 
     private String detectType(String path) {
 
-        if (path.startsWith(getContext().getConfigService().getPropertiesHome() + "/")) {
+        if (path.startsWith(getContext().getConfigService().getWorkspaceConfig().getPropertiesHome() + "/")) {
             return "file";
         }
 

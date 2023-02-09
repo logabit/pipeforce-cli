@@ -315,12 +315,12 @@ public class CliContext {
             return propertiesHomeFolder;
         }
 
-        String propertiesHome = getConfigService().getPropertiesHome();
+        String propertiesHome = getConfigService().getWorkspaceConfig().getPropertiesHome();
         File workDir = getCurrentWorkDir();
         this.propertiesHomeFolder = new File(workDir, propertiesHome);
 
         if (!this.propertiesHomeFolder.exists()) {
-            throw new CliException("No properties home folder found. Call 'pi init' inside: " +
+            throw new CliException("No properties home folder [" + this.propertiesHomeFolder + "] found. Call 'pi init' inside: " +
                     workDir.getAbsolutePath());
         }
 

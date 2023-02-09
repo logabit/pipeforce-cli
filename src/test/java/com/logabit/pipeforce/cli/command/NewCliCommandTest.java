@@ -3,6 +3,7 @@ package com.logabit.pipeforce.cli.command;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.logabit.pipeforce.cli.CliContext;
 import com.logabit.pipeforce.cli.service.ConfigCliService;
+import com.logabit.pipeforce.common.model.WorkspaceConfig;
 import com.logabit.pipeforce.common.util.FileUtil;
 import com.logabit.pipeforce.common.util.JsonUtil;
 import com.logabit.pipeforce.common.util.StringUtil;
@@ -54,7 +55,8 @@ public class NewCliCommandTest {
     @Before
     public void setUp() {
 
-        Mockito.when(configService.getPropertiesHome()).thenReturn("properties");
+        WorkspaceConfig config = new WorkspaceConfig();
+        Mockito.when(configService.getWorkspaceConfig()).thenReturn(config);
         appRepoHome = createTestAppRepoHome();
         context.setCurrentWorkDir(appRepoHome);
     }

@@ -3,6 +3,7 @@ package com.logabit.pipeforce.cli.command;
 import com.logabit.pipeforce.cli.CommandArgs;
 import com.logabit.pipeforce.common.util.FileUtil;
 import com.logabit.pipeforce.common.util.ListUtil;
+import com.logabit.pipeforce.common.util.PropertyUtil;
 import com.logabit.pipeforce.common.util.StringUtil;
 
 import java.io.File;
@@ -361,10 +362,11 @@ public class NewCliCommand extends BaseCliCommand {
 
             String appName = in.ask("New app name", null);
 
-            if (!appName.matches("([a-z0-9]+)")) {
-                out.println("App name must be lower case and may not contain any special chars or spaces: " + appName);
+            try {
+                PropertyUtil.validatePathPart(appName);
+            } catch (Exception e) {
+                out.println("Invalid app name: " + appName + ". " + e.getMessage());
                 out.println("Select a different name.");
-                continue;
             }
 
             File appFolder = new File(srcFolder, "global/app/" + appName);

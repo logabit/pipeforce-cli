@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.logabit.pipeforce.cli.service.InstallCliService;
 import com.logabit.pipeforce.cli.service.UpdateCliService;
+import com.logabit.pipeforce.common.model.WorkspaceConfig;
 import com.logabit.pipeforce.common.util.PathUtil;
 import com.logabit.pipeforce.common.util.StringUtil;
 
@@ -60,9 +61,9 @@ public class CliConfig {
     private String releaseTagFromJar;
 
     /**
-     * The name of the root folder where all the properties reside in.
+     * Contains all workspace related configurations parsed from file .pipeforce/config.json
      */
-    private String propertiesHome = "properties";
+    private WorkspaceConfig workspaceConfig;
 
     /**
      * The default instance key as: namespace.host
@@ -216,12 +217,12 @@ public class CliConfig {
         return versionInfo.getCurrentReleaseTag();
     }
 
-    public void setPropertiesHome(String propertiesHome) {
-        this.propertiesHome = propertiesHome;
+    public void setWorkspaceConfig(WorkspaceConfig workspaceConfig) {
+        this.workspaceConfig = workspaceConfig;
     }
 
-    public String getPropertiesHome() {
-        return propertiesHome;
+    public WorkspaceConfig getWorkspaceConfig() {
+        return workspaceConfig;
     }
 
     /**
