@@ -63,7 +63,7 @@ public class CliConfig {
     /**
      * Contains all workspace related configurations parsed from file .pipeforce/config.json
      */
-    private WorkspaceConfig workspaceConfig;
+    private WorkspaceConfig workspaceConfig = new WorkspaceConfig();
 
     /**
      * The default instance key as: namespace.host
