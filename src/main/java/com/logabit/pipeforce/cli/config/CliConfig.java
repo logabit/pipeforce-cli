@@ -1,6 +1,7 @@
 package com.logabit.pipeforce.cli.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.logabit.pipeforce.cli.service.InstallCliService;
 import com.logabit.pipeforce.cli.service.UpdateCliService;
 import com.logabit.pipeforce.common.util.PathUtil;
@@ -16,6 +17,7 @@ import java.util.List;
  * @author sniederm
  * @since 7.0
  */
+@JsonIgnoreProperties
 public class CliConfig {
 
     /**
