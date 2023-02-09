@@ -1,7 +1,9 @@
 package com.logabit.pipeforce.cli.service;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.logabit.pipeforce.cli.BaseCliContextAware;
 import com.logabit.pipeforce.common.util.FileUtil;
+import com.logabit.pipeforce.common.util.JsonUtil;
 import com.logabit.pipeforce.common.util.PathUtil;
 
 import java.io.File;
@@ -21,6 +23,7 @@ public class InitCliService extends BaseCliContextAware {
         FileUtil.createFolders(PathUtil.path(path, FOLDER_NAME_SRC, FOLDER_NAME_GLOBAL, FOLDER_NAME_APP));
         FileUtil.createFolders(PathUtil.path(path, FOLDER_NAME_PIPEFORCE));
         createVSCodeWorkspaceFile(path);
+        createPipeforceConfigYamlFile(path);
     }
 
     /**
@@ -65,5 +68,13 @@ public class InitCliService extends BaseCliContextAware {
 
         String vsCodeConfig = PathUtil.path(path, "PIPEFORCE.code-workspace");
         FileUtil.saveStringToFile(vsCodeWorkspace, FileUtil.getOrCreateFile(vsCodeConfig));
+    }
+
+    public void createPipeforceConfigYamlFile(String path) {
+
+        ObjectNode configNode = JsonUtil.createObjectNode();
+        configNode.put("propertiesHome", "properties");
+        String configPath = PathUtil.path(path, ".pipeforce/config.json");
+        FileUtil.saveStringToFile(configNode.toPrettyString(), FileUtil.getOrCreateFile(configPath));
     }
 }

@@ -60,7 +60,7 @@ public class CliContext {
     private AppResourceCliService appResourceService;
     private UpdateCliService updateService;
     private File workDir = new File(System.getProperty("user.dir"));
-    private File srcFolder;
+    private File propertiesHomeFolder;
     private CommandArgs args;
     private String command;
     private Integer serverVersionMajor;
@@ -114,6 +114,7 @@ public class CliContext {
 
         if (configService == null) {
             configService = new ConfigCliService();
+            initComponent(configService);
         }
 
         return configService;
@@ -259,14 +260,14 @@ public class CliContext {
 
     /**
      * In case the current work dir is inside an app folder, returns the name of this app folder.
-     * Returns null in case the cwd is not inside a src/global/app/APP folder
+     * Returns null in case the cwd is not inside a properties/global/app/APP folder
      *
      * @return
      */
     public String getCurrentAppFolderName() {
 
         Path workDir = getCurrentWorkDir().toPath();
-        Path pipeforceHome = Paths.get(PathUtil.path(getSrcFolder(), "global", "app"));
+        Path pipeforceHome = Paths.get(PathUtil.path(getPropertiesHomeFolder(), "global", "app"));
         if (workDir.startsWith(pipeforceHome)) {
             Path appFolder = workDir.subpath(pipeforceHome.getNameCount(), pipeforceHome.getNameCount() + 1);
             return appFolder.toFile().getName();
@@ -302,39 +303,28 @@ public class CliContext {
     }
 
     /**
-     * Searches the path to the src/global/app folder relative to current work dir.
-     * Two locations of the src folder are allowed:
-     * <ul>
-     *     <li>$APP_REPO/src</li>
-     *     <li>$APP_REPO/pipeforce/src</li>
-     * </ul>
+     * Returns the file pointing to the properties home folder as configured
+     * in the workbench settings.
      *
      * @return
-     * @throws CliException In case no src folder exists.
+     * @throws CliException In case no properties home folder exists.
      */
-    public File getSrcFolder() {
+    public File getPropertiesHomeFolder() {
 
-        if (srcFolder != null) {
-            return srcFolder;
+        if (propertiesHomeFolder != null) {
+            return propertiesHomeFolder;
         }
 
-        File currentWorkDir = getRepoHome();
-        File srcFolder = new File(currentWorkDir, "src");
+        String propertiesHome = getConfigService().getPropertiesHome();
+        File workDir = getCurrentWorkDir();
+        this.propertiesHomeFolder = new File(workDir, propertiesHome);
 
-        if (srcFolder.exists()) {
-            this.srcFolder = srcFolder;
-            return srcFolder;
+        if (!this.propertiesHomeFolder.exists()) {
+            throw new CliException("No properties home folder found. Call 'pi init' inside: " +
+                    workDir.getAbsolutePath());
         }
 
-        srcFolder = new File(currentWorkDir, "pipeforce/src");
-
-        if (srcFolder.exists()) {
-            this.srcFolder = srcFolder;
-            return srcFolder;
-        }
-
-        throw new CliException("No src folder structure found. Call 'pi init' inside: " +
-                currentWorkDir.getAbsolutePath());
+        return this.propertiesHomeFolder;
     }
 
     public void setCurrentWorkDir(File workDir) {
@@ -415,7 +405,7 @@ public class CliContext {
     public CliPathArg createPathArg(String path) {
 
         // TODO remove extra new File step here
-        return new CliPathArg(path, getSrcFolder());
+        return new CliPathArg(path, getPropertiesHomeFolder());
     }
 
     public InputUtil getInputUtil() {

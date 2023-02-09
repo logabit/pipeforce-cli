@@ -22,6 +22,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.File;
@@ -69,6 +70,7 @@ public class GetCliCommandTest {
     @Before
     public void setUp() {
 
+        Mockito.when(configService.getPropertiesHome()).thenReturn("properties");
         this.repoHome = createTestAppRepoHome();
         cliContext.setCurrentWorkDir(repoHome);
     }
@@ -130,15 +132,15 @@ public class GetCliCommandTest {
         Assert.assertEquals("someValue2", new String(allData.get(1)));
 
         List<File> allFiles = fileCaptor.getAllValues();
-        Assert.assertEquals(new File(repoHome, "src/global/app/myapp/pipeline/prop1.pi.yaml"), allFiles.get(0));
-        Assert.assertEquals(new File(repoHome, "src/global/app/myapp/pipeline/prop2.pi.yaml"), allFiles.get(1));
+        Assert.assertEquals(new File(repoHome, "properties/global/app/myapp/pipeline/prop1.pi.yaml"), allFiles.get(0));
+        Assert.assertEquals(new File(repoHome, "properties/global/app/myapp/pipeline/prop2.pi.yaml"), allFiles.get(1));
     }
 
     private File createTestAppRepoHome() {
 
         File testRepo = new File(System.getProperty("user.home"), "PIPEFORCE_TEST_" + StringUtil.randomString(5));
 
-        File srcFolder = new File(testRepo, "src");
+        File srcFolder = new File(testRepo, "properties");
         FileUtil.createFolders(srcFolder);
 
         File pipeforceFolder = new File(testRepo, ".pipeforce");

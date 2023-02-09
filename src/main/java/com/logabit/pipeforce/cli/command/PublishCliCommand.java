@@ -58,15 +58,15 @@ public class PublishCliCommand extends BaseCliCommand {
 
         // pi publish
         if (StringUtil.isEmpty(path)) {
-            path = "src/**";
+            path = config.getPropertiesHome() + "/**";
         }
 
         // pi publish myapp
         if (!path.contains("/") && !path.contains("\\")) {
-            path = "src/global/app/" + path + "/**";
+            path = config.getPropertiesHome() + "/global/app/" + path + "/**";
         }
 
-        // In all other cases we expect: pi publish src/global/...
+        // In all other cases we expect: pi publish properties/global/...
 
         CliPathArg pathArg = getContext().createPathArg(path);
 
@@ -104,7 +104,7 @@ public class PublishCliCommand extends BaseCliCommand {
         PublishCliService publishService = getContext().getPublishService();
         MimeTypeService mimeTypeService = getContext().getMimeTypeService();
 
-        String srcHome = PathUtil.path(context.getSrcFolder());
+        String srcHome = PathUtil.path(context.getPropertiesHomeFolder());
 
         publishService.load();
         filesCounter = 0;

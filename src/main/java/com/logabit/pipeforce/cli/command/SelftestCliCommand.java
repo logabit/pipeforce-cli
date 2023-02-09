@@ -51,7 +51,7 @@ public class SelftestCliCommand extends BaseCliCommand {
             out.println("Selftest: New app, pipeline, workflow OK.");
 
             // Copy binary logo file, publish, get, check encoding
-            String appPath = Paths.get(getContext().getSrcFolder().getAbsolutePath(), "global", "app", appName).toString();
+            String appPath = Paths.get(getContext().getPropertiesHomeFolder().getAbsolutePath(), "global", "app", appName).toString();
             String logoPath = Paths.get(appPath, "template", "logo.png").toString();
             File logoFile = new File(logoPath);
             logoFile.getParentFile().mkdirs();

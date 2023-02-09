@@ -88,7 +88,7 @@ public class NewCliCommand extends BaseCliCommand {
                 continue;
             }
 
-            bpmnFile = new File(getContext().getSrcFolder(), "global/app/" + appName + "/workflow/" +
+            bpmnFile = new File(getContext().getPropertiesHomeFolder(), "global/app/" + appName + "/workflow/" +
                     workflowName + ".bpmn");
 
             if (bpmnFile.exists()) {
@@ -137,7 +137,7 @@ public class NewCliCommand extends BaseCliCommand {
                 continue;
             }
 
-            pipelineFile = new File(getContext().getSrcFolder(), "global/app/" + appName + "/pipeline/" + pipelineName + ".pi.yaml");
+            pipelineFile = new File(getContext().getPropertiesHomeFolder(), "global/app/" + appName + "/pipeline/" + pipelineName + ".pi.yaml");
 
             if (pipelineFile.exists()) {
                 out.println("Pipeline with name [" + pipelineName + "] already exists: " + pipelineFile.getAbsolutePath());
@@ -172,7 +172,7 @@ public class NewCliCommand extends BaseCliCommand {
                 continue;
             }
 
-            listFile = new File(getContext().getSrcFolder(), "global/app/" + appName + "/list/" + listName + ".json");
+            listFile = new File(getContext().getPropertiesHomeFolder(), "global/app/" + appName + "/list/" + listName + ".json");
 
             if (listFile.exists()) {
                 out.println("List with name [" + listName + "] already exists: " + listFile.getAbsolutePath());
@@ -186,7 +186,7 @@ public class NewCliCommand extends BaseCliCommand {
         String description = in.ask("Optional description of list", "");
 
         out.println("Do you like to load existing objects into your list?");
-        File objectsRoot = new File(context.getSrcFolder(), "global/app/" + appName + "/object");
+        File objectsRoot = new File(context.getPropertiesHomeFolder(), "global/app/" + appName + "/object");
         List<File> objectFolders = FileUtil.listFiles(objectsRoot);
         List<String> objectNames = objectFolders.stream().map(File::getName).collect(Collectors.toList());
         objectNames.add("[Do not show existing object in list]");
@@ -231,7 +231,7 @@ public class NewCliCommand extends BaseCliCommand {
                 continue;
             }
 
-            objectFolder = new File(getContext().getSrcFolder(), "global/app/" + appName + "/object/" + objectName);
+            objectFolder = new File(getContext().getPropertiesHomeFolder(), "global/app/" + appName + "/object/" + objectName);
 
             if (objectFolder.exists()) {
                 out.println("Object with name [" + objectName + "] already exists: " + objectFolder.getAbsolutePath());
@@ -306,7 +306,7 @@ public class NewCliCommand extends BaseCliCommand {
                 continue;
             }
 
-            formFile = new File(getContext().getSrcFolder(), "global/app/" + appName + "/config/" + formName + ".json");
+            formFile = new File(getContext().getPropertiesHomeFolder(), "global/app/" + appName + "/config/" + formName + ".json");
 
             if (formFile.exists()) {
                 out.println("Form with name [" + formName + "] already exists.");
@@ -321,7 +321,7 @@ public class NewCliCommand extends BaseCliCommand {
 
         out.println("Select the object schema to connect with this form:");
 
-        File objectFolder = new File(getContext().getSrcFolder(), "global/app/" + appName + "/object");
+        File objectFolder = new File(getContext().getPropertiesHomeFolder(), "global/app/" + appName + "/object");
         List<File> objectFolders = FileUtil.listFiles(objectFolder.getAbsolutePath());
         List<String> objectNames = objectFolders.stream().map(File::getName).collect(Collectors.toList());
         objectNames.add("[Do not connect to object schema]");
@@ -347,7 +347,7 @@ public class NewCliCommand extends BaseCliCommand {
                 "  \"output\": \"" + outputPath + "\"\n" +
                 "}";
 
-        File formConfigFile = new File(getContext().getSrcFolder(), "global/app/" + appName + "/form/" + formName + ".json");
+        File formConfigFile = new File(getContext().getPropertiesHomeFolder(), "global/app/" + appName + "/form/" + formName + ".json");
         FileUtil.saveStringToFile(formConfigContent, formConfigFile.getAbsolutePath());
 
         out.println("Form created: " + formConfigFile.getAbsolutePath());
@@ -355,7 +355,7 @@ public class NewCliCommand extends BaseCliCommand {
 
     private String createApp() {
 
-        File srcFolder = getContext().getSrcFolder();
+        File srcFolder = getContext().getPropertiesHomeFolder();
 
         while (true) {
 
@@ -447,7 +447,7 @@ public class NewCliCommand extends BaseCliCommand {
      */
     public String askForSelectedApp(String message) {
 
-        File appsRootFolder = new File(getContext().getSrcFolder(), "global/app");
+        File appsRootFolder = new File(getContext().getPropertiesHomeFolder(), "global/app");
         List<File> appFolders = Collections.EMPTY_LIST;
 
         if (appsRootFolder.exists()) {

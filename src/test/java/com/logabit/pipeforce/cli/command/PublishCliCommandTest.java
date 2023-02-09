@@ -67,11 +67,12 @@ public class PublishCliCommandTest {
     public void setUp() {
 
         appRepoHome = createTestAppRepoHome();
+        Mockito.when(configService.getPropertiesHome()).thenReturn("src");
     }
 
     @After
     public void tearDown() {
-//        FileUtil.delete(appRepoHome);
+        FileUtil.delete(appRepoHome);
     }
 
     @Test

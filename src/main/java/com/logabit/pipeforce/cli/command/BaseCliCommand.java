@@ -112,8 +112,8 @@ public abstract class BaseCliCommand implements ICliCommand {
         path = prepareRemotePropertyKeyPattern(path, false);
 
         String src = "";
-        if (!path.startsWith("src/")) {
-            src = "src";
+        if (!path.startsWith("/" + config.getPropertiesHome())) {
+            src = config.getPropertiesHome();
         }
 
         File homeFolder = getContext().getRepoHome();

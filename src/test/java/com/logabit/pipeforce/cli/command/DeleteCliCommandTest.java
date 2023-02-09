@@ -22,6 +22,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.File;
@@ -70,8 +71,10 @@ public class DeleteCliCommandTest {
     @Before
     public void setUp() {
 
+        Mockito.when(configService.getPropertiesHome()).thenReturn("properties");
         this.repoHome = createTestAppRepoHome();
         cliContext.setCurrentWorkDir(repoHome);
+
     }
 
     @Test
@@ -155,7 +158,7 @@ public class DeleteCliCommandTest {
         systemInMock.provideLines("0"); // Do you want to delete? 0=no
 
         DeleteCliCommand deleteCmd = (DeleteCliCommand) cliContext.createCommandInstance("delete");
-        deleteCmd.call(new CommandArgs("src/global/app/myapp/pipeline/**"));
+        deleteCmd.call(new CommandArgs("properties/global/app/myapp/pipeline/**"));
 
         verify(pipelineRunner, times(0)).executePipelineUri(anyString());
     }
@@ -224,7 +227,7 @@ public class DeleteCliCommandTest {
 
         File testRepo = new File(System.getProperty("user.home"), "PIPEFORCE_TEST_" + StringUtil.randomString(5));
 
-        File srcFolder = new File(testRepo, "src");
+        File srcFolder = new File(testRepo, "properties");
         FileUtil.createFolders(srcFolder);
 
         File pipeforceFolder = new File(testRepo, ".pipeforce");

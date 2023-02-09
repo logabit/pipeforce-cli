@@ -17,6 +17,7 @@ import org.junit.contrib.java.lang.system.TextFromStandardInputStream;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -52,6 +53,8 @@ public class NewCliCommandTest {
 
     @Before
     public void setUp() {
+
+        Mockito.when(configService.getPropertiesHome()).thenReturn("properties");
         appRepoHome = createTestAppRepoHome();
         context.setCurrentWorkDir(appRepoHome);
     }
@@ -68,7 +71,7 @@ public class NewCliCommandTest {
 
         context.callCommand();
 
-        File appHome = new File(appRepoHome, "src/global/app/someapp");
+        File appHome = new File(appRepoHome, "properties/global/app/someapp");
         List<File> files = FileUtil.listFiles(appHome);
         files.sort(Comparator.comparing(File::getName));
         Assert.assertEquals(10, files.size());
@@ -104,7 +107,7 @@ public class NewCliCommandTest {
         context.setArgs("new", "form");
         context.callCommand();
 
-        File appHome = new File(appRepoHome, "src/global/app/someapp1");
+        File appHome = new File(appRepoHome, "properties/global/app/someapp1");
 
         String configString = FileUtil.fileToString(new File(appHome, "config/app.json"));
         JsonNode appConfig = JsonUtil.jsonStringToJsonNode(configString);
@@ -146,7 +149,7 @@ public class NewCliCommandTest {
         context.setArgs("new", "list");
         context.callCommand();
 
-        File appHome = new File(appRepoHome, "src/global/app/someapp1");
+        File appHome = new File(appRepoHome, "properties/global/app/someapp1");
 
         String configString = FileUtil.fileToString(new File(appHome, "config/app.json"));
         JsonNode appConfig = JsonUtil.jsonStringToJsonNode(configString);
@@ -191,7 +194,7 @@ public class NewCliCommandTest {
         context.setArgs("new", "list");
         context.callCommand();
 
-        File appHome = new File(appRepoHome, "src/global/app/someapp1");
+        File appHome = new File(appRepoHome, "properties/global/app/someapp1");
 
         String configString = FileUtil.fileToString(new File(appHome, "config/app.json"));
         JsonNode appConfig = JsonUtil.jsonStringToJsonNode(configString);
@@ -233,7 +236,7 @@ public class NewCliCommandTest {
         context.setArgs("new");
         context.callCommand();
 
-        File appHome = new File(appRepoHome, "src/global/app/someapp1");
+        File appHome = new File(appRepoHome, "properties/global/app/someapp1");
 
         String pipelineString = FileUtil.fileToString(new File(appHome, "pipeline/somepipeline.pi.yaml"));
         JsonNode pipeline = JsonUtil.yamlStringToJsonNode(pipelineString);
@@ -258,7 +261,7 @@ public class NewCliCommandTest {
         context.setArgs("new");
         context.callCommand();
 
-        File appHome = new File(appRepoHome, "src/global/app/someapp1");
+        File appHome = new File(appRepoHome, "properties/global/app/someapp1");
 
         String bpmnString = FileUtil.fileToString(new File(appHome, "workflow/someworkflow.bpmn"));
         Document bpmn = XMLUtil.toDOM(bpmnString);
@@ -270,7 +273,7 @@ public class NewCliCommandTest {
 
         File testRepo = new File(System.getProperty("user.home"), "PIPEFORCE_TEST_" + StringUtil.randomString(5));
 
-        File srcFolder = new File(testRepo, "src");
+        File srcFolder = new File(testRepo, "properties");
         FileUtil.createFolders(srcFolder);
 
         File pipeforceFolder = new File(testRepo, ".pipeforce");

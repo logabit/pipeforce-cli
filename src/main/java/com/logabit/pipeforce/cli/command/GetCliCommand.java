@@ -33,7 +33,7 @@ public class GetCliCommand extends BaseCliCommand {
         }
 
         CliPathArg pathArg = getContext().createPathArg(args.getOptionKeyAt(0));
-        get(pathArg, getContext().getSrcFolder());
+        get(pathArg, getContext().getPropertiesHomeFolder());
 
         return 0;
     }
@@ -156,7 +156,7 @@ public class GetCliCommand extends BaseCliCommand {
 
     public String getUsageHelp() {
         return "pi get <PROPERTY_PATH_PATTERN>\n" +
-                "   Downloads all remote properties of the pattern into its local folder inside src.\n" +
+                "   Downloads all remote properties of the pattern into its local properties home folder.\n" +
                 "   Examples:\n" +
                 "     pi get global/app/myapp/** - Downloads all resources recursively.\n" +
                 "     pi get global/app/myapp/* - Downloads all resources. Not recursively.\n" +

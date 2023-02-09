@@ -146,6 +146,6 @@ public class KsyncCliCommand extends BaseCliCommand {
                 "   Watches all files in local folder and syncs them with the \n" +
                 "   remote folder in a Kubernetes service container. \n" +
                 "   Examples: \n" +
-                "     pi ksync /src/ /srv/ - Syncs content changes inside of /src/ recursively to /srv/.\n";
+                "     pi ksync /src/ /srv/ - Syncs content changes of local /src/ recursively to /srv/.\n";
     }
 }

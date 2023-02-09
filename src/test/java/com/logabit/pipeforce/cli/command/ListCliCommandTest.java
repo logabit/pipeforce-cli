@@ -53,6 +53,12 @@ public class ListCliCommandTest {
     @Mock
     private PipelineRunner pipelineRunner;
 
+    @Before
+    public void setUp() {
+
+        Mockito.when(configService.getPropertiesHome()).thenReturn("src");
+    }
+
     @Test
     public void testList() throws Exception {
 

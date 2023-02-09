@@ -142,10 +142,10 @@ public class SyncCliCommand extends BaseCliCommand {
 
         return "pi sync <FOLDER_PATH>\n" +
                 "   Watches all files in given folder and automatically syncs them with the property store at server side. \n" +
-                "   <FOLDER_PATH> must point to a folder inside src.\n" +
+                "   <FOLDER_PATH> must point to a folder inside properties home.\n" +
                 "   Examples: \n" +
-                "     pi sync src/global/app/myapp/ - Syncs content of myapp recursively.\n" +
-                "     pi sync src/global/app/ - Syncs anything below global/app/ path." +
-                "     pi sync /Users/me/pipeforce/src/global/app/ - Absolute path.";
+                "     pi sync properties/global/app/myapp/ - Syncs content of myapp recursively.\n" +
+                "     pi sync properties/global/app/ - Syncs anything below global/app/ path." +
+                "     pi sync /Users/me/pipeforce/properties/global/app/ - Absolute path.";
     }
 }

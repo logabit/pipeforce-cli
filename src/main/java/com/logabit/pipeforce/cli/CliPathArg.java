@@ -18,37 +18,40 @@ import java.nio.file.Paths;
  */
 public class CliPathArg {
 
-    private final File srcHome;
+    private final String propertiesHome;
+    private final File propertiesHomeFile;
     private String pattern;
     private String encodedPattern;
 
     private static final String ASTERISK = "__1Xc__";
 
     /**
-     * @param pattern Can be an absolute local src "/Users/someUser/pipeforce/src/global/app..." or relative
-     *                local "src/global/app/..." or a remote path starting with "global/..."
-     * @param srcHome The path to the source home folder (= the folder which contains the global/app/.. resources).
+     * @param pattern            Can be an absolute "/Users/someUser/pipeforce/properties/global/app..." or relative
+     *                           local "properties/global/app/..." or a remote path starting with "global/..."
+     * @param propertiesHomeFile The path to the properties home folder (= the folder which contains the global/app/.. resources).
      */
-    public CliPathArg(String pattern, File srcHome) {
+    public CliPathArg(String pattern, File propertiesHomeFile) {
 
-        this.srcHome = srcHome;
+        this.propertiesHomeFile = propertiesHomeFile;
+        this.propertiesHome = this.propertiesHomeFile.getName();
 
         Path p = Paths.get(encodePath(pattern));
         if (p.isAbsolute()) {
             throw new CliException("Absolute path not supported: " + pattern + ". Path must be relative to: " +
-                    srcHome.getAbsolutePath());
+                    propertiesHomeFile.getAbsolutePath());
         }
 
         pattern = pattern.replaceAll("\\\\", "/");
 
         if (pattern.startsWith("global/")) {
             pattern = pattern;
-        } else if (pattern.startsWith("src/")) {
-            pattern = pattern.substring("src/".length());
-        } else if (pattern.startsWith("pipeforce/src/")) {
-            pattern = pattern.substring("pipeforce/src/".length());
+        } else if (pattern.startsWith(this.propertiesHome + "/")) {
+            pattern = pattern.substring((propertiesHome + "/").length());
+        } else if (pattern.startsWith("pipeforce/" + propertiesHome + "/")) {
+            pattern = pattern.substring(("pipeforce/" + propertiesHome + "/").length());
         } else {
-            throw new IllegalArgumentException("Unrecognized path: " + pattern);
+            throw new IllegalArgumentException("Unrecognized pattern. Pattern must start with global/ or " +
+                    this.propertiesHome + "/: " + pattern);
         }
 
         // Replace * by ASTERISK to avoid platform problems
@@ -110,7 +113,7 @@ public class CliPathArg {
             throw new CliException("Cannot return file since arg is a pattern: " + encodedPattern);
         }
 
-        return new File(this.srcHome, this.pattern);
+        return new File(this.propertiesHomeFile, this.pattern);
     }
 
     /**
@@ -126,7 +129,8 @@ public class CliPathArg {
     /**
      * Returns the local path pattern as absolute path.
      * <p>
-     * For example if pattern was 'global/app/**' and srcHome was '/Users/foo/src' returns '/Users/foo/src/global/app/**'.
+     * For example if pattern was 'global/app/**' and propertiesHomeFile was '/Users/foo/properties' returns
+     * '/Users/foo/properties/global/app/**'.
      * <p>
      * Use {@link #isPattern()} to detect whether it is a pattern or a local path.
      *
@@ -134,7 +138,7 @@ public class CliPathArg {
      */
     public String getLocalPattern() {
 
-        File f = new File(this.srcHome, this.encodedPattern);
+        File f = new File(this.propertiesHomeFile, this.encodedPattern);
         String localPattern = toPattern(f.getAbsolutePath());
         return toExternalForm(localPattern).replaceAll("\\\\", "/");
     }
@@ -142,7 +146,7 @@ public class CliPathArg {
     /**
      * Returns the remote path pattern.
      * <p>
-     * For example if given pattern was 'src\global\app\**' returns 'global/app/**'.
+     * For example if given pattern was 'properties\global\app\**' returns 'global/app/**'.
      *
      * @return The path pattern ready to be applied remotely.
      */

@@ -54,7 +54,13 @@ public class CliConfig {
     private String defaultInstance;
 
     private String installedReleaseTag;
+
     private String releaseTagFromJar;
+
+    /**
+     * The name of the root folder where all the properties reside in.
+     */
+    private String propertiesHome = "properties";
 
     /**
      * The default instance key as: namespace.host
@@ -206,6 +212,14 @@ public class CliConfig {
                 getReleaseTagFromJar(), null, null);
 
         return versionInfo.getCurrentReleaseTag();
+    }
+
+    public void setPropertiesHome(String propertiesHome) {
+        this.propertiesHome = propertiesHome;
+    }
+
+    public String getPropertiesHome() {
+        return propertiesHome;
     }
 
     /**
