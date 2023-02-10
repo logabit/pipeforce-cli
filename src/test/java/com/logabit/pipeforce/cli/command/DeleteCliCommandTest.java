@@ -122,8 +122,8 @@ public class DeleteCliCommandTest {
 
         List<String> values = uriCaptor.getAllValues();
         Assert.assertEquals("property.list?filter=global/app/myapp/pipeline/**", values.get(0));
-        Assert.assertEquals("property.schema.delete?path=/pipeforce/enterprise/global/app/myapp/pipeline/prop1", values.get(1));
-        Assert.assertEquals("property.schema.delete?path=/pipeforce/enterprise/global/app/myapp/pipeline/prop2", values.get(2));
+        Assert.assertEquals("property.schema.delete?pattern=/pipeforce/enterprise/global/app/myapp/pipeline/prop1", values.get(1));
+        Assert.assertEquals("property.schema.delete?pattern=/pipeforce/enterprise/global/app/myapp/pipeline/prop2", values.get(2));
 
         verify(publishCliService, times(1)).load();
         verify(publishCliService, times(1)).save();
