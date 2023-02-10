@@ -1,4 +1,4 @@
-# PIPEFORCE CLI  
+# PIPEFORCE CLI
 
 PIPEFORCE CLI is a command line interface which can be used to:
 
@@ -26,7 +26,9 @@ Or [download](https://www.oracle.com/java/technologies/downloads/) and install J
 
 ## Installation
 
-1. Download latest [pipeforce-cli.jar](https://github.com/logabit/pipeforce-cli/releases/latest). Make sure the name of the downloaded file is `pipeforce-cli.jar`. Rename it to this name in case your browser has named it to something different like `pipeforce-cli(1).jar` or similar.
+1. Download latest [pipeforce-cli.jar](https://github.com/logabit/pipeforce-cli/releases/latest). Make sure the name of
+   the downloaded file is `pipeforce-cli.jar`. Rename it to this name in case your browser has named it to something
+   different like `pipeforce-cli(1).jar` or similar.
 2. Run this command in order to install it:
 
 ```
@@ -54,10 +56,13 @@ manually such an update:
 ```
 > pi update
 ```
+
 **Note:** Only releases will be auto-updated. Release candidates need to be downloaded and installed manually.
 
-
-:warning: **Warning**: If you're using a version <= 2.26 of the CLI (you can check that using `pi status`), then you need to delete/backup the folder $USER_HOME/pipeforce first and then follow the installation instruction above. Auto-update is no longer working for these older versions. The reason is because the auto-update, server and folder structure has changed fundamentally since then.
+:warning: **Warning**: If you're using a version <= 2.26 of the CLI (you can check that using `pi status`), then you
+need to delete/backup the folder $USER_HOME/pipeforce first and then follow the installation instruction above.
+Auto-update is no longer working for these older versions. The reason is because the auto-update, server and folder
+structure has changed fundamentally since then.
 
 ## Help
 
@@ -85,11 +90,13 @@ For more options and documentation about the CLI tool, please visit https://docs
 
 ### A stable version
 
-To automatically build, test and create a stable release, set a tag of format: `v<version>-RELEASE` whereas `<version>`
-must be the release version. Example:
+To automatically build, test and create a stable release, set a tag of format: `v<version>-b<build>-RELEASE`
+whereas `<version>`
+must be the version of the backend, this cli is compatible with and `<build>` is the build number of the client.
+Example:
 
 ```
-git tag v3.0.0-RELEASE
+git tag v3.0.0-b1-RELEASE
 git push origin --tags
 ```
 
@@ -99,10 +106,10 @@ roll-out will be started automatically! So be careful in setting this tag!
 ### A release candidate (RC)
 
 To automatically build, test and create a release draft **which is not considered in auto-rollout**, set a tag of
-format: `v<version>-RC<number>` whereas `<version>` must be the designated release version and `<number>`
-must be the number of the releae candidate. Example:
+format: `v<version>-b<build>-RC<number>` whereas `<version>` must be the designated backend version, `<build>` is the
+build number of the client, and `<number>` must be the number of the release candidate. Example:
 
 ```
-git tag v3.0.0-RC1
+git tag v3.0.0-b1-RC1
 git push origin --tags
 ```

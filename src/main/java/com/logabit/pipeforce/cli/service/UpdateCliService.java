@@ -8,6 +8,7 @@ import com.logabit.pipeforce.common.util.IOUtil;
 import com.logabit.pipeforce.common.util.JsonUtil;
 import com.logabit.pipeforce.common.util.PathUtil;
 import com.logabit.pipeforce.common.util.StringUtil;
+import com.logabit.pipeforce.common.util.VersionUtil;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -138,18 +139,19 @@ public class UpdateCliService extends BaseCliContextAware {
      */
     public static class VersionInfo {
 
+        private final int[] currentVersion;
+        private final int[] latestVersion;
         private Boolean newer;
 
         private String latestReleaseTag;
-        private String latestVersion;
         private String latestDownloadUrl;
-
         private String currentReleaseTag;
-        private String currentVersion;
 
         public VersionInfo(String currentReleaseNameTag, String latestReleaseTag, String latestDownloadUrl) {
             this.currentReleaseTag = currentReleaseNameTag;
+            this.currentVersion = VersionUtil.toVersionArray(this.currentReleaseTag);
             this.latestReleaseTag = latestReleaseTag;
+            this.latestVersion = VersionUtil.toVersionArray(this.latestReleaseTag);
             this.latestDownloadUrl = latestDownloadUrl;
         }
 
@@ -157,14 +159,7 @@ public class UpdateCliService extends BaseCliContextAware {
             return latestReleaseTag;
         }
 
-        public String getLatestVersion() {
-
-            if (this.latestVersion != null) {
-                return this.latestVersion;
-            }
-
-            String releaseName = getLatestReleaseTag();
-            this.latestVersion = toPlainVersion(releaseName);
+        public int[] getLatestVersion() {
             return this.latestVersion;
         }
 
@@ -172,51 +167,12 @@ public class UpdateCliService extends BaseCliContextAware {
             return latestDownloadUrl;
         }
 
-        public String getCurrentVersion() {
-
-            if (this.currentVersion != null) {
-                return this.currentVersion;
-            }
-
-            String releaseName = getCurrentReleaseTag();
-            this.currentVersion = toPlainVersion(releaseName);
+        public int[] getCurrentVersion() {
             return this.currentVersion;
         }
 
         public String getCurrentReleaseTag() {
             return this.currentReleaseTag;
-        }
-
-        /**
-         * Returns true in case this version is newer than the given one.
-         *
-         * @param givenVersion
-         * @return
-         */
-        public boolean isNewer(String givenVersion) {
-
-            String[] latestVersionSplit = getLatestVersion().split("\\.");
-            String[] givenVersionSplit = givenVersion.split("\\.");
-
-            int latestMajor = Integer.parseInt(latestVersionSplit[0]);
-            int givenMajor = Integer.parseInt(givenVersionSplit[0]);
-            if (latestMajor != givenMajor) {
-                return (latestMajor > givenMajor);
-            }
-
-            int latestMinor = Integer.parseInt(latestVersionSplit[1]);
-            int givenMinor = Integer.parseInt(givenVersionSplit[1]);
-            if (latestMinor != givenMinor) {
-                return (latestMinor > givenMinor);
-            }
-
-            int latestPatch = Integer.parseInt(latestVersionSplit[2]);
-            int givenPatch = Integer.parseInt(givenVersionSplit[2]);
-            if (latestPatch != givenPatch) {
-                return (latestPatch > givenPatch);
-            }
-
-            return false;
         }
 
         /**
@@ -230,31 +186,10 @@ public class UpdateCliService extends BaseCliContextAware {
                 return this.newer;
             }
 
-            String version = this.toPlainVersion(this.currentReleaseTag);
-            this.newer = this.isNewer(version);
+            int[] currentVersion = VersionUtil.toVersionArray(this.currentReleaseTag);
+            int[] latestVersion = VersionUtil.toVersionArray(this.latestReleaseTag);
+            this.newer = VersionUtil.givenNewerThanRequired(latestVersion, currentVersion);
             return this.newer;
-        }
-
-        /**
-         * Converts from prefixed/suffixed release name to plain version: v1.2.3-RELEASE -> 1.2.3
-         *
-         * @param releaseName
-         * @return
-         */
-        private String toPlainVersion(String releaseName) {
-
-
-            // Strip off v
-            if (!StringUtil.isNumeric(releaseName.charAt(0) + "")) {
-                releaseName = releaseName.substring(1);
-            }
-
-            // Strip off -RELEASE or similar
-            if (releaseName.contains("-")) {
-                releaseName = releaseName.split("-")[0];
-            }
-
-            return releaseName;
         }
     }
 }

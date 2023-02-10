@@ -49,15 +49,23 @@ public class UpdateCliServiceTest {
         UpdateCliService.VersionInfo version = new UpdateCliService.VersionInfo(
                 "v7.0.0-RC12", "v8.5.5-RELEASE", "http://someUrl");
 
-        Assert.assertEquals("8.5.5", version.getLatestVersion());
+        Assert.assertArrayEquals(new int[]{8, 5, 5, 0}, version.getLatestVersion());
+        Assert.assertArrayEquals(new int[]{7, 0, 0, 0}, version.getCurrentVersion());
+        Assert.assertTrue(version.isNewerVersionAvailable());
 
-        Assert.assertTrue(version.isNewer("7.0.0"));
-        Assert.assertTrue(version.isNewer("8.1.0"));
-        Assert.assertTrue(version.isNewer("8.5.1"));
+        version = new UpdateCliService.VersionInfo(
+                "v7.0.0-b42-RC12", "v8.5.5-RELEASE", "http://someUrl");
 
-        Assert.assertFalse(version.isNewer("9.0.0"));
-        Assert.assertFalse(version.isNewer("8.6.0"));
-        Assert.assertFalse(version.isNewer("8.5.6"));
+        Assert.assertArrayEquals(new int[]{8, 5, 5, 0}, version.getLatestVersion());
+        Assert.assertArrayEquals(new int[]{7, 0, 0, 42}, version.getCurrentVersion());
+        Assert.assertTrue(version.isNewerVersionAvailable());
+
+        version = new UpdateCliService.VersionInfo(
+                "v9.0.0-RC12", "v8.5.5-RELEASE", "http://someUrl");
+
+        Assert.assertArrayEquals(new int[]{8, 5, 5, 0}, version.getLatestVersion());
+        Assert.assertArrayEquals(new int[]{9, 0, 0, 0}, version.getCurrentVersion());
+        Assert.assertFalse(version.isNewerVersionAvailable());
     }
 
     @Test
@@ -82,9 +90,9 @@ public class UpdateCliServiceTest {
         UpdateCliService.VersionInfo versionInfo = updateCliService.getVersionInfo();
         Assert.assertNotNull(versionInfo);
         Assert.assertEquals("v7.9.9-RC1", versionInfo.getCurrentReleaseTag());
-        Assert.assertEquals("7.9.9", versionInfo.getCurrentVersion());
+        Assert.assertArrayEquals(new int[]{7, 9, 9, 0}, versionInfo.getCurrentVersion());
         Assert.assertEquals("v8.0.0-RC37", versionInfo.getLatestReleaseTag());
-        Assert.assertEquals("8.0.0", versionInfo.getLatestVersion());
+        Assert.assertArrayEquals(new int[]{8, 0, 0, 0}, versionInfo.getLatestVersion());
         Assert.assertEquals(true, versionInfo.isNewerVersionAvailable());
         Assert.assertEquals("https://github.com/logabit/pipeforce-cli/releases/download/v8.0.0-RC37/pipeforce-cli.jar", versionInfo.getLatestDownloadUrl());
     }
