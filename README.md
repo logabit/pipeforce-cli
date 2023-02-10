@@ -88,7 +88,7 @@ For more options and documentation about the CLI tool, please visit https://docs
 
 ## Releasing the pipeforce-cli
 
-### A stable version
+### A stable version (RELEASE)
 
 To automatically build, test and create a stable release, set a tag of format: `v<version>-b<build>-RELEASE`
 whereas `<version>`
