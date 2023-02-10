@@ -106,10 +106,10 @@ roll-out will be started automatically! So be careful in setting this tag!
 ### A release candidate (RC)
 
 To automatically build, test and create a release draft **which is not considered in auto-rollout**, set a tag of
-format: `v<version>-b<build>-RC<number>` whereas `<version>` must be the designated backend version, `<build>` is the
-build number of the client, and `<number>` must be the number of the release candidate. Example:
+format: `v<version>-b<build>-RC` whereas `<version>` must be the designated backend version, `<build>` is the
+build number of the client. Example:
 
 ```
-git tag v3.0.0-b1-RC1
+git tag v3.0.0-b1-RC
 git push origin --tags
 ```
