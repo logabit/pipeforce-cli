@@ -83,6 +83,10 @@ public class ConfigCliService extends CliConfig implements CliContextAware {
             setConfigUpdated(DateTimeUtil.currentDateTimeAsIso8061());
         }
 
+        if (this.getWorkspaceConfig() == null) {
+            this.setWorkspaceConfig(new WorkspaceConfig());
+        }
+
         String json = JsonUtil.objectToJsonNode(this).toPrettyString();
 
         File configFile = null;

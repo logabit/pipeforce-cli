@@ -56,7 +56,8 @@ public class DeleteCliCommand extends BaseCliCommand {
         for (JsonNode found : founds) {
             String path = found.get(FIELD_PATH).textValue();
             out.println("Delete: " + path);
-            getContext().getPipelineRunner().executePipelineUri("property.schema.delete?pattern=" + path);
+            // TODO Replace key by pattern param:
+            getContext().getPipelineRunner().executePipelineUri("property.schema.delete?key=" + path);
 
             // Remove entry from .published file
             String type = found.get("type").textValue();

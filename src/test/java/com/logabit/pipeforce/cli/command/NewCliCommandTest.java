@@ -69,11 +69,11 @@ public class NewCliCommandTest {
     @Test
     public void testNewApp() throws Exception {
 
-        systemInMock.provideLines("app", "someapp", null, "someDescription", null);
+        systemInMock.provideLines("app", "com.logabit.someapp", null, "someDescription", null);
 
         context.callCommand();
 
-        File appHome = new File(appRepoHome, "properties/global/app/someapp");
+        File appHome = new File(appRepoHome, "properties/global/app/com.logabit.someapp");
         List<File> files = FileUtil.listFiles(appHome);
         files.sort(Comparator.comparing(File::getName));
         Assert.assertEquals(10, files.size());
@@ -93,9 +93,9 @@ public class NewCliCommandTest {
         String configString = FileUtil.fileToString(configFile);
         JsonNode config = JsonUtil.jsonStringToJsonNode(configString);
 
-        Assert.assertEquals("someapp", config.get("title").textValue());
+        Assert.assertEquals("com.logabit.someapp", config.get("title").textValue());
         Assert.assertEquals("someDescription", config.get("description").textValue());
-        Assert.assertEquals("CAN_APP_SOMEAPP", config.get("show").textValue());
+        Assert.assertEquals("CAN_APP_COM.LOGABIT.SOMEAPP", config.get("show").textValue());
         Assert.assertEquals("assignment", config.get("icon").textValue());
     }
 
@@ -103,20 +103,20 @@ public class NewCliCommandTest {
     public void testNewFormAndNewObjectSchema() throws Exception {
 
         systemInMock.provideLines("0",
-                "someapp1", null, null, "someicon",
+                "com.logabit.someapp1", null, null, "someicon",
                 "someform", "someformdesc", "1", "someobject");
 
         context.setArgs("new", "form");
         context.callCommand();
 
-        File appHome = new File(appRepoHome, "properties/global/app/someapp1");
+        File appHome = new File(appRepoHome, "properties/global/app/com.logabit.someapp1");
 
         String configString = FileUtil.fileToString(new File(appHome, "config/app.json"));
         JsonNode appConfig = JsonUtil.jsonStringToJsonNode(configString);
 
-        Assert.assertEquals("someapp1", appConfig.get("title").textValue());
+        Assert.assertEquals("com.logabit.someapp1", appConfig.get("title").textValue());
         Assert.assertEquals("", appConfig.get("description").textValue());
-        Assert.assertEquals("CAN_APP_SOMEAPP1", appConfig.get("show").textValue());
+        Assert.assertEquals("CAN_APP_COM.LOGABIT.SOMEAPP1", appConfig.get("show").textValue());
         Assert.assertEquals("someicon", appConfig.get("icon").textValue());
 
         String formString = FileUtil.fileToString(new File(appHome, "form/someform.json"));
@@ -124,8 +124,8 @@ public class NewCliCommandTest {
 
         Assert.assertEquals("someform", formConfig.get("title").textValue());
         Assert.assertEquals("someformdesc", formConfig.get("description").textValue());
-        Assert.assertEquals("property.list?filter=global/app/someapp1/object/someobject/v1/schema", formConfig.get("schema").textValue());
-        Assert.assertEquals("global/app/someapp1/object/someobject/v1/instance/%23%7Bvar.property.uuid%7D", formConfig.get("output").textValue());
+        Assert.assertEquals("property.list?filter=global/app/com.logabit.someapp1/object/someobject/v1/schema", formConfig.get("schema").textValue());
+        Assert.assertEquals("global/app/com.logabit.someapp1/object/someobject/v1/instance/%23%7Bvar.property.uuid%7D", formConfig.get("output").textValue());
 
         String schemaString = FileUtil.fileToString(new File(appHome, "object/someobject/v1/schema.json"));
         JsonNode schemaConfig = JsonUtil.jsonStringToJsonNode(schemaString);
@@ -139,7 +139,7 @@ public class NewCliCommandTest {
 
         systemInMock.provideLines(
                 "0",
-                "someapp1",
+                "com.logabit.someapp1",
                 null,
                 null,
                 "someicon",
@@ -151,14 +151,14 @@ public class NewCliCommandTest {
         context.setArgs("new", "list");
         context.callCommand();
 
-        File appHome = new File(appRepoHome, "properties/global/app/someapp1");
+        File appHome = new File(appRepoHome, "properties/global/app/com.logabit.someapp1");
 
         String configString = FileUtil.fileToString(new File(appHome, "config/app.json"));
         JsonNode appConfig = JsonUtil.jsonStringToJsonNode(configString);
 
-        Assert.assertEquals("someapp1", appConfig.get("title").textValue());
+        Assert.assertEquals("com.logabit.someapp1", appConfig.get("title").textValue());
         Assert.assertEquals("", appConfig.get("description").textValue());
-        Assert.assertEquals("CAN_APP_SOMEAPP1", appConfig.get("show").textValue());
+        Assert.assertEquals("CAN_APP_COM.LOGABIT.SOMEAPP1", appConfig.get("show").textValue());
         Assert.assertEquals("someicon", appConfig.get("icon").textValue());
 
         String formString = FileUtil.fileToString(new File(appHome, "list/somelist.json"));
@@ -166,8 +166,8 @@ public class NewCliCommandTest {
 
         Assert.assertEquals("somelist", formConfig.get("title").textValue());
         Assert.assertEquals("somelistdesc", formConfig.get("description").textValue());
-        Assert.assertEquals("property.value.expression?from=global/app/someapp1/object/someobject/v1/instance/*", formConfig.get("input").textValue());
-        Assert.assertEquals("property.list?filter=global/app/someapp1/object/someobject/v1/schema", formConfig.get("schema").textValue());
+        Assert.assertEquals("property.value.expression?from=global/app/com.logabit.someapp1/object/someobject/v1/instance/*", formConfig.get("input").textValue());
+        Assert.assertEquals("property.list?filter=global/app/com.logabit.someapp1/object/someobject/v1/schema", formConfig.get("schema").textValue());
 
         String schemaString = FileUtil.fileToString(new File(appHome, "object/someobject/v1/schema.json"));
         JsonNode schemaConfig = JsonUtil.jsonStringToJsonNode(schemaString);
@@ -180,7 +180,7 @@ public class NewCliCommandTest {
     public void testNewListExistingObjectSchema() throws Exception {
 
         systemInMock.provideLines("0",
-                "someapp1",
+                "com.logabit.someapp1",
                 null,
                 null,
                 "someicon", // New app
@@ -196,14 +196,14 @@ public class NewCliCommandTest {
         context.setArgs("new", "list");
         context.callCommand();
 
-        File appHome = new File(appRepoHome, "properties/global/app/someapp1");
+        File appHome = new File(appRepoHome, "properties/global/app/com.logabit.someapp1");
 
         String configString = FileUtil.fileToString(new File(appHome, "config/app.json"));
         JsonNode appConfig = JsonUtil.jsonStringToJsonNode(configString);
 
-        Assert.assertEquals("someapp1", appConfig.get("title").textValue());
+        Assert.assertEquals("com.logabit.someapp1", appConfig.get("title").textValue());
         Assert.assertEquals("", appConfig.get("description").textValue());
-        Assert.assertEquals("CAN_APP_SOMEAPP1", appConfig.get("show").textValue());
+        Assert.assertEquals("CAN_APP_COM.LOGABIT.SOMEAPP1", appConfig.get("show").textValue());
         Assert.assertEquals("someicon", appConfig.get("icon").textValue());
 
         String listString = FileUtil.fileToString(new File(appHome, "list/somelist.json"));
@@ -211,8 +211,8 @@ public class NewCliCommandTest {
 
         Assert.assertEquals("somelist", listConfig.get("title").textValue());
         Assert.assertEquals("somelistdesc", listConfig.get("description").textValue());
-        Assert.assertEquals("property.value.expression?from=global/app/someapp1/object/someobject/v1/instance/*", listConfig.get("input").textValue());
-        Assert.assertEquals("property.list?filter=global/app/someapp1/object/someobject/v1/schema", listConfig.get("schema").textValue());
+        Assert.assertEquals("property.value.expression?from=global/app/com.logabit.someapp1/object/someobject/v1/instance/*", listConfig.get("input").textValue());
+        Assert.assertEquals("property.list?filter=global/app/com.logabit.someapp1/object/someobject/v1/schema", listConfig.get("schema").textValue());
 
         String schemaString = FileUtil.fileToString(new File(appHome, "object/someobject/v1/schema.json"));
         JsonNode schemaConfig = JsonUtil.jsonStringToJsonNode(schemaString);
@@ -225,7 +225,7 @@ public class NewCliCommandTest {
     public void testNewPipeline() throws Exception {
 
         systemInMock.provideLines(
-                "someapp1",
+                "com.logabit.someapp1",
                 null,
                 null,
                 "someicon",
@@ -238,7 +238,7 @@ public class NewCliCommandTest {
         context.setArgs("new");
         context.callCommand();
 
-        File appHome = new File(appRepoHome, "properties/global/app/someapp1");
+        File appHome = new File(appRepoHome, "properties/global/app/com.logabit.someapp1");
 
         String pipelineString = FileUtil.fileToString(new File(appHome, "pipeline/somepipeline.pi.yaml"));
         JsonNode pipeline = JsonUtil.yamlStringToJsonNode(pipelineString);
@@ -250,7 +250,7 @@ public class NewCliCommandTest {
     public void testNewWorkflow() throws Exception {
 
         systemInMock.provideLines(
-                "someapp1",
+                "com.logabit.someapp1",
                 null,
                 null,
                 "someicon",
@@ -263,7 +263,7 @@ public class NewCliCommandTest {
         context.setArgs("new");
         context.callCommand();
 
-        File appHome = new File(appRepoHome, "properties/global/app/someapp1");
+        File appHome = new File(appRepoHome, "properties/global/app/com.logabit.someapp1");
 
         String bpmnString = FileUtil.fileToString(new File(appHome, "workflow/someworkflow.bpmn"));
         Document bpmn = XMLUtil.toDOM(bpmnString);

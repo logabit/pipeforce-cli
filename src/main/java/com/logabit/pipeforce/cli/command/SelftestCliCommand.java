@@ -32,7 +32,8 @@ public class SelftestCliCommand extends BaseCliCommand {
 
         try {
             String random = StringUtil.randomString(5).toLowerCase();
-            String appName = "selftest" + random;
+            String appName = "com.logabit.selftest" + random;
+            String propertiesHome = config.getWorkspaceConfig().getPropertiesHome();
 
             CliAutomation automation1 = new CliAutomation();
 
@@ -66,7 +67,7 @@ public class SelftestCliCommand extends BaseCliCommand {
                     .setCommandAnswers("yes");
 
             // Run with src/ prefix...
-            automation2.newStep("get", "src/global/app/" + appName + "/**")
+            automation2.newStep("get", propertiesHome + "/global/app/" + appName + "/**")
                     .setCommandAnswers("yes-all"); // Overwrite all
 
             automation2.newStep("delete", "global/app/" + appName + "/**")

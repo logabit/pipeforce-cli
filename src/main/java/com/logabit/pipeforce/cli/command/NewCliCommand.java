@@ -367,6 +367,13 @@ public class NewCliCommand extends BaseCliCommand {
             } catch (Exception e) {
                 out.println("Invalid app name: " + appName + ". " + e.getMessage());
                 out.println("Select a different name.");
+                continue;
+            }
+
+            if (appName.split("\\.").length < 3) {
+                out.println("App name must be qualified: <tld>.<domain>.<appname>");
+                out.println("Example: com.logabit.myapp");
+                continue;
             }
 
             File appFolder = new File(srcFolder, "global/app/" + appName);
