@@ -111,6 +111,7 @@ public class PublishCliCommand extends BaseCliCommand {
         publishedCounter = 0;
         updatedCounter = 0;
         createdCounter = 0;
+        boolean deployWithExtension = config.getWorkspaceConfig().isDeployWithExtension();
 
         for (File file : files) {
 
@@ -122,7 +123,11 @@ public class PublishCliCommand extends BaseCliCommand {
             String absoluteFilePath = file.getAbsolutePath();
             String propertyKey = file.getAbsolutePath().substring(srcHome.length());
             propertyKey = propertyKey.substring(1);
-            propertyKey = PathUtil.removeExtensions(propertyKey);
+
+            if (!deployWithExtension) {
+                propertyKey = PathUtil.removeExtensions(propertyKey);
+            }
+
             // Replace any backslash to forward slash \ -> / (for windows)
             propertyKey = propertyKey.replaceAll("\\\\", "/");
 
