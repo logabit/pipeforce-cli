@@ -124,12 +124,12 @@ public class PublishCliCommand extends BaseCliCommand {
             String propertyKey = file.getAbsolutePath().substring(srcHome.length());
             propertyKey = propertyKey.substring(1);
 
+            // Replace any backslash to forward slash \ -> / (for windows)
+            propertyKey = propertyKey.replaceAll("\\\\", "/");
+
             if (!deployWithExtension) {
                 propertyKey = PathUtil.removeExtensions(propertyKey);
             }
-
-            // Replace any backslash to forward slash \ -> / (for windows)
-            propertyKey = propertyKey.replaceAll("\\\\", "/");
 
             boolean appConfigValid = true;
             if (isAppConfigProperty(propertyKey)) {
