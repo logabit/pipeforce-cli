@@ -48,7 +48,7 @@ public class UploadCliService extends BaseCliContextAware {
 
             // Upload chunks to the property
             ChunkSplitter splitter = new ChunkSplitter();
-            splitter.setChunkListener(chunk -> {
+            splitter.onEachChunk(chunk -> {
 
                 Result chunkUploadResult = commandRunner.executeCommand(
                         "property.attachment.chunk.put",
@@ -62,7 +62,7 @@ public class UploadCliService extends BaseCliContextAware {
                 md5List.add(chunk.getChecksum());
                 System.out.println(JsonUtil.objectToJsonNode(chunkUploadResult.getValue()).toPrettyString());
             });
-            splitter.splitIntoChunks(fis, file.length());
+            splitter.splitStreamIntoChunks(fis, 0L, file.length());
 
             // Finalize the attachment and verify checksum
             MessageDigest md5Digest = MessageDigest.getInstance("MD5");
