@@ -37,8 +37,11 @@ import static com.logabit.pipeforce.common.property.IProperty.FIELD_PATH;
 public class PublishCliCommand extends BaseCliCommand {
 
     private int filesCounter = 0;
+
     private int publishedCounter = 0;
+
     private int updatedCounter = 0;
+
     private int createdCounter = 0;
 
     @Override
@@ -285,7 +288,9 @@ public class PublishCliCommand extends BaseCliCommand {
     }
 
     private static class FileAndKey {
+
         private File file;
+
         private String key;
     }
 }

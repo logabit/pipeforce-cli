@@ -21,6 +21,7 @@ public abstract class BaseCliCommand implements ICliCommand {
     protected CliContext context;
 
     protected InputUtil in;
+
     protected OutputCliService out;
 
     protected ConfigCliService config;

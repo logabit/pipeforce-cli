@@ -19,8 +19,11 @@ import java.nio.file.Paths;
 public class CliPathArg {
 
     private final String propertiesHome;
+
     private final File propertiesHomeFile;
+
     private String pattern;
+
     private String encodedPattern;
 
     private static final String ASTERISK = "__1Xc__";

@@ -19,9 +19,13 @@ import java.nio.file.Paths;
 public class KsyncCliCommand extends BaseCliCommand {
 
     private String namespace;
+
     private String service;
+
     private Path remotePath;
+
     private Path localPath;
+
     private String owner;
 
     @Override

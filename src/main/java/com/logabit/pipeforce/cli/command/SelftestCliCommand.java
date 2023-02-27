@@ -156,7 +156,9 @@ public class SelftestCliCommand extends BaseCliCommand {
         private static class CliAutomationStep {
 
             private String command;
+
             private String[] commandArgs;
+
             private String[] commandAnswers;
 
             public String[] getCommandArgs() {

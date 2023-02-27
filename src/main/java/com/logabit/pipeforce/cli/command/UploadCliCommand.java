@@ -12,8 +12,11 @@ import com.logabit.pipeforce.cli.service.UploadCliService;
 public class UploadCliCommand extends BaseCliCommand {
 
     private int filesCounter = 0;
+
     private int publishedCounter = 0;
+
     private int updatedCounter = 0;
+
     private int createdCounter = 0;
 
     @Override

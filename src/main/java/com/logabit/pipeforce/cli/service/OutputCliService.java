@@ -32,8 +32,11 @@ import java.util.UUID;
 public class OutputCliService implements CliContextAware {
 
     private static final Logger LOG = LoggerFactory.getLogger(Main.class);
+
     private AnimationRunnable runnable;
+
     private CliContext context;
+
     private List<String> outputs = new ArrayList<>();
 
     public void printResult(Object result) {
@@ -183,8 +186,11 @@ public class OutputCliService implements CliContextAware {
     public class AnimationRunnable implements Runnable {
 
         private final String message;
+
         private boolean doStop = false;
+
         private boolean stopped = false;
+
         private String lastLine = "";
 
         public AnimationRunnable(String message) {

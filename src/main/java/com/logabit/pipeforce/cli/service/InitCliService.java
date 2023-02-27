@@ -14,7 +14,9 @@ import java.io.File;
 public class InitCliService extends BaseCliContextAware {
 
     public static final String FOLDER_NAME_PIPEFORCE = ".pipeforce";
+
     public static final String FOLDER_NAME_GLOBAL = "global";
+
     public static final String FOLDER_NAME_APP = "app";
 
     public void init(String path) {

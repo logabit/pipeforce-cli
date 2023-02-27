@@ -140,18 +140,27 @@ public class UpdateCliService extends BaseCliContextAware {
     public static class VersionInfo {
 
         private final int[] currentVersion;
+
         private final int[] latestVersion;
+
         private Boolean newer;
 
         private String latestReleaseTag;
+
         private String latestDownloadUrl;
+
         private String currentReleaseTag;
 
         public VersionInfo(String currentReleaseNameTag, String latestReleaseTag, String latestDownloadUrl) {
+
             this.currentReleaseTag = currentReleaseNameTag;
+
             this.currentVersion = VersionUtil.toVersionArray(this.currentReleaseTag);
+
             this.latestReleaseTag = latestReleaseTag;
+
             this.latestVersion = VersionUtil.toVersionArray(this.latestReleaseTag);
+
             this.latestDownloadUrl = latestDownloadUrl;
         }
 

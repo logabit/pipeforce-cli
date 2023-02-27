@@ -12,7 +12,9 @@ import org.slf4j.LoggerFactory;
 public class UpdateCliCommand extends BaseCliCommand {
 
     public static final String MSG_REJECTED_LATEST_INSTALLED = "update.rejected.latest.installed";
+
     public static final String MSG_REJECTED_MAC_NATIVE = "update.rejected.mac.native";
+
     public static final String MSG_SUCCESS = "update.success";
 
     private static final Logger LOG = LoggerFactory.getLogger(UpdateCliCommand.class);

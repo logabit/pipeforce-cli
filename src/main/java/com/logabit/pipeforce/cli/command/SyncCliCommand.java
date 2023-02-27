@@ -22,6 +22,7 @@ import java.nio.file.Path;
 public class SyncCliCommand extends BaseCliCommand {
 
     private PublishCliCommand publishCommand;
+
     private DeleteCliCommand deleteCommand;
 
     @Override

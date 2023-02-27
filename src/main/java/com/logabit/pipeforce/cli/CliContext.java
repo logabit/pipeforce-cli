@@ -50,28 +50,51 @@ import java.util.Arrays;
 public class CliContext {
 
     private ConfigCliService configService;
+
     private OutputCliService outputService;
+
     private MimeTypeService mimeTypeService;
+
     private PipelineRunner pipelineRunner;
+
     private RestTemplate restTemplate;
+
     private HttpClient httpClient;
+
     private PublishCliService publishService;
+
     private InstallCliService installService;
+
     private AppResourceCliService appResourceService;
+
     private UpdateCliService updateService;
+
     private File workDir = new File(System.getProperty("user.dir"));
+
     private File propertiesHomeFolder;
+
     private CommandArgs args;
+
     private String command;
+
     private Integer serverVersionMajor;
+
     private InputUtil inputUtil;
+
     private InputStream answerInputStream;
+
     private InitCliService initService;
+
     private File appRepoHome;
+
     private File hiddenPipeforceFolder;
+
     private CliConfig.Instance currentInstance;
+
     private KubectlCliService kubectlService;
+
     private CommandRunner commandRunner;
+
     private UploadCliService uploadService;
 
     public CliContext(String... args) {
