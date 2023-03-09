@@ -3,26 +3,18 @@ package com.logabit.pipeforce.cli.command;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NullNode;
-import com.logabit.pipeforce.cli.CliContext;
 import com.logabit.pipeforce.cli.CommandArgs;
-import com.logabit.pipeforce.cli.service.ConfigCliService;
 import com.logabit.pipeforce.cli.service.OutputCliService;
-import com.logabit.pipeforce.common.model.WorkspaceConfig;
 import com.logabit.pipeforce.common.pipeline.PipelineRunner;
-import com.logabit.pipeforce.common.util.FileUtil;
 import com.logabit.pipeforce.common.util.JsonUtil;
-import com.logabit.pipeforce.common.util.StringUtil;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.io.File;
 import java.util.List;
 
 import static com.logabit.pipeforce.common.property.IProperty.FIELD_PATH;
@@ -37,30 +29,13 @@ import static org.mockito.Mockito.when;
  * @since 2.7
  */
 @RunWith(MockitoJUnitRunner.class)
-public class PipelineCliCommandTest {
-
-    @InjectMocks
-    private final CliContext cliContext = new CliContext();
+public class PipelineCliCommandTest extends BaseRepoAwareCliCommandTest {
 
     @Mock
     private PipelineRunner pipelineRunner;
 
     @Mock
     private OutputCliService out;
-
-    @Mock
-    private ConfigCliService configService;
-
-    private File homeRepo;
-
-    @Before
-    public void setUp() {
-
-        WorkspaceConfig config = new WorkspaceConfig();
-        Mockito.when(configService.getWorkspaceConfig()).thenReturn(config);
-        this.homeRepo = createTestAppRepoHome();
-        cliContext.setCurrentWorkDir(homeRepo);
-    }
 
     @Test
     public void testRunRemote() throws Exception {
@@ -135,18 +110,5 @@ public class PipelineCliCommandTest {
         ArrayNode result = (ArrayNode) allValues.get(0);
         Assert.assertEquals("/pipeforce/enterprise/global/app/myapp/pipeline/prop1", result.get(0).get(FIELD_PATH).textValue());
         Assert.assertEquals("/pipeforce/enterprise/global/app/myapp/pipeline/prop2", result.get(1).get(FIELD_PATH).textValue());
-    }
-
-    private File createTestAppRepoHome() {
-
-        File testRepo = new File(System.getProperty("user.home"), "PIPEFORCE_TEST_" + StringUtil.randomString(5));
-
-        File srcFolder = new File(testRepo, "properties");
-        FileUtil.createFolders(srcFolder);
-
-        File pipeforceFolder = new File(testRepo, ".pipeforce");
-        FileUtil.createFolders(pipeforceFolder);
-
-        return testRepo;
     }
 }

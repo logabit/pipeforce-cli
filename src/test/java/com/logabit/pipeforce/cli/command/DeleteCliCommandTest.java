@@ -1,32 +1,23 @@
 package com.logabit.pipeforce.cli.command;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.logabit.pipeforce.cli.CliContext;
 import com.logabit.pipeforce.cli.CommandArgs;
 import com.logabit.pipeforce.cli.config.CliConfig;
-import com.logabit.pipeforce.cli.service.ConfigCliService;
 import com.logabit.pipeforce.cli.service.InstallCliService;
 import com.logabit.pipeforce.cli.service.OutputCliService;
 import com.logabit.pipeforce.cli.service.PublishCliService;
-import com.logabit.pipeforce.common.model.WorkspaceConfig;
 import com.logabit.pipeforce.common.pipeline.PipelineRunner;
-import com.logabit.pipeforce.common.util.FileUtil;
 import com.logabit.pipeforce.common.util.JsonUtil;
-import com.logabit.pipeforce.common.util.StringUtil;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.SystemOutRule;
 import org.junit.contrib.java.lang.system.TextFromStandardInputStream;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.io.File;
 import java.util.List;
 
 import static org.junit.contrib.java.lang.system.TextFromStandardInputStream.emptyStandardInputStream;
@@ -42,19 +33,13 @@ import static org.mockito.Mockito.when;
  * @since 2.7
  */
 @RunWith(MockitoJUnitRunner.class)
-public class DeleteCliCommandTest {
+public class DeleteCliCommandTest extends BaseRepoAwareCliCommandTest {
 
     @Rule
     public final SystemOutRule systemOutRule = new SystemOutRule().enableLog();
 
     @Rule
     public final TextFromStandardInputStream systemInMock = emptyStandardInputStream();
-
-    @InjectMocks
-    private final CliContext cliContext = new CliContext();
-
-    @Mock
-    private ConfigCliService configService;
 
     @Mock
     private InstallCliService installService;
@@ -67,17 +52,6 @@ public class DeleteCliCommandTest {
 
     @Mock
     private PipelineRunner pipelineRunner;
-    private File repoHome;
-
-    @Before
-    public void setUp() {
-
-        WorkspaceConfig config = new WorkspaceConfig();
-        Mockito.when(configService.getWorkspaceConfig()).thenReturn(config);
-        this.repoHome = createTestAppRepoHome();
-        cliContext.setCurrentWorkDir(repoHome);
-
-    }
 
     @Test
     public void testDeleteProperty() throws Exception {
@@ -223,18 +197,5 @@ public class DeleteCliCommandTest {
         List<String> values = uriCaptor.getAllValues();
         Assert.assertEquals(1, values.size());
         Assert.assertEquals("property.list?filter=global/app/myapp/pipeline/someleaf", values.get(0));
-    }
-
-    private File createTestAppRepoHome() {
-
-        File testRepo = new File(System.getProperty("user.home"), "PIPEFORCE_TEST_" + StringUtil.randomString(5));
-
-        File srcFolder = new File(testRepo, "properties");
-        FileUtil.createFolders(srcFolder);
-
-        File pipeforceFolder = new File(testRepo, ".pipeforce");
-        FileUtil.createFolders(pipeforceFolder);
-
-        return testRepo;
     }
 }

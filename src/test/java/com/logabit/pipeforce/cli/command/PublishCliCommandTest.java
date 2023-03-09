@@ -1,21 +1,15 @@
 package com.logabit.pipeforce.cli.command;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.logabit.pipeforce.cli.CliContext;
 import com.logabit.pipeforce.cli.CommandArgs;
 import com.logabit.pipeforce.cli.config.CliConfig;
-import com.logabit.pipeforce.cli.service.ConfigCliService;
-import com.logabit.pipeforce.common.model.WorkspaceConfig;
 import com.logabit.pipeforce.common.pipeline.PipelineRunner;
 import com.logabit.pipeforce.common.util.FileUtil;
 import com.logabit.pipeforce.common.util.JsonUtil;
 import com.logabit.pipeforce.common.util.ListUtil;
 import com.logabit.pipeforce.common.util.PathUtil;
-import com.logabit.pipeforce.common.util.StringUtil;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.SystemOutRule;
@@ -41,7 +35,7 @@ import static org.junit.contrib.java.lang.system.TextFromStandardInputStream.emp
  * @since 2.0
  */
 @RunWith(MockitoJUnitRunner.class)
-public class PublishCliCommandTest {
+public class PublishCliCommandTest extends BaseRepoAwareCliCommandTest {
 
     @Rule
     public final SystemOutRule systemOutRule = new SystemOutRule().enableLog();
@@ -50,39 +44,16 @@ public class PublishCliCommandTest {
     public final TextFromStandardInputStream systemInMock = emptyStandardInputStream();
 
     @Mock
-    private ConfigCliService configService;
-
-    @Mock
     private PipelineRunner pipelineRunner;
-
-    @InjectMocks
-    private CliContext cliContext = new CliContext();
-
-    private File appRepoHome;
 
     @InjectMocks
     private PublishCliCommand publishCommand = new PublishCliCommand();
 
 
-    @Before
-    public void setUp() {
-
-        appRepoHome = createTestAppRepoHome();
-
-        WorkspaceConfig config = new WorkspaceConfig();
-        config.setPropertiesHome("properties");
-        Mockito.when(configService.getWorkspaceConfig()).thenReturn(config);
-    }
-
-    @After
-    public void tearDown() {
-        FileUtil.delete(appRepoHome);
-    }
-
     @Test
     public void test_NewApp_NewPipeline_NewForm_NewObject_Publish() throws Exception {
 
-        cliContext.setCurrentWorkDir(appRepoHome);
+        cliContext.setCurrentWorkDir(super.repoHome);
 
         CliConfig.Instance instance = new CliConfig.Instance();
         instance.setNamespace("enterprise");
@@ -104,7 +75,7 @@ public class PublishCliCommandTest {
         cliContext.callCommand();
 
         // Copy a binary file to the app for testing
-        File targetFile = new File(appRepoHome, "properties/global/app/com.logabit.someapp/template/logo.png");
+        File targetFile = new File(super.repoHome, "properties/global/app/com.logabit.someapp/template/logo.png");
         FileUtils.copyFile(new File("src/test/resources/logo.png"), targetFile);
 
         systemInMock.provideLines("yes");
@@ -179,18 +150,5 @@ public class PublishCliCommandTest {
 
         Assert.assertEquals(new File("/Users/some/pipeforce/properties/global/app/*/pipeline/test").toURI().toString(),
                 publishCommand.prepareLocalPathPattern("global/app/*/pipeline/test"));
-    }
-
-    private File createTestAppRepoHome() {
-
-        File testRepo = new File(System.getProperty("user.home"), "PIPEFORCE_TEST_" + StringUtil.randomString(5));
-
-        File srcFolder = new File(testRepo, "properties");
-        FileUtil.createFolders(srcFolder);
-
-        File pipeforceFolder = new File(testRepo, ".pipeforce");
-        FileUtil.createFolders(pipeforceFolder);
-
-        return testRepo;
     }
 }
