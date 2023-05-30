@@ -125,6 +125,8 @@ public class InstallCliService extends BaseCliContextAware {
             // Mac and *nix work the same here
             scriptContent = "" +
                     "#!/usr/bin/env bash\n" +
+                    "set -o noglob\n" +
+                    "set -f\n" +
                     "java -XX:TieredStopAtLevel=1 -jar " + jarTargetPath + " $@";
         }
 
