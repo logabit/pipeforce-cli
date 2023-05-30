@@ -277,14 +277,14 @@ public class PublishCliCommand extends BaseCliCommand {
     public String getUsageHelp() {
 
         return "pi publish <PATH_PATTERN>\n" +
-                "   Publishes all locally created/modified resources from inside src to the server.\n" +
-                "   <PATH_PATTERN> must point to resources inside the src folder.\n" +
+                "   Publishes all locally created/modified resources from inside properties to the server.\n" +
+                "   <PATH_PATTERN> must point to resources inside the properties folder.\n" +
                 "   Examples: \n" +
-                "     pi publish - Publishes all resources inside src folder.\n" +
-                "     pi publish myapp - Publishes all app resources inside src/global/app/myapp/**.\n" +
-                "     pi publish src/global/app/myapp/** - Publishes resources of myapp recursively.\n" +
-                "     pi publish src/global/app/myapp/ - Same as global/app/myapp/**.\n" +
-                "     pi publish src/global/app/*/pipeline/* - Publishes all pipelines of all apps.";
+                "     pi publish - Publishes all resources inside properties folder.\n" +
+                "     pi publish myapp - Publishes all app resources inside properties/global/app/myapp/**.\n" +
+                "     pi publish properties/global/app/myapp/** - Publishes resources of myapp recursively.\n" +
+                "     pi publish properties/global/app/myapp/ - Same as properties/global/app/myapp/**.\n" +
+                "     pi publish properties/global/app/*/pipeline/* - Publishes all pipelines of all apps.";
     }
 
     private static class FileAndKey {
