@@ -57,7 +57,7 @@ public class InitCliService extends BaseCliContextAware {
                 "        \"settings\": {\n" +
                 "\n" +
                 "            \"yaml.schemas\": {\n" +
-                "               \"" + apiUrl + "/schema.pipeline\": [\"/*.pi.yaml\"]\n" +
+                "               \"" + apiUrl + "/pipeline.schema.get\": [\"/*.pi.yaml\"]\n" +
                 "            },\n" +
                 "\n" +
                 "           \"files.exclude\": {\n" +
