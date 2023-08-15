@@ -3,6 +3,7 @@ package com.logabit.pipeforce.cli.command;
 import com.logabit.pipeforce.cli.CommandArgs;
 import com.logabit.pipeforce.common.util.FileUtil;
 import com.logabit.pipeforce.common.util.ListUtil;
+import com.logabit.pipeforce.common.util.PipelineUtil;
 import com.logabit.pipeforce.common.util.PropertyUtil;
 import com.logabit.pipeforce.common.util.StringUtil;
 
@@ -132,8 +133,8 @@ public class NewCliCommand extends BaseCliCommand {
         while (true) {
             pipelineName = in.ask("Pipeline name");
 
-            if (!pipelineName.matches("([a-z0-9]+)")) {
-                out.println("Pipeline name must be lower case and may not contain any special chars or spaces: " + pipelineName);
+            if (!PipelineUtil.isPipelineNameValid(pipelineName)) {
+                out.println("Pipeline name is invalid. It does not match ([a-z0-9-]+): " + pipelineName);
                 out.println("Select a different name.");
                 continue;
             }

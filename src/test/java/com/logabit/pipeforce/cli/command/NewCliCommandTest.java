@@ -6,6 +6,7 @@ import com.logabit.pipeforce.cli.service.ConfigCliService;
 import com.logabit.pipeforce.common.model.WorkspaceConfig;
 import com.logabit.pipeforce.common.util.FileUtil;
 import com.logabit.pipeforce.common.util.JsonUtil;
+import com.logabit.pipeforce.common.util.PipelineUtil;
 import com.logabit.pipeforce.common.util.StringUtil;
 import com.logabit.pipeforce.common.util.XMLUtil;
 import org.junit.After;
