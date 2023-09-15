@@ -57,7 +57,7 @@ public class PipelineCliCommand extends BaseCliCommand {
     private void executePipelineRemote(String path) {
 
         CliPathArg pathArg = getContext().createPathArg(path);
-        Object result = getContext().getPipelineRunner().executePipelineUri("call?uri=property:" + pathArg.getRemotePattern());
+        Object result = getContext().getPipelineRunner().executePipelineUri("call?uri=$uri:property:" + pathArg.getRemotePattern());
         out.printResult(result);
     }
 

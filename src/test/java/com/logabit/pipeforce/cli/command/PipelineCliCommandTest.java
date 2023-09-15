@@ -48,7 +48,7 @@ public class PipelineCliCommandTest extends BaseRepoAwareCliCommandTest {
         verify(pipelineRunner, times(1)).executePipelineUri(uriCaptor.capture());
 
         List<String> values = uriCaptor.getAllValues();
-        Assert.assertEquals("call?uri=property:global/app/myapp/pipeline/hello", values.get(0));
+        Assert.assertEquals("call?uri=$uri:property:global/app/myapp/pipeline/hello", values.get(0));
     }
 
     @Test
