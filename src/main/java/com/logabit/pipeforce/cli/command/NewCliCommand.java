@@ -152,8 +152,8 @@ public class NewCliCommand extends BaseCliCommand {
 
         String pipelineContent = "" +
                 "pipeline:\n" +
-                "  - log:        \n" +
-                "      message: \"Hello World\"";
+                "  - body.set:        \n" +
+                "      value: \"Hello World\"";
 
         FileUtil.saveStringToFile(pipelineContent, pipelineFile.getAbsolutePath());
 

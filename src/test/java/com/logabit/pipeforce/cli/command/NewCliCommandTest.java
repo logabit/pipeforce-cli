@@ -244,7 +244,7 @@ public class NewCliCommandTest {
         String pipelineString = FileUtil.fileToString(new File(appHome, "pipeline/somepipeline.pi.yaml"));
         JsonNode pipeline = JsonUtil.yamlStringToJsonNode(pipelineString);
 
-        Assert.assertEquals("Hello World", pipeline.get("pipeline").get(0).get("log").get("message").textValue());
+        Assert.assertEquals("Hello World", pipeline.get("pipeline").get(0).get("body.set").get("value").textValue());
     }
 
     @Test
