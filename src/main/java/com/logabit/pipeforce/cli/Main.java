@@ -13,6 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.client.HttpServerErrorException;
 
+import java.util.Arrays;
+
 /**
  * Main entry point into the CLI.
  *
@@ -132,7 +134,8 @@ public class Main {
             if (versionInfo.isNewerVersionAvailable()) {
                 // Update found. Ask user whether he wants to download + install update.
                 ctx.getOutputService().println("Warning: Your CLI version " + versionInfo.getCurrentReleaseTag() +
-                        " is outdated. Latest available version: " + versionInfo.getLatestVersion() + ". Auto-update with: pi update");
+                        " is outdated. Latest available version: " + Arrays.toString(versionInfo.getLatestVersion()) +
+                        ". Auto-update with: pi update");
             }
 
         } catch (Exception e) {
