@@ -17,6 +17,7 @@ import com.logabit.pipeforce.common.pipeline.CommandRunner;
 import com.logabit.pipeforce.common.pipeline.PipelineRunner;
 import com.logabit.pipeforce.common.util.Create;
 import com.logabit.pipeforce.common.util.InputUtil;
+import com.logabit.pipeforce.common.util.JsonUtil;
 import com.logabit.pipeforce.common.util.PathUtil;
 import com.logabit.pipeforce.common.util.ReflectionUtil;
 import com.logabit.pipeforce.common.util.StringUtil;
@@ -416,8 +417,11 @@ public class CliContext {
         }
 
         try {
-            JsonNode serverInfo = (JsonNode) getPipelineRunner().executePipelineUri("server.info");
-            this.serverVersionMajor = serverInfo.get("versionMajor").intValue();
+
+            // TODO Find a better way to handle command responses (always use Result and if no result is returned -> wrap to it?)
+            Object result = getCommandRunner().executeCommand("server.info", null, null);
+            JsonNode node = JsonUtil.objectToJsonNode(result);
+            this.serverVersionMajor = node.get("value").get("versionMajor").intValue();
         } catch (Exception e) {
             this.serverVersionMajor = 7;
         }
