@@ -159,7 +159,7 @@ public class NewCliCommandTest {
 
         Assert.assertEquals("com.logabit.someapp1", appConfig.get("title").textValue());
         Assert.assertEquals("", appConfig.get("description").textValue());
-        Assert.assertEquals("CAN_APP_COM.LOGABIT.SOMEAPP1", appConfig.get("show").textValue());
+        Assert.assertEquals("CAN_APP_com.logabit.someapp1", appConfig.get("show").textValue());
         Assert.assertEquals("someicon", appConfig.get("icon").textValue());
 
         String formString = FileUtil.fileToString(new File(appHome, "list/somelist.json"));
@@ -204,7 +204,7 @@ public class NewCliCommandTest {
 
         Assert.assertEquals("com.logabit.someapp1", appConfig.get("title").textValue());
         Assert.assertEquals("", appConfig.get("description").textValue());
-        Assert.assertEquals("CAN_APP_COM.LOGABIT.SOMEAPP1", appConfig.get("show").textValue());
+        Assert.assertEquals("CAN_APP_com.logabit.someapp1", appConfig.get("show").textValue());
         Assert.assertEquals("someicon", appConfig.get("icon").textValue());
 
         String listString = FileUtil.fileToString(new File(appHome, "list/somelist.json"));

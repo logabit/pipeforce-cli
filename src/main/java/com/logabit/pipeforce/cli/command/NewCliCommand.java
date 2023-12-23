@@ -424,7 +424,7 @@ public class NewCliCommand extends BaseCliCommand {
                     "  \"icon\": \"" + icon + "\",\n" +
                     "  \"tags\": [\n" +
                     "  ],\n" +
-                    "  \"show\": \"CAN_APP_" + appName.toUpperCase() + "\",\n" +
+                    "  \"show\": \"CAN_APP_" + appName + "\",\n" +
                     "  \"editions\": [\"basic\", \"enterprise\"]\n" +
                     "}";
 
