@@ -9,10 +9,11 @@ import com.logabit.pipeforce.common.util.PathUtil;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver.Method.GET;
 import static com.logabit.pipeforce.common.property.IProperty.FIELD_PATH;
 
 /**
- * Lists the all property keys matching given property key pattern.
+ * Lists all property keys matching given property path pattern.
  *
  * @author sniederm
  * @since 6.0
@@ -33,8 +34,8 @@ public class ListCliCommand extends BaseCliCommand {
 
         out.showProgress("");
         try {
-            ArrayNode list = (ArrayNode) getContext().getPipelineRunner()
-                    .executePipelineUri("property.list?pattern=" + pathArg.getRemotePattern());
+            ArrayNode list = getContext().getResolver().resolveToObject(
+                    GET, "$uri:command:property.list?pattern=" + pathArg.getRemotePattern(), ArrayNode.class);
 
             List<String> keys = new ArrayList<>();
             for (JsonNode node : list) {

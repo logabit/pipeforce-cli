@@ -16,6 +16,8 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import static com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver.Method.GET;
+
 /**
  * Downloads a given set of properties.
  *
@@ -51,7 +53,8 @@ public class GetCliCommand extends BaseCliCommand {
 
         MimeTypeService mimeTypeService = getContext().getMimeTypeService();
 
-        ArrayNode list = (ArrayNode) getContext().getPipelineRunner().executePipelineUri("property.list?filter=" + pathArg.getRemotePattern());
+        ArrayNode list = getContext().getResolver().resolveToObject(
+                GET, "$uri:command:property.list?filter=" + pathArg.getRemotePattern(), ArrayNode.class);
 
         int rememberOverwriteAnswer = -1;
         int filesCounter = 0;

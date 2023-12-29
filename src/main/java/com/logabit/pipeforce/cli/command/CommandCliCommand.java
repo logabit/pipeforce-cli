@@ -1,13 +1,12 @@
 package com.logabit.pipeforce.cli.command;
 
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.logabit.pipeforce.cli.CommandArgs;
-import com.logabit.pipeforce.common.util.JsonUtil;
+import com.logabit.pipeforce.common.util.UriUtil;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
+
+import static com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver.Method.GET;
 
 /**
  * Executes a single command.
@@ -28,26 +27,12 @@ public class CommandCliCommand extends BaseCliCommand {
         // pi command COMMAND_NAME KEY1=VAL1 KEY2=VAL2
         String commandName = args.getOptionKeyAt(0);
 
-        Map<String, String> paramsMap = new HashMap<>(args.getOptions());
+        Map<String, String> paramsMap = new LinkedHashMap<>(args.getOptions());
         paramsMap.remove(commandName); // Already extracted above
 
-        ObjectNode root = JsonUtil.createObjectNode();
-
-        Set<String> paramKeys = paramsMap.keySet();
-        ObjectNode paramNode = JsonUtil.createObjectNode();
-        for (String paramKey : paramKeys) {
-            paramNode.put(paramKey, paramsMap.get(paramKey));
-        }
-
-        ObjectNode commandNode = JsonUtil.createObjectNode();
-        commandNode.set(commandName, paramNode);
-
-        ArrayNode pipelineNode = JsonUtil.createArrayNode();
-        pipelineNode.add(commandNode);
-
-        root.set("pipeline", pipelineNode);
-
-        Object result = getContext().getPipelineRunner().executePipelineJsonNode(root);
+        String queryString = UriUtil.getMapAsQuery(paramsMap, null);
+        Object result = getContext().getResolver().resolveToObject(
+                GET, "$uri:command:" + commandName + "?" + queryString, String.class);
         out.printResult(result);
 
         return 0;

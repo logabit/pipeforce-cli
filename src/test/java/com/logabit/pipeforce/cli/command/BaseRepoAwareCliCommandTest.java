@@ -2,6 +2,8 @@ package com.logabit.pipeforce.cli.command;
 
 import com.logabit.pipeforce.cli.CliContext;
 import com.logabit.pipeforce.cli.service.ConfigCliService;
+import com.logabit.pipeforce.cli.service.OutputCliService;
+import com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver;
 import com.logabit.pipeforce.common.model.WorkspaceConfig;
 import com.logabit.pipeforce.common.util.FileUtil;
 import com.logabit.pipeforce.common.util.TestUtil;
@@ -25,6 +27,12 @@ public abstract class BaseRepoAwareCliCommandTest {
 
     @Mock
     protected ConfigCliService configService;
+
+    @Mock
+    protected CliPipeforceURIResolver resolver;
+
+    @Mock
+    protected OutputCliService outputService;
 
     protected File repoHome;
 

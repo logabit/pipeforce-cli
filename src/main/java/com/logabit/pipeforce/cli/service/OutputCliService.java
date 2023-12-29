@@ -162,6 +162,12 @@ public class OutputCliService implements CliContextAware {
         FileUtil.saveStringToFile(value, file);
     }
 
+    /**
+     * For better testability of static method access.
+     *
+     * @param path
+     * @return
+     */
     public String readFileToString(String path) {
         return FileUtil.pathItemsToString(path);
     }

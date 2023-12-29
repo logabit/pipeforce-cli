@@ -12,9 +12,8 @@ import com.logabit.pipeforce.cli.service.OutputCliService;
 import com.logabit.pipeforce.cli.service.PublishCliService;
 import com.logabit.pipeforce.cli.service.UpdateCliService;
 import com.logabit.pipeforce.cli.service.UploadCliService;
+import com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver;
 import com.logabit.pipeforce.common.content.service.MimeTypeService;
-import com.logabit.pipeforce.common.pipeline.CommandRunner;
-import com.logabit.pipeforce.common.pipeline.PipelineRunner;
 import com.logabit.pipeforce.common.util.Create;
 import com.logabit.pipeforce.common.util.InputUtil;
 import com.logabit.pipeforce.common.util.JsonUtil;
@@ -44,6 +43,8 @@ import java.nio.file.Paths;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 
+import static com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver.Method.GET;
+
 /**
  * This is a lightweight approach of an application context,
  * holding only the required objects and initializing them on request.
@@ -55,8 +56,6 @@ public class CliContext {
     private OutputCliService outputService;
 
     private MimeTypeService mimeTypeService;
-
-    private PipelineRunner pipelineRunner;
 
     private RestTemplate restTemplate;
 
@@ -94,9 +93,9 @@ public class CliContext {
 
     private KubectlCliService kubectlService;
 
-    private CommandRunner commandRunner;
-
     private UploadCliService uploadService;
+
+    private CliPipeforceURIResolver resolver;
 
     public CliContext(String... args) {
         setArgs(args);
@@ -221,65 +220,18 @@ public class CliContext {
         return updateService;
     }
 
-    public PipelineRunner getPipelineRunner() {
+    public CliPipeforceURIResolver getResolver() {
 
-        if (pipelineRunner == null) {
-            pipelineRunner = new PipelineRunner(getCurrentInstance().getHubApiUrl("/pipeline"),
-                    getCurrentInstance().getApiToken(), getRestTemplate());
+        if (this.resolver != null) {
+            return this.resolver;
         }
 
-        return pipelineRunner;
-    }
+        this.resolver = new CliPipeforceURIResolver(
+                getCurrentInstance().getHubApiUrl(null),
+                getCurrentInstance().getApiToken(),
+                getRestTemplate());
 
-    public CommandRunner getCommandRunner() {
-
-        if (commandRunner == null) {
-            commandRunner = new CommandRunner(getCurrentInstance().getHubApiUrl(""),
-                    getCurrentInstance().getApiToken(), getRestTemplate());
-        }
-
-        return commandRunner;
-    }
-
-    public RestTemplate getRestTemplate() {
-
-        if (restTemplate != null) {
-            return restTemplate;
-        }
-
-        HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
-        requestFactory.setHttpClient(getHttpClient());
-
-        RestTemplate template = new RestTemplate(requestFactory);
-        template.setInterceptors(Create.newList((ClientHttpRequestInterceptor) (request, body, execution) -> {
-
-            HttpHeaders headers = request.getHeaders();
-            headers.add("Accept", MediaType.APPLICATION_JSON_VALUE);
-            return execution.execute(request, body);
-        }));
-
-        return template;
-    }
-
-    public HttpClient getHttpClient() {
-
-        if (httpClient != null) {
-            return httpClient;
-        }
-
-        TrustStrategy acceptingTrustStrategy = (X509Certificate[] chain, String authType) -> true;
-        HostnameVerifier hostnameVerifier = (s, sslSession) -> true;
-        SSLContext sslContext = null;
-
-        try {
-            sslContext = SSLContexts.custom().loadTrustMaterial(null, acceptingTrustStrategy).build();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        SSLConnectionSocketFactory csf = new SSLConnectionSocketFactory(sslContext, hostnameVerifier);
-        httpClient = HttpClients.custom().setSSLSocketFactory(csf).build();
-        return httpClient;
+        return this.resolver;
     }
 
     /**
@@ -418,8 +370,8 @@ public class CliContext {
 
         try {
 
-            // TODO Find a better way to handle command responses (always use Result and if no result is returned -> wrap to it?)
-            Object result = getCommandRunner().executeCommand("server.info", null, null);
+            String result = getResolver().resolveToObject(
+                    GET, "$uri:command:server.info", null, null, null, String.class);
             JsonNode node = JsonUtil.objectToJsonNode(result);
             this.serverVersionMajor = node.get("value").get("versionMajor").intValue();
         } catch (Exception e) {
@@ -427,6 +379,47 @@ public class CliContext {
         }
 
         return serverVersionMajor;
+    }
+
+    public RestTemplate getRestTemplate() {
+
+        if (restTemplate != null) {
+            return restTemplate;
+        }
+
+        HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
+        requestFactory.setHttpClient(getHttpClient());
+
+        RestTemplate template = new RestTemplate(requestFactory);
+        template.setInterceptors(Create.newList((ClientHttpRequestInterceptor) (request, body, execution) -> {
+
+            HttpHeaders headers = request.getHeaders();
+            headers.add("Accept", MediaType.APPLICATION_JSON_VALUE);
+            return execution.execute(request, body);
+        }));
+
+        return template;
+    }
+
+    public HttpClient getHttpClient() {
+
+        if (httpClient != null) {
+            return httpClient;
+        }
+
+        TrustStrategy acceptingTrustStrategy = (X509Certificate[] chain, String authType) -> true;
+        HostnameVerifier hostnameVerifier = (s, sslSession) -> true;
+        SSLContext sslContext = null;
+
+        try {
+            sslContext = SSLContexts.custom().loadTrustMaterial(null, acceptingTrustStrategy).build();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        SSLConnectionSocketFactory csf = new SSLConnectionSocketFactory(sslContext, hostnameVerifier);
+        httpClient = HttpClients.custom().setSSLSocketFactory(csf).build();
+        return httpClient;
     }
 
     public CliPathArg createPathArg(String path) {

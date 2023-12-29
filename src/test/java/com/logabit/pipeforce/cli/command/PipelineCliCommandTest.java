@@ -1,23 +1,20 @@
 package com.logabit.pipeforce.cli.command;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.logabit.pipeforce.cli.CommandArgs;
-import com.logabit.pipeforce.cli.service.OutputCliService;
-import com.logabit.pipeforce.common.pipeline.PipelineRunner;
-import com.logabit.pipeforce.common.util.JsonUtil;
+import com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.List;
+import java.util.Map;
 
-import static com.logabit.pipeforce.common.property.IProperty.FIELD_PATH;
+import static com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver.Method.POST;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -31,84 +28,40 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class PipelineCliCommandTest extends BaseRepoAwareCliCommandTest {
 
-    @Mock
-    private PipelineRunner pipelineRunner;
-
-    @Mock
-    private OutputCliService out;
-
     @Test
     public void testRunRemote() throws Exception {
 
-        PipelineCliCommand remoteRun = (PipelineCliCommand) cliContext.createCommandInstance("pipeline");
         cliContext.setArgs("pipeline", "global/app/myapp/pipeline/hello");
         cliContext.callCommand();
 
+        ArgumentCaptor<CliPipeforceURIResolver.Method> methodCaptor = ArgumentCaptor.forClass(CliPipeforceURIResolver.Method.class);
         ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
-        verify(pipelineRunner, times(1)).executePipelineUri(uriCaptor.capture());
+        ArgumentCaptor<Class> typeCaptor = ArgumentCaptor.forClass(Class.class);
+        verify(resolver, times(1)).resolveToObject(methodCaptor.capture(), uriCaptor.capture(), typeCaptor.capture());
 
         List<String> values = uriCaptor.getAllValues();
-        Assert.assertEquals("call?uri=$uri:property:global/app/myapp/pipeline/hello", values.get(0));
+        Assert.assertEquals("$uri:pipeline:global/app/myapp/pipeline/hello", values.get(0));
     }
 
     @Test
     public void testRunFile() throws Exception {
         //TODO expect this but system specific "/some/home/pipeforce/properties/global/app/myapp/pipeline/hello.pi.yaml"
-        when(out.readFileToString(Mockito.anyString())).thenReturn("pipeline:");
+        when(outputService.readFileToString(Mockito.anyString())).thenReturn("pipeline:");
 
         PipelineCliCommand localRun = (PipelineCliCommand) cliContext.createCommandInstance("pipeline");
         localRun.call(new CommandArgs("properties/global/app/myapp/pipeline/hello.pi.yaml"));
 
-        ArgumentCaptor<JsonNode> nodeCaptor = ArgumentCaptor.forClass(JsonNode.class);
-        verify(pipelineRunner, times(1)).executePipelineJsonNode(nodeCaptor.capture());
-
-        Assert.assertEquals(NullNode.getInstance(), nodeCaptor.getValue().get("pipeline"));
-    }
-
-    @Test
-    public void testRunPipelineUri() throws Exception {
-
-        String foundProperties = "[\n" +
-                "  {\n" +
-                "    \"path\": \"/pipeforce/enterprise/global/app/myapp/pipeline/prop1\",\n" +
-                "    \"uuid\": \"a656bc2d-9a2f-40b5-9eb7-fb0f7cc78b94\",\n" +
-                "    \"value\": \"someValue1\",\n" +
-                "    \"defaultValue\": null,\n" +
-                "    \"type\": \"application/yaml; type=pipeline\",\n" +
-                "    \"created\": 1613460723183,\n" +
-                "    \"updated\": null,\n" +
-                "    \"timeToLive\": null\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"path\": \"/pipeforce/enterprise/global/app/myapp/pipeline/prop2\",\n" +
-                "    \"uuid\": \"f9e714a1-dcaf-4da6-908b-2571b7dcd8c7\",\n" +
-                "    \"value\": \"someValue2\",\n" +
-                "    \"defaultValue\": null,\n" +
-                "    \"type\": \"application/yaml; type=pipeline\",\n" +
-                "    \"created\": 1613460723360,\n" +
-                "    \"updated\": null,\n" +
-                "    \"timeToLive\": null\n" +
-                "  }\n" +
-                "]";
-
-        JsonNode foundPropsNode = JsonUtil.jsonStringToJsonNode(foundProperties);
-        when(pipelineRunner.executePipelineUri("log?message=FOO|drive.read?path=file.pdf")).thenReturn(foundPropsNode);
-
-        PipelineCliCommand uriCmd = (PipelineCliCommand) cliContext.createCommandInstance("pipeline");
-        uriCmd.call(new CommandArgs("log?message=FOO|drive.read?path=file.pdf"));
-
+        ArgumentCaptor<CliPipeforceURIResolver.Method> methodCaptor = ArgumentCaptor.forClass(CliPipeforceURIResolver.Method.class);
         ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
-        verify(pipelineRunner, times(1)).executePipelineUri(uriCaptor.capture());
+        ArgumentCaptor<JsonNode> bodyCaptor = ArgumentCaptor.forClass(JsonNode.class);
+        ArgumentCaptor<Map> headersCaptor = ArgumentCaptor.forClass(Map.class);
+        ArgumentCaptor<Map> varsCaptor = ArgumentCaptor.forClass(Map.class);
+        ArgumentCaptor<Class> typeCaptor = ArgumentCaptor.forClass(Class.class);
 
-        List<String> values = uriCaptor.getAllValues();
-        Assert.assertEquals("log?message=FOO|drive.read?path=file.pdf", values.get(0));
+        verify(resolver, times(1)).resolveToObject(
+                methodCaptor.capture(), uriCaptor.capture(), bodyCaptor.capture(),
+                headersCaptor.capture(), varsCaptor.capture(), typeCaptor.capture());
 
-        ArgumentCaptor<Object> resultCaptor = ArgumentCaptor.forClass(Object.class);
-        verify(out, times(1)).printResult(resultCaptor.capture());
-
-        List<Object> allValues = resultCaptor.getAllValues();
-        ArrayNode result = (ArrayNode) allValues.get(0);
-        Assert.assertEquals("/pipeforce/enterprise/global/app/myapp/pipeline/prop1", result.get(0).get(FIELD_PATH).textValue());
-        Assert.assertEquals("/pipeforce/enterprise/global/app/myapp/pipeline/prop2", result.get(1).get(FIELD_PATH).textValue());
+        Assert.assertEquals(NullNode.getInstance(), bodyCaptor.getValue().get("pipeline"));
     }
 }

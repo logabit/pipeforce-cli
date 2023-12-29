@@ -8,6 +8,7 @@ import com.logabit.pipeforce.cli.service.PublishCliService;
 import com.logabit.pipeforce.common.util.ListUtil;
 import com.logabit.pipeforce.common.util.PathUtil;
 
+import static com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver.Method.GET;
 import static com.logabit.pipeforce.common.property.IProperty.FIELD_PATH;
 
 /**
@@ -44,8 +45,11 @@ public class DeleteCliCommand extends BaseCliCommand {
         publishService.load();
 
         // TODO Return only keys, not all values (use property.keys, available since 7.0)
-        ArrayNode founds = (ArrayNode) getContext().getPipelineRunner()
-                .executePipelineUri("property.list?filter=" + PathUtil.removeExtensions(pathArg.getRemotePattern()));
+        ArrayNode founds = getContext().getResolver().resolveToObject(
+                GET,
+                "$uri:command:property.list?filter=" + PathUtil.removeExtensions(pathArg.getRemotePattern()),
+                ArrayNode.class
+        );
 
         String propHome = PathUtil.path("/pipeforce/" + getContext().getCurrentInstance().getNamespace());
 
@@ -56,8 +60,9 @@ public class DeleteCliCommand extends BaseCliCommand {
         for (JsonNode found : founds) {
             String path = found.get(FIELD_PATH).textValue();
             out.println("Delete: " + path);
-            // TODO Replace key by pattern param:
-            getContext().getPipelineRunner().executePipelineUri("property.schema.delete?key=" + path);
+
+            getContext().getResolver().resolveToObject(
+                    GET, "$uri:command:property.schema.delete?pattern=" + path, String.class);
 
             // Remove entry from .published file
             String type = found.get("type").textValue();
@@ -73,12 +78,12 @@ public class DeleteCliCommand extends BaseCliCommand {
 
     public String getUsageHelp() {
         return "pi delete <PROPERTY_PATH_PATTERN>\n" +
-                "   Deletes the given remote property or properties from server.\n" +
+                "   Deletes the given remote properties from server.\n" +
                 "   Doesn't delete any local file.\n" +
                 "   Examples:\n" +
-                "     pi delete global/app/myapp/pipeline/test - Deletes the test pipeline.\n" +
-                "     pi delete global/app/myapp/ - Same as global/app/myapp/**.\n" +
+                "     pi delete global/app/myapp/pipeline/test - Deletes the pipeline: test.\n" +
                 "     pi delete global/app/myapp/** - Deletes recursively all inside myapp.\n" +
+                "     pi delete global/app/myapp/ - Same as global/app/myapp/**.\n" +
                 "     pi delete global/app/myapp/* - Deletes all inside myapp level. Not recursively.";
     }
 }

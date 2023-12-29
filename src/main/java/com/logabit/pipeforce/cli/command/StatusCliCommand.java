@@ -10,6 +10,8 @@ import com.logabit.pipeforce.common.util.JsonUtil;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver.Method.GET;
+
 /**
  * Creates a new resource.
  *
@@ -44,7 +46,11 @@ public class StatusCliCommand extends BaseCliCommand {
         status.put("cli", cliStatus);
 
         try {
-            JsonNode info = (JsonNode) getContext().getPipelineRunner().executePipelineUri("server.info");
+
+            JsonNode info = getContext().getResolver().resolveToObject(
+                    GET, "$uri:command:server.info",
+                    null, null, null, JsonNode.class);
+
             Map infoMap = JsonUtil.objectToMap(info);
             status.put("server", infoMap);
         } catch (Exception e) {

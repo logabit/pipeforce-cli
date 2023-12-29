@@ -31,7 +31,8 @@ public class LogsCliCommand extends BaseCliCommand {
             service = "hub";
         }
 
-        Object result = getContext().getPipelineRunner().executePipelineUri("log.list?service=" + service + "&lines=" + lines);
+        // TODO
+        //Object result = getContext().getPipelineRunner().executePipelineUri("log.list?service=" + service + "&lines=" + lines);
 
         out.println(result + "");
 

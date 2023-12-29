@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver.Method.POST;
 import static com.logabit.pipeforce.common.property.IProperty.FIELD_PATH;
 
 /**
@@ -175,7 +176,9 @@ public class PublishCliCommand extends BaseCliCommand {
             ObjectNode pipelineJson = JsonUtil.createObjectNode();
             pipelineJson.set("pipeline", pipelineArray);
 
-            JsonNode node = (JsonNode) getContext().getPipelineRunner().executePipelineJsonNode(pipelineJson);
+            JsonNode node = getContext().getResolver().resolveToObject(
+                    POST, "$uri:pipeline",
+                    pipelineJson, null, null, JsonNode.class);
 
             String action = node.get("result").textValue();
 

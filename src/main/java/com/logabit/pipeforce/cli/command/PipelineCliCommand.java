@@ -5,8 +5,10 @@ import com.logabit.pipeforce.cli.CliPathArg;
 import com.logabit.pipeforce.cli.CommandArgs;
 import com.logabit.pipeforce.common.util.JsonUtil;
 
+import static com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver.Method.POST;
+
 /**
- * Executes a pipeline uri and displays the result.
+ * Executes a pipeline and displays the result.
  *
  * @author sniederm
  * @since 2.8
@@ -21,7 +23,7 @@ public class PipelineCliCommand extends BaseCliCommand {
             return -1;
         }
 
-        // pi pipeline OPTION PATH
+        // pi pipeline PATH
         String path = args.getOriginalArgs()[0];
         String option = detectType(path);
 
@@ -30,12 +32,12 @@ public class PipelineCliCommand extends BaseCliCommand {
             case "file":
                 executeFile(path);
                 break;
-            case "uri":
-                executePipelineUri(path);
-                break;
             case "remote":
                 executePipelineRemote(path);
                 break;
+            case "none":
+                out.println("Prefix in path not supported: " + path);
+                return -1;
         }
 
         return 0;
@@ -51,19 +53,14 @@ public class PipelineCliCommand extends BaseCliCommand {
             return "remote";
         }
 
-        return "uri";
+        return "none";
     }
 
     private void executePipelineRemote(String path) {
 
-        CliPathArg pathArg = getContext().createPathArg(path);
-        Object result = getContext().getPipelineRunner().executePipelineUri("call?uri=$uri:property:" + pathArg.getRemotePattern());
-        out.printResult(result);
-    }
-
-    private void executePipelineUri(String path) {
-
-        Object result = getContext().getPipelineRunner().executePipelineUri(path);
+        CliPathArg arg = getContext().createPathArg(path);
+        Object result = getContext().getResolver().resolveToObject(
+                POST, "$uri:pipeline:" + arg.getRemotePattern(), String.class);
         out.printResult(result);
     }
 
@@ -77,7 +74,8 @@ public class PipelineCliCommand extends BaseCliCommand {
         }
 
         JsonNode node = JsonUtil.yamlStringToJsonNode(pipelineString);
-        Object result = getContext().getPipelineRunner().executePipelineJsonNode(node);
+        Object result = getContext().getResolver().resolveToObject(
+                POST, "$uri:pipeline", node, null, null, String.class);
         out.printResult(result);
     }
 
@@ -86,7 +84,6 @@ public class PipelineCliCommand extends BaseCliCommand {
                 "   Executes a pipeline locally or remote depending on prefix src/ or global/ of path.\n" +
                 "   Examples:\n" +
                 "     pi pipeline src/global/app/myapp/pipeline/hello.pi.yaml - Executes a local pipeline.\n" +
-                "     pi pipeline global/app/myapp/hello - Executes a remote pipeline.\n" +
-                "     pi pipeline \"datetime?format=dd.MM.YY\" - Executes a pipeline uri.";
+                "     pi pipeline global/app/myapp/hello - Executes a remote pipeline.";
     }
 }

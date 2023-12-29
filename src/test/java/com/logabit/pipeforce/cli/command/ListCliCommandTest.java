@@ -1,23 +1,17 @@
 package com.logabit.pipeforce.cli.command;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.logabit.pipeforce.cli.CliContext;
 import com.logabit.pipeforce.cli.CommandArgs;
 import com.logabit.pipeforce.cli.config.CliConfig;
 import com.logabit.pipeforce.cli.service.ConfigCliService;
-import com.logabit.pipeforce.cli.service.InstallCliService;
-import com.logabit.pipeforce.cli.service.OutputCliService;
-import com.logabit.pipeforce.cli.service.PublishCliService;
+import com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver;
 import com.logabit.pipeforce.common.model.WorkspaceConfig;
-import com.logabit.pipeforce.common.pipeline.PipelineRunner;
 import com.logabit.pipeforce.common.util.JsonUtil;
 import com.logabit.pipeforce.common.util.ListUtil;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.contrib.java.lang.system.SystemOutRule;
-import org.junit.contrib.java.lang.system.TextFromStandardInputStream;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
@@ -25,10 +19,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.io.File;
 import java.util.List;
 
-import static org.junit.contrib.java.lang.system.TextFromStandardInputStream.emptyStandardInputStream;
+import static com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver.Method.GET;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -49,10 +43,7 @@ public class ListCliCommandTest {
     private ConfigCliService configService;
 
     @Mock
-    private OutputCliService outputService;
-
-    @Mock
-    private PipelineRunner pipelineRunner;
+    protected CliPipeforceURIResolver resolver;
 
     @Before
     public void setUp() {
@@ -92,40 +83,46 @@ public class ListCliCommandTest {
                 "  }\n" +
                 "]";
 
-        JsonNode foundPropsNode = JsonUtil.jsonStringToJsonNode(foundProperties);
+        ArrayNode foundPropsNode = (ArrayNode) JsonUtil.jsonStringToJsonNode(foundProperties);
 
-        when(pipelineRunner.executePipelineUri(Mockito.anyString())).thenReturn(foundPropsNode);
+        when(resolver.resolveToObject(any(), any(), any())).thenReturn(foundPropsNode);
 
         ListCliCommand getCmd = (ListCliCommand) cliContext.createCommandInstance("list");
         getCmd.call(new CommandArgs("global/app/myapp/"));
 
+        ArgumentCaptor<CliPipeforceURIResolver.Method> methodCaptor = ArgumentCaptor.forClass(CliPipeforceURIResolver.Method.class);
         ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
-        verify(pipelineRunner, times(1)).executePipelineUri(uriCaptor.capture());
+        ArgumentCaptor<Class> typeCaptor = ArgumentCaptor.forClass(Class.class);
+        verify(resolver, times(1)).resolveToObject(methodCaptor.capture(), uriCaptor.capture(), typeCaptor.capture());
 
         List<String> values = uriCaptor.getAllValues();
-        Assert.assertEquals("property.list?pattern=global/app/myapp/**", ListUtil.lastElement(values));
+        Assert.assertEquals("$uri:command:property.list?pattern=global/app/myapp/**", ListUtil.lastElement(values));
 
         // Converts global/*/myapp/** -> global/*/myapp/**
 
         getCmd = (ListCliCommand) cliContext.createCommandInstance("list");
         getCmd.call(new CommandArgs("global/*/myapp/**"));
 
+        methodCaptor = ArgumentCaptor.forClass(CliPipeforceURIResolver.Method.class);
         uriCaptor = ArgumentCaptor.forClass(String.class);
-        verify(pipelineRunner, times(2)).executePipelineUri(uriCaptor.capture());
+        typeCaptor = ArgumentCaptor.forClass(Class.class);
+        verify(resolver, times(2)).resolveToObject(methodCaptor.capture(), uriCaptor.capture(), typeCaptor.capture());
 
         values = uriCaptor.getAllValues();
-        Assert.assertEquals("property.list?pattern=global/*/myapp/**", ListUtil.lastElement(values));
+        Assert.assertEquals("$uri:command:property.list?pattern=global/*/myapp/**", ListUtil.lastElement(values));
 
         // Converts global/app/myapp -> global/app/myapp
 
         getCmd = (ListCliCommand) cliContext.createCommandInstance("list");
         getCmd.call(new CommandArgs("global/app/myapp"));
 
+        methodCaptor = ArgumentCaptor.forClass(CliPipeforceURIResolver.Method.class);
         uriCaptor = ArgumentCaptor.forClass(String.class);
-        verify(pipelineRunner, times(3)).executePipelineUri(uriCaptor.capture());
+        typeCaptor = ArgumentCaptor.forClass(Class.class);
+        verify(resolver, times(3)).resolveToObject(methodCaptor.capture(), uriCaptor.capture(), typeCaptor.capture());
 
         values = uriCaptor.getAllValues();
-        Assert.assertEquals("property.list?pattern=global/app/myapp", ListUtil.lastElement(values));
+        Assert.assertEquals("$uri:command:property.list?pattern=global/app/myapp", ListUtil.lastElement(values));
 
     }
 }

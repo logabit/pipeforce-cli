@@ -5,6 +5,8 @@ import com.logabit.pipeforce.cli.config.CliConfig;
 import com.logabit.pipeforce.common.util.DateTimeUtil;
 import com.logabit.pipeforce.common.util.PathUtil;
 
+import static com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver.Method.GET;
+
 /**
  * Setup wizard + installs to PIPEFORCE home in case folder doesnt exist yet.
  */
@@ -87,8 +89,9 @@ public class SetupCliCommand extends BaseCliCommand {
 
         getContext().getOutputService().showProgress("Check login");
         try {
-            Object result = getContext().getPipelineRunner().executePipelineUri(
-                    "iam.apitoken?username=" + username + "&password=" + password);
+            Object result = getContext().getResolver().resolveToObject(
+                    GET, "$uri:command:iam.apitoken?username=" + username + "&password=" + password,
+                    null, null, null, String.class);
             return result + "";
         } finally {
             getContext().getOutputService().stopProgress();

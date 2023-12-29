@@ -3,7 +3,7 @@ package com.logabit.pipeforce.cli.command;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.logabit.pipeforce.cli.CommandArgs;
 import com.logabit.pipeforce.cli.config.CliConfig;
-import com.logabit.pipeforce.common.pipeline.PipelineRunner;
+import com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver;
 import com.logabit.pipeforce.common.util.FileUtil;
 import com.logabit.pipeforce.common.util.JsonUtil;
 import com.logabit.pipeforce.common.util.ListUtil;
@@ -17,7 +17,6 @@ import org.junit.contrib.java.lang.system.TextFromStandardInputStream;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -27,6 +26,10 @@ import java.util.Map;
 
 import static com.logabit.pipeforce.common.property.IProperty.FIELD_PATH;
 import static org.junit.contrib.java.lang.system.TextFromStandardInputStream.emptyStandardInputStream;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * Tests the {@link PublishCliCommand}.
@@ -43,9 +46,6 @@ public class PublishCliCommandTest extends BaseRepoAwareCliCommandTest {
     @Rule
     public final TextFromStandardInputStream systemInMock = emptyStandardInputStream();
 
-    @Mock
-    private PipelineRunner pipelineRunner;
-
     @InjectMocks
     private PublishCliCommand publishCommand = new PublishCliCommand();
 
@@ -60,7 +60,7 @@ public class PublishCliCommandTest extends BaseRepoAwareCliCommandTest {
         cliContext.setCurrentInstance(instance);
 
         JsonNode resultNode = JsonUtil.mapToJsonNode(ListUtil.asMap("result", "created"));
-        Mockito.when(pipelineRunner.executePipelineJsonNode(Mockito.any(JsonNode.class))).thenReturn(resultNode);
+        Mockito.when(resolver.resolveToObject(any(), any(), any(), any(), any(), any())).thenReturn(resultNode);
 
         systemInMock.provideLines("com.logabit.someapp", null, "someDescription", null);
         cliContext.setArgs("new", "app");
@@ -82,10 +82,16 @@ public class PublishCliCommandTest extends BaseRepoAwareCliCommandTest {
         PublishCliCommand publishCommand = (PublishCliCommand) cliContext.createCommandInstance("publish");
         publishCommand.call(new CommandArgs("properties/global/app/com.logabit.someapp/**"));
 
-        ArgumentCaptor<JsonNode> publishNode = ArgumentCaptor.forClass(JsonNode.class);
-        Mockito.verify(pipelineRunner, Mockito.atLeastOnce()).executePipelineJsonNode(publishNode.capture());
+        ArgumentCaptor<CliPipeforceURIResolver.Method> methodCaptor = ArgumentCaptor.forClass(CliPipeforceURIResolver.Method.class);
+        ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<JsonNode> bodyCaptor = ArgumentCaptor.forClass(JsonNode.class);
+        ArgumentCaptor<Class> typeCaptor = ArgumentCaptor.forClass(Class.class);
+        ArgumentCaptor<Map> headersCaptor = ArgumentCaptor.forClass(Map.class);
+        ArgumentCaptor<Map> varsCaptor = ArgumentCaptor.forClass(Map.class);
+        verify(resolver, atLeastOnce()).resolveToObject(methodCaptor.capture(), uriCaptor.capture(),
+                bodyCaptor.capture(), headersCaptor.capture(), varsCaptor.capture(), typeCaptor.capture());
 
-        List<JsonNode> allNodes = publishNode.getAllValues();
+        List<JsonNode> allNodes = bodyCaptor.getAllValues();
 
         Assert.assertEquals(new File("global/app/com.logabit.someapp/config/app"),
                 new File(allNodes.get(0).get("pipeline").get(0).get("property.schema.put").get(FIELD_PATH).textValue()));

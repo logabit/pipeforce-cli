@@ -3,8 +3,7 @@ package com.logabit.pipeforce.cli.command;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.logabit.pipeforce.cli.CliContext;
 import com.logabit.pipeforce.cli.CommandArgs;
-import com.logabit.pipeforce.common.pipeline.PipelineRunner;
-import org.junit.Assert;
+import com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -12,6 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import static com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver.Method.GET;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -28,7 +28,7 @@ public class CommandCliCommandTest {
     private final CliContext cliContext = new CliContext();
 
     @Mock
-    private PipelineRunner pipelineRunner;
+    protected CliPipeforceURIResolver resolver;
 
     @Test
     public void testRunCommand() throws Exception {
@@ -37,10 +37,7 @@ public class CommandCliCommandTest {
         remoteRun.call(new CommandArgs("cmdName", "message=FOO", "longtext='text inside ticks'"));
 
         ArgumentCaptor<JsonNode> nodeCaptor = ArgumentCaptor.forClass(JsonNode.class);
-        verify(pipelineRunner, times(1)).executePipelineJsonNode(nodeCaptor.capture());
-
-        JsonNode pipelineNode = nodeCaptor.getValue();
-        Assert.assertEquals("FOO", pipelineNode.get("pipeline").get(0).get("cmdName").get("message").textValue());
-        Assert.assertEquals("text inside ticks", pipelineNode.get("pipeline").get(0).get("cmdName").get("longtext").textValue());
+        verify(resolver, times(1)).resolveToObject(
+                GET, "$uri:command:cmdName?message=FOO&longtext=text+inside+ticks", String.class);
     }
 }

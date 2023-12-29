@@ -2,8 +2,8 @@ package com.logabit.pipeforce.cli.service;
 
 import com.logabit.pipeforce.cli.BaseCliContextAware;
 import com.logabit.pipeforce.cli.CliException;
+import com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver;
 import com.logabit.pipeforce.common.io.ChunkSplitter;
-import com.logabit.pipeforce.common.pipeline.CommandRunner;
 import com.logabit.pipeforce.common.pipeline.Result;
 import com.logabit.pipeforce.common.util.JsonUtil;
 import org.apache.commons.codec.binary.Hex;
@@ -14,8 +14,9 @@ import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver.Method.GET;
+import static com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver.Method.POST;
 import static com.logabit.pipeforce.common.util.BooleanUtil.toBoolean;
-import static com.logabit.pipeforce.common.util.Create.newMap;
 
 /**
  * Manages the upload of local files to property attachments.
@@ -25,23 +26,22 @@ import static com.logabit.pipeforce.common.util.Create.newMap;
  */
 public class UploadCliService extends BaseCliContextAware {
 
-    private CommandRunner commandRunner;
-
     public void upload(String filePath, String propertyKey) {
 
         File file = new File(filePath);
 
-        CommandRunner commandRunner = getCommandRunner();
+        //CommandRunner commandRunner = getCommandRunner();
 
         createPropertyIfNotExists(propertyKey);
 
+        CliPipeforceURIResolver resolver = getContext().getResolver();
+
         // Create an attachment to the property
-        Result attachmentPutResult = commandRunner.executeCommand(
-                "property.attachment.put",
-                newMap(
-                        "path", propertyKey,
-                        "name", file.getName()
-                ), null);
+        resolver.resolveToObject(
+                GET,
+                "$uri:command:property.attachment.put?path=" + propertyKey + "&name=" + file.getName(),
+                Void.class
+        );
 
         List<String> md5List = new ArrayList<>();
         try (FileInputStream fis = new FileInputStream(file)) {
@@ -50,13 +50,12 @@ public class UploadCliService extends BaseCliContextAware {
             ChunkSplitter splitter = new ChunkSplitter();
             splitter.onEachChunk(chunk -> {
 
-                Result chunkUploadResult = commandRunner.executeCommand(
-                        "property.attachment.chunk.put",
-                        newMap(
-                                "path", propertyKey,
-                                "name", file.getName()
-                        ),
-                        chunk
+                Result chunkUploadResult = resolver.resolveToObject(POST,
+                        "$uri:command:property.attachment.chunk.put?path=" + propertyKey + "&name=" + file.getName(),
+                        chunk,
+                        null,
+                        null,
+                        Result.class
                 );
 
                 md5List.add(chunk.getChecksum());
@@ -77,38 +76,29 @@ public class UploadCliService extends BaseCliContextAware {
 
             String finalMd5 = "md5=" + new String(Hex.encodeHex(md5Digest.digest()));
 
-            commandRunner.executeCommand("property.attachment.checksum",
-                    newMap(
-                            "checksum", finalMd5,
-                            "path", propertyKey,
-                            "name", file.getName()
-                    ), null);
+            resolver.resolveToObject(
+                    GET,
+                    "$uri:command:property.attachment.checksum?checksum=" + finalMd5 +
+                            "&path=" + propertyKey + "&name=" + file.getName(),
+                    Void.class);
 
         } catch (Exception e) {
             throw new CliException("Could not upload file: " + file + ": " + e.getMessage(), e);
         }
     }
 
-    private CommandRunner getCommandRunner() {
-
-        if (this.commandRunner != null) {
-            return this.commandRunner;
-        }
-
-        this.commandRunner = getContext().getCommandRunner();
-        return commandRunner;
-    }
-
     private void createPropertyIfNotExists(String propertyKey) {
-        Result propertyExistsResult = getCommandRunner().executeCommand("property.exists",
-                newMap("path", propertyKey), null);
 
-        if (!toBoolean(propertyExistsResult.getValue())) {
-            Result propertyCreateResult = getCommandRunner().executeCommand(
-                    "property.schema.put",
-                    newMap(
-                            "path", propertyKey
-                    ), null);
+        CliPipeforceURIResolver resolver = getContext().getResolver();
+
+        Boolean exists = resolver.resolveToObject(GET,
+                "$uri:command:property.exists?path=" + propertyKey,
+                Boolean.class);
+
+        if (!toBoolean(exists)) {
+            resolver.resolveToObject(POST,
+                    "$uri:command:property.schema.put?path=" + propertyKey,
+                    Void.class);
         }
     }
 }

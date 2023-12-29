@@ -1,11 +1,10 @@
 package com.logabit.pipeforce.cli.command;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.logabit.pipeforce.cli.CommandArgs;
 import com.logabit.pipeforce.cli.config.CliConfig;
 import com.logabit.pipeforce.cli.service.OutputCliService;
 import com.logabit.pipeforce.cli.service.PublishCliService;
-import com.logabit.pipeforce.common.pipeline.PipelineRunner;
 import com.logabit.pipeforce.common.util.JsonUtil;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -20,6 +19,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.io.File;
 import java.util.List;
 
+import static com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver.Method.GET;
 import static org.junit.contrib.java.lang.system.TextFromStandardInputStream.emptyStandardInputStream;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -41,13 +41,7 @@ public class GetCliCommandTest extends BaseRepoAwareCliCommandTest {
     public final TextFromStandardInputStream systemInMock = emptyStandardInputStream();
 
     @Mock
-    private OutputCliService outputService;
-
-    @Mock
     private PublishCliService publishCliService;
-
-    @Mock
-    private PipelineRunner pipelineRunner;
 
     @Test
     public void testGet() throws Exception {
@@ -81,18 +75,13 @@ public class GetCliCommandTest extends BaseRepoAwareCliCommandTest {
                 "  }\n" +
                 "]";
 
-        JsonNode foundPropsNode = JsonUtil.jsonStringToJsonNode(foundProperties);
+        ArrayNode foundPropsNode = (ArrayNode) JsonUtil.jsonStringToJsonNode(foundProperties);
 
-        when(pipelineRunner.executePipelineUri("property.list?filter=global/app/myapp/pipeline/**")).thenReturn(foundPropsNode);
+        when(resolver.resolveToObject(
+                GET, "$uri:command:property.list?filter=global/app/myapp/pipeline/**", ArrayNode.class)).thenReturn(foundPropsNode);
 
         GetCliCommand getCmd = (GetCliCommand) cliContext.createCommandInstance("get");
         getCmd.call(new CommandArgs("global/app/myapp/pipeline/**"));
-
-        ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
-        verify(pipelineRunner, times(1)).executePipelineUri(uriCaptor.capture());
-
-        List<String> values = uriCaptor.getAllValues();
-        Assert.assertEquals("property.list?filter=global/app/myapp/pipeline/**", values.get(0));
 
         verify(publishCliService, times(1)).load();
         verify(publishCliService, times(1)).save();

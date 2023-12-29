@@ -3,8 +3,8 @@ package com.logabit.pipeforce.cli.command;
 import com.logabit.pipeforce.cli.CommandArgs;
 import com.logabit.pipeforce.common.util.FileUtil;
 import com.logabit.pipeforce.common.util.ListUtil;
+import com.logabit.pipeforce.common.util.PathUtil;
 import com.logabit.pipeforce.common.util.PipelineUtil;
-import com.logabit.pipeforce.common.util.PropertyUtil;
 import com.logabit.pipeforce.common.util.StringUtil;
 
 import java.io.File;
@@ -364,7 +364,7 @@ public class NewCliCommand extends BaseCliCommand {
             String appName = in.ask("New app name", null);
 
             try {
-                PropertyUtil.validatePathPart(appName);
+                PathUtil.validatePathPart(appName);
             } catch (Exception e) {
                 out.println("Invalid app name: " + appName + ". " + e.getMessage());
                 out.println("Select a different name.");
