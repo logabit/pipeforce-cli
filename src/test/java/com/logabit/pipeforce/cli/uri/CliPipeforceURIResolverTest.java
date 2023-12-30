@@ -34,7 +34,7 @@ public class CliPipeforceURIResolverTest {
         ArgumentCaptor<Map> varsCaptor = ArgumentCaptor.forClass(Map.class);
         verify(restTemplateMock, times(1)).exchange(uriCaptor.capture(), methodCaptor.capture(), entityCaptor.capture(), typeCaptor.capture(), varsCaptor.capture());
 
-        Assert.assertEquals("http://localhost:8080/api/v3//pipeline:global/app/io.pipeforce.sniederm/pipeline/hello", uriCaptor.getValue());
+        Assert.assertEquals("http://localhost:8080/api/v3/pipeline:global/app/io.pipeforce.sniederm/pipeline/hello", uriCaptor.getValue());
         Assert.assertEquals(HttpMethod.GET, methodCaptor.getValue());
         Assert.assertEquals(Map.class, typeCaptor.getValue());
         Assert.assertEquals("Basic " + EncodeUtil.toBase64("someUsername:somePassword"),

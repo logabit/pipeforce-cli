@@ -40,6 +40,12 @@ public class CliPipeforceURIResolver {
     public enum Method {
         GET,
         POST,
+        /**
+         * Expect the command parameters in the body as url-encoded query string -> more secure.
+         * Will overwrite any Content-Type header in the request to application/x-www-form-urlencoded.
+         * Also see {@link com.logabit.pipeforce.common.util.UriUtil#getMapAsQuery(Map)}
+         */
+        POST_URLENCODED,
         PUT,
         PATCH,
         DELETE,
@@ -58,7 +64,7 @@ public class CliPipeforceURIResolver {
         Assert.notNullOrEmpty(baseUrl, "Base URL may not be null or empty");
         Assert.notNull(template, "RestTemplate may not be null");
 
-        if (baseUrl.endsWith("/")) {
+        if (!baseUrl.endsWith("/")) {
             baseUrl = baseUrl + "/";
         }
 
@@ -123,13 +129,24 @@ public class CliPipeforceURIResolver {
 
         PipeforceURI pipeforceURI = new PipeforceURI(uri);
 
+        if (headers == null) {
+            headers = new HashMap<>();
+        }
+
         if (variables == null) {
             variables = new HashMap<>();
         }
 
+        String methodName = method.name();
+        if (method.equals(Method.POST_URLENCODED)) {
+            methodName = "POST";
+            headers.put("Content-Type", "application/x-www-form-urlencoded");
+        }
+
         HttpEntity entity = new HttpEntity(body, mapToHttpHeaders(headers));
+
         ResponseEntity<T> r = this.restTemplate.exchange(this.baseUrl + pipeforceURI.getUriString(false),
-                HttpMethod.valueOf(method.name()), entity, requiredType, variables);
+                HttpMethod.valueOf(methodName), entity, requiredType, variables);
 
         return r;
     }
@@ -148,7 +165,7 @@ public class CliPipeforceURIResolver {
         if ((!map.containsKey("Authorization"))) {
             if (this.token != null) {
                 map.put("Authorization", "Bearer " + this.token);
-            } else {
+            } else if (this.username != null) {
                 map.put("Authorization", "Basic " + EncodeUtil.toBase64(username + ":" + password));
             }
         }

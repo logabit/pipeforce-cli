@@ -129,8 +129,11 @@ public class SelftestCliCommand extends BaseCliCommand {
 
         public void execute(CliContext context) {
 
+            int automationStepIndex = 0;
+
+            StringBuffer buffer = new StringBuffer();
+
             try {
-                StringBuffer buffer = new StringBuffer();
                 for (CliAutomationStep automationStep : automationSteps) {
 
                     String[] commandAnswers = automationStep.getCommandAnswers();
@@ -138,18 +141,28 @@ public class SelftestCliCommand extends BaseCliCommand {
                         buffer.append(commandAnswer);
                         buffer.append('\n');
                     }
+                    automationStepIndex = automationStepIndex + 1;
                 }
+            } catch (Exception e) {
+                throw new CliException("Failed in input generation, automation step " + automationStepIndex + ": " + e.getMessage(), e);
+            }
 
+            ICliCommand currentCommand = null;
+            try {
+                automationStepIndex = 0;
                 InputStream testInput = new ByteArrayInputStream(buffer.toString().getBytes("UTF-8"));
                 context.setAnswerInputStream(testInput);
 
                 for (CliAutomationStep automationStep : automationSteps) {
 
-                    ICliCommand newCommand = context.createCommandInstance(automationStep.getCommand());
-                    newCommand.call(new CommandArgs(automationStep.getCommandArgs()));
+                    currentCommand = context.createCommandInstance(automationStep.getCommand());
+                    currentCommand.call(new CommandArgs(automationStep.getCommandArgs()));
+                    automationStepIndex = automationStepIndex + 1;
                 }
+
             } catch (Exception e) {
-                throw new CliException("Could not automate CLI steps: " + e.getMessage(), e);
+                throw new CliException("Failed CLI command [" + currentCommand + "] automation step " +
+                        automationStepIndex + ": " + e.getMessage(), e);
             }
         }
 
@@ -183,6 +196,14 @@ public class SelftestCliCommand extends BaseCliCommand {
                 this.commandAnswers = commandAnswers;
                 return this;
             }
+        }
+
+        public String getUsageHelp() {
+
+            return "pi selftest\n" +
+                    "   Does a self-test by creating, uploading and deleting a new app.\n" +
+                    "   Examples: \n" +
+                    "     pi selftest - Runs the full self-test.";
         }
     }
 }

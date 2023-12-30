@@ -78,13 +78,15 @@ public class InstallCliService extends BaseCliContextAware {
                     "the setup command inside the same folder, the " + CLI_JAR_FILENAME + " exists!");
         }
 
-        File targetJar = new File(jarTargetPath);
-        try {
-            targetJar.getParentFile().mkdirs();
-            FileUtils.copyFile(jarSourceFile, targetJar);
-        } catch (IOException e) {
-            throw new RuntimeException("Could not copy jar: " + jarSourceFile.getAbsolutePath() +
-                    " to " + targetJar + ": " + e.getMessage(), e);
+        if (jarSourceFile.isFile()) { // When executing inside IDE -> It is a folder -> ignore
+            File targetJar = new File(jarTargetPath);
+            try {
+                targetJar.getParentFile().mkdirs();
+                FileUtils.copyFile(jarSourceFile, targetJar);
+            } catch (Exception e) {
+                throw new RuntimeException("Could not copy jar: " + jarSourceFile.getAbsolutePath() +
+                        " to " + targetJar + ": " + e.getMessage(), e);
+            }
         }
 
         getContext().getConfigService().setInstalledReleaseTag(jarReleaseTag);
