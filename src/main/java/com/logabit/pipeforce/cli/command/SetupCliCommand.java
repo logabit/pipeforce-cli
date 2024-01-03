@@ -6,7 +6,7 @@ import com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver;
 import com.logabit.pipeforce.common.util.DateTimeUtil;
 import com.logabit.pipeforce.common.util.PathUtil;
 
-import static com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver.Method.POST_URLENCODED;
+import static com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver.Method.POST_PARAMS_URLENCODED;
 import static com.logabit.pipeforce.common.util.Create.newMap;
 import static com.logabit.pipeforce.common.util.UriUtil.getMapAsQuery;
 
@@ -94,7 +94,7 @@ public class SetupCliCommand extends BaseCliCommand {
         CliPipeforceURIResolver resolver = getContext().getResolver();
         try {
             return resolver.resolveToObject(
-                    POST_URLENCODED, // Sending sensitive command params in the body as url-encoded -> more secure
+                    POST_PARAMS_URLENCODED, // Sending sensitive command params in the body as url-encoded -> more secure
                     "$uri:command:iam.apitoken",
                     getMapAsQuery(newMap(
                             "username", username,

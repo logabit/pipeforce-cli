@@ -38,17 +38,44 @@ public class CliPipeforceURIResolver {
      * HTTP Methods to be used to resolve a PIPEFORCE URI.
      */
     public enum Method {
-        GET,
-        POST,
+
         /**
+         * Typically used to execute a pipeline or command.
+         * Query params will become command params or pipeline vars.
+         * No input body (null).
+         */
+        GET,
+
+        /**
+         * Typically used to execute a pipeline or command.
+         * Query params will become command params or pipeline vars.
+         * Request body will become input body for command or pipeline.
+         */
+        POST,
+
+        /**
+         * Typically used to execute a command.
          * Expect the command parameters in the body as url-encoded query string -> more secure.
          * Will overwrite any Content-Type header in the request to application/x-www-form-urlencoded.
          * Also see {@link com.logabit.pipeforce.common.util.UriUtil#getMapAsQuery(Map)}
          */
-        POST_URLENCODED,
+        POST_PARAMS_URLENCODED,
+
+        /**
+         * Typically used to upload a pipeline script or a property.
+         */
         PUT,
+
+        /**
+         * Typically used to update a property.
+         */
         PATCH,
+
+        /**
+         * Typically used to delete a property.
+         */
         DELETE,
+
         CONNECT,
         TRACE,
         HEAD,
@@ -138,7 +165,7 @@ public class CliPipeforceURIResolver {
         }
 
         String methodName = method.name();
-        if (method.equals(Method.POST_URLENCODED)) {
+        if (method.equals(Method.POST_PARAMS_URLENCODED)) {
             methodName = "POST";
             headers.put("Content-Type", "application/x-www-form-urlencoded");
         }

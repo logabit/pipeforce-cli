@@ -8,6 +8,7 @@ import com.logabit.pipeforce.common.util.FileUtil;
 import com.logabit.pipeforce.common.util.JsonUtil;
 import com.logabit.pipeforce.common.util.ListUtil;
 import com.logabit.pipeforce.common.util.PathUtil;
+import com.logabit.pipeforce.common.util.UriUtil;
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -84,22 +85,26 @@ public class PublishCliCommandTest extends BaseRepoAwareCliCommandTest {
 
         ArgumentCaptor<CliPipeforceURIResolver.Method> methodCaptor = ArgumentCaptor.forClass(CliPipeforceURIResolver.Method.class);
         ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<JsonNode> bodyCaptor = ArgumentCaptor.forClass(JsonNode.class);
+        ArgumentCaptor<String> bodyCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<Class> typeCaptor = ArgumentCaptor.forClass(Class.class);
         ArgumentCaptor<Map> headersCaptor = ArgumentCaptor.forClass(Map.class);
         ArgumentCaptor<Map> varsCaptor = ArgumentCaptor.forClass(Map.class);
         verify(resolver, atLeastOnce()).resolveToObject(methodCaptor.capture(), uriCaptor.capture(),
                 bodyCaptor.capture(), headersCaptor.capture(), varsCaptor.capture(), typeCaptor.capture());
 
-        List<JsonNode> allNodes = bodyCaptor.getAllValues();
+        List<String> allNodes = bodyCaptor.getAllValues();
 
+        Map<String, String> node0 = UriUtil.getQueryAsMap(allNodes.get(0), true);
         Assert.assertEquals(new File("global/app/com.logabit.someapp/config/app"),
-                new File(allNodes.get(0).get("pipeline").get(0).get("property.schema.put").get(FIELD_PATH).textValue()));
-        Assert.assertEquals("application/json", allNodes.get(1).get("pipeline").get(0).get("property.schema.put").get("type").textValue());
+                new File(node0.get(FIELD_PATH)));
 
+        Map<String, String> node1 = UriUtil.getQueryAsMap(allNodes.get(1), true);
+        Assert.assertEquals("application/json", node1.get("type"));
+
+        Map<String, String> node4 = UriUtil.getQueryAsMap(allNodes.get(4), true);
         Assert.assertEquals(new File("global/app/com.logabit.someapp/template/logo"),
-                new File(allNodes.get(4).get("pipeline").get(0).get("property.schema.put").get(FIELD_PATH).textValue()));
-        Assert.assertEquals("image/png;encoding=base64", allNodes.get(4).get("pipeline").get(0).get("property.schema.put").get("type").textValue());
+                new File(node4.get(FIELD_PATH)));
+        Assert.assertEquals("image/png;encoding=base64", node4.get("type"));
 
         Assert.assertEquals(5, publishCommand.getFilesCounter());
         Assert.assertEquals(5, publishCommand.getPublishedCounter());

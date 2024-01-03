@@ -1,8 +1,6 @@
 package com.logabit.pipeforce.cli.command;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.logabit.pipeforce.cli.CliException;
 import com.logabit.pipeforce.cli.CliPathArg;
 import com.logabit.pipeforce.cli.CommandArgs;
@@ -22,12 +20,14 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver.Method.POST;
+import static com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver.Method.POST_PARAMS_URLENCODED;
 import static com.logabit.pipeforce.common.property.IProperty.FIELD_PATH;
+import static com.logabit.pipeforce.common.util.UriUtil.getMapAsQuery;
 
 /**
  * Publishes all resources of a given app to the server.
@@ -160,25 +160,17 @@ public class PublishCliCommand extends BaseCliCommand {
                 propertyValue = StringUtil.fromFile(file);
             }
 
-            ObjectNode pipelineArgs = JsonUtil.createObjectNode();
-            pipelineArgs.put(FIELD_PATH, propertyKey);
-            pipelineArgs.put("type", type.toString());
-            pipelineArgs.put("existStrategy", "update");
-            pipelineArgs.put("evalValue", "false");
-            pipelineArgs.put("value", propertyValue);
+            Map schemaPutArgs = new HashMap();
+            schemaPutArgs.put(FIELD_PATH, propertyKey);
+            schemaPutArgs.put("type", type.toString());
+            schemaPutArgs.put("existStrategy", "update");
+            schemaPutArgs.put("evalValue", "false");
+            schemaPutArgs.put("value", propertyValue);
 
-            ObjectNode schemaPutCommand = JsonUtil.createObjectNode();
-            schemaPutCommand.set("property.schema.put", pipelineArgs);
-
-            ArrayNode pipelineArray = JsonUtil.createArrayNode();
-            pipelineArray.add(schemaPutCommand);
-
-            ObjectNode pipelineJson = JsonUtil.createObjectNode();
-            pipelineJson.set("pipeline", pipelineArray);
 
             JsonNode node = getContext().getResolver().resolveToObject(
-                    POST, "$uri:pipeline",
-                    pipelineJson, null, null, JsonNode.class);
+                    POST_PARAMS_URLENCODED, "$uri:command:property.schema.put",
+                    getMapAsQuery(schemaPutArgs), null, null, JsonNode.class);
 
             String action = node.get("result").textValue();
 
