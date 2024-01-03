@@ -164,7 +164,7 @@ public class CliPipeforceURIResolver {
 
         if ((!map.containsKey("Authorization"))) {
             if (this.token != null) {
-                map.put("Authorization", "Bearer " + this.token);
+                map.put("Authorization", "refresh " + this.token);
             } else if (this.username != null) {
                 map.put("Authorization", "Basic " + EncodeUtil.toBase64(username + ":" + password));
             }
