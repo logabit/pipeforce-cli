@@ -8,7 +8,7 @@ import com.logabit.pipeforce.cli.service.PublishCliService;
 import com.logabit.pipeforce.common.util.ListUtil;
 import com.logabit.pipeforce.common.util.PathUtil;
 
-import static com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver.Method.GET;
+import static com.logabit.pipeforce.cli.uri.ClientPipeforceURIResolver.Method.GET;
 import static com.logabit.pipeforce.common.property.IProperty.FIELD_PATH;
 
 /**

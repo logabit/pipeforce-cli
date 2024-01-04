@@ -3,7 +3,7 @@ package com.logabit.pipeforce.cli.command;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.logabit.pipeforce.cli.CommandArgs;
-import com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver;
+import com.logabit.pipeforce.cli.uri.ClientPipeforceURIResolver;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,7 +14,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.List;
 import java.util.Map;
 
-import static com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver.Method.POST;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -34,7 +33,7 @@ public class PipelineCliCommandTest extends BaseRepoAwareCliCommandTest {
         cliContext.setArgs("pipeline", "global/app/myapp/pipeline/hello");
         cliContext.callCommand();
 
-        ArgumentCaptor<CliPipeforceURIResolver.Method> methodCaptor = ArgumentCaptor.forClass(CliPipeforceURIResolver.Method.class);
+        ArgumentCaptor<ClientPipeforceURIResolver.Method> methodCaptor = ArgumentCaptor.forClass(ClientPipeforceURIResolver.Method.class);
         ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<Class> typeCaptor = ArgumentCaptor.forClass(Class.class);
         verify(resolver, times(1)).resolveToObject(methodCaptor.capture(), uriCaptor.capture(), typeCaptor.capture());
@@ -51,7 +50,7 @@ public class PipelineCliCommandTest extends BaseRepoAwareCliCommandTest {
         PipelineCliCommand localRun = (PipelineCliCommand) cliContext.createCommandInstance("pipeline");
         localRun.call(new CommandArgs("properties/global/app/myapp/pipeline/hello.pi.yaml"));
 
-        ArgumentCaptor<CliPipeforceURIResolver.Method> methodCaptor = ArgumentCaptor.forClass(CliPipeforceURIResolver.Method.class);
+        ArgumentCaptor<ClientPipeforceURIResolver.Method> methodCaptor = ArgumentCaptor.forClass(ClientPipeforceURIResolver.Method.class);
         ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<JsonNode> bodyCaptor = ArgumentCaptor.forClass(JsonNode.class);
         ArgumentCaptor<Map> headersCaptor = ArgumentCaptor.forClass(Map.class);

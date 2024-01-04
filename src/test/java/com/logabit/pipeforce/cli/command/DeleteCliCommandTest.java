@@ -3,10 +3,8 @@ package com.logabit.pipeforce.cli.command;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.logabit.pipeforce.cli.CommandArgs;
 import com.logabit.pipeforce.cli.config.CliConfig;
-import com.logabit.pipeforce.cli.service.InstallCliService;
-import com.logabit.pipeforce.cli.service.OutputCliService;
 import com.logabit.pipeforce.cli.service.PublishCliService;
-import com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver;
+import com.logabit.pipeforce.cli.uri.ClientPipeforceURIResolver;
 import com.logabit.pipeforce.common.util.JsonUtil;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -20,7 +18,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.List;
 
-import static com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver.Method.GET;
+import static com.logabit.pipeforce.cli.uri.ClientPipeforceURIResolver.Method.GET;
 import static org.junit.contrib.java.lang.system.TextFromStandardInputStream.emptyStandardInputStream;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -85,7 +83,7 @@ public class DeleteCliCommandTest extends BaseRepoAwareCliCommandTest {
         DeleteCliCommand deleteCmd = (DeleteCliCommand) cliContext.createCommandInstance("delete");
         deleteCmd.call(new CommandArgs("global/app/myapp/pipeline/**"));
 
-        ArgumentCaptor<CliPipeforceURIResolver.Method> methodCaptor = ArgumentCaptor.forClass(CliPipeforceURIResolver.Method.class);
+        ArgumentCaptor<ClientPipeforceURIResolver.Method> methodCaptor = ArgumentCaptor.forClass(ClientPipeforceURIResolver.Method.class);
         ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<Class> typeCaptor = ArgumentCaptor.forClass(Class.class);
         verify(resolver, times(3)).resolveToObject(methodCaptor.capture(), uriCaptor.capture(), typeCaptor.capture());
@@ -116,7 +114,7 @@ public class DeleteCliCommandTest extends BaseRepoAwareCliCommandTest {
         DeleteCliCommand deleteCmd = (DeleteCliCommand) cliContext.createCommandInstance("delete");
         deleteCmd.call(new CommandArgs("global/app/myapp/pipeline/mypipe.pi.yaml"));
 
-        ArgumentCaptor<CliPipeforceURIResolver.Method> methodCaptor = ArgumentCaptor.forClass(CliPipeforceURIResolver.Method.class);
+        ArgumentCaptor<ClientPipeforceURIResolver.Method> methodCaptor = ArgumentCaptor.forClass(ClientPipeforceURIResolver.Method.class);
         ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<Class> typeCaptor = ArgumentCaptor.forClass(Class.class);
         verify(resolver, times(1)).resolveToObject(methodCaptor.capture(), uriCaptor.capture(), typeCaptor.capture());
@@ -149,7 +147,7 @@ public class DeleteCliCommandTest extends BaseRepoAwareCliCommandTest {
         DeleteCliCommand deleteCmd = (DeleteCliCommand) cliContext.createCommandInstance("delete");
         deleteCmd.call(new CommandArgs("global/app/myapp/pipeline/*"));
 
-        ArgumentCaptor<CliPipeforceURIResolver.Method> methodCaptor = ArgumentCaptor.forClass(CliPipeforceURIResolver.Method.class);
+        ArgumentCaptor<ClientPipeforceURIResolver.Method> methodCaptor = ArgumentCaptor.forClass(ClientPipeforceURIResolver.Method.class);
         ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<Class> typeCaptor = ArgumentCaptor.forClass(Class.class);
         verify(resolver, times(1)).resolveToObject(methodCaptor.capture(), uriCaptor.capture(), typeCaptor.capture());
@@ -171,7 +169,7 @@ public class DeleteCliCommandTest extends BaseRepoAwareCliCommandTest {
         DeleteCliCommand deleteCmd = (DeleteCliCommand) cliContext.createCommandInstance("delete");
         deleteCmd.call(new CommandArgs("global/app/myapp/pipeline/**"));
 
-        ArgumentCaptor<CliPipeforceURIResolver.Method> methodCaptor = ArgumentCaptor.forClass(CliPipeforceURIResolver.Method.class);
+        ArgumentCaptor<ClientPipeforceURIResolver.Method> methodCaptor = ArgumentCaptor.forClass(ClientPipeforceURIResolver.Method.class);
         ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<Class> typeCaptor = ArgumentCaptor.forClass(Class.class);
         verify(resolver, times(1)).resolveToObject(methodCaptor.capture(), uriCaptor.capture(), typeCaptor.capture());
@@ -193,7 +191,7 @@ public class DeleteCliCommandTest extends BaseRepoAwareCliCommandTest {
         DeleteCliCommand deleteCmd = (DeleteCliCommand) cliContext.createCommandInstance("delete");
         deleteCmd.call(new CommandArgs("global/app/myapp/pipeline/someleaf"));
 
-        ArgumentCaptor<CliPipeforceURIResolver.Method> methodCaptor = ArgumentCaptor.forClass(CliPipeforceURIResolver.Method.class);
+        ArgumentCaptor<ClientPipeforceURIResolver.Method> methodCaptor = ArgumentCaptor.forClass(ClientPipeforceURIResolver.Method.class);
         ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<Class> typeCaptor = ArgumentCaptor.forClass(Class.class);
         verify(resolver, times(1)).resolveToObject(methodCaptor.capture(), uriCaptor.capture(), typeCaptor.capture());

@@ -3,7 +3,6 @@ package com.logabit.pipeforce.cli.command;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.logabit.pipeforce.cli.CommandArgs;
 import com.logabit.pipeforce.cli.config.CliConfig;
-import com.logabit.pipeforce.cli.service.OutputCliService;
 import com.logabit.pipeforce.cli.service.PublishCliService;
 import com.logabit.pipeforce.common.util.JsonUtil;
 import org.junit.Assert;
@@ -19,7 +18,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.io.File;
 import java.util.List;
 
-import static com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver.Method.GET;
+import static com.logabit.pipeforce.cli.uri.ClientPipeforceURIResolver.Method.GET;
 import static org.junit.contrib.java.lang.system.TextFromStandardInputStream.emptyStandardInputStream;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;

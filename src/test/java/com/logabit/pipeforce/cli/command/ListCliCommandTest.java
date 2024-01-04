@@ -5,7 +5,7 @@ import com.logabit.pipeforce.cli.CliContext;
 import com.logabit.pipeforce.cli.CommandArgs;
 import com.logabit.pipeforce.cli.config.CliConfig;
 import com.logabit.pipeforce.cli.service.ConfigCliService;
-import com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver;
+import com.logabit.pipeforce.cli.uri.ClientPipeforceURIResolver;
 import com.logabit.pipeforce.common.model.WorkspaceConfig;
 import com.logabit.pipeforce.common.util.JsonUtil;
 import com.logabit.pipeforce.common.util.ListUtil;
@@ -21,7 +21,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.List;
 
-import static com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver.Method.GET;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -43,7 +42,7 @@ public class ListCliCommandTest {
     private ConfigCliService configService;
 
     @Mock
-    protected CliPipeforceURIResolver resolver;
+    protected ClientPipeforceURIResolver resolver;
 
     @Before
     public void setUp() {
@@ -90,7 +89,7 @@ public class ListCliCommandTest {
         ListCliCommand getCmd = (ListCliCommand) cliContext.createCommandInstance("list");
         getCmd.call(new CommandArgs("global/app/myapp/"));
 
-        ArgumentCaptor<CliPipeforceURIResolver.Method> methodCaptor = ArgumentCaptor.forClass(CliPipeforceURIResolver.Method.class);
+        ArgumentCaptor<ClientPipeforceURIResolver.Method> methodCaptor = ArgumentCaptor.forClass(ClientPipeforceURIResolver.Method.class);
         ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<Class> typeCaptor = ArgumentCaptor.forClass(Class.class);
         verify(resolver, times(1)).resolveToObject(methodCaptor.capture(), uriCaptor.capture(), typeCaptor.capture());
@@ -103,7 +102,7 @@ public class ListCliCommandTest {
         getCmd = (ListCliCommand) cliContext.createCommandInstance("list");
         getCmd.call(new CommandArgs("global/*/myapp/**"));
 
-        methodCaptor = ArgumentCaptor.forClass(CliPipeforceURIResolver.Method.class);
+        methodCaptor = ArgumentCaptor.forClass(ClientPipeforceURIResolver.Method.class);
         uriCaptor = ArgumentCaptor.forClass(String.class);
         typeCaptor = ArgumentCaptor.forClass(Class.class);
         verify(resolver, times(2)).resolveToObject(methodCaptor.capture(), uriCaptor.capture(), typeCaptor.capture());
@@ -116,7 +115,7 @@ public class ListCliCommandTest {
         getCmd = (ListCliCommand) cliContext.createCommandInstance("list");
         getCmd.call(new CommandArgs("global/app/myapp"));
 
-        methodCaptor = ArgumentCaptor.forClass(CliPipeforceURIResolver.Method.class);
+        methodCaptor = ArgumentCaptor.forClass(ClientPipeforceURIResolver.Method.class);
         uriCaptor = ArgumentCaptor.forClass(String.class);
         typeCaptor = ArgumentCaptor.forClass(Class.class);
         verify(resolver, times(3)).resolveToObject(methodCaptor.capture(), uriCaptor.capture(), typeCaptor.capture());

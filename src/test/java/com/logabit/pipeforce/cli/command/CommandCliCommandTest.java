@@ -3,7 +3,7 @@ package com.logabit.pipeforce.cli.command;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.logabit.pipeforce.cli.CliContext;
 import com.logabit.pipeforce.cli.CommandArgs;
-import com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver;
+import com.logabit.pipeforce.cli.uri.ClientPipeforceURIResolver;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -11,7 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import static com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver.Method.GET;
+import static com.logabit.pipeforce.cli.uri.ClientPipeforceURIResolver.Method.GET;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -28,7 +28,7 @@ public class CommandCliCommandTest {
     private final CliContext cliContext = new CliContext();
 
     @Mock
-    protected CliPipeforceURIResolver resolver;
+    protected ClientPipeforceURIResolver resolver;
 
     @Test
     public void testRunCommand() throws Exception {

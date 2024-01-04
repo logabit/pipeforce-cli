@@ -9,7 +9,7 @@ import com.logabit.pipeforce.common.util.PathUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver.Method.GET;
+import static com.logabit.pipeforce.cli.uri.ClientPipeforceURIResolver.Method.GET;
 import static com.logabit.pipeforce.common.property.IProperty.FIELD_PATH;
 
 /**

@@ -5,7 +5,7 @@ import com.logabit.pipeforce.cli.CliPathArg;
 import com.logabit.pipeforce.cli.CommandArgs;
 import com.logabit.pipeforce.common.util.JsonUtil;
 
-import static com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver.Method.POST;
+import static com.logabit.pipeforce.cli.uri.ClientPipeforceURIResolver.Method.POST;
 
 /**
  * Executes a pipeline and displays the result.

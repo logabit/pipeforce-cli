@@ -22,7 +22,7 @@ import java.util.Map;
  * @author sn
  * @since 10
  */
-public class CliPipeforceURIResolver {
+public class ClientPipeforceURIResolver {
 
     private RestTemplate restTemplate;
 
@@ -82,12 +82,12 @@ public class CliPipeforceURIResolver {
         OPTIONS
     }
 
-    public CliPipeforceURIResolver(String baseUrl, String token, RestTemplate template) {
+    public ClientPipeforceURIResolver(String baseUrl, String token, RestTemplate template) {
         this(baseUrl, null, null, template);
         this.token = token;
     }
 
-    public CliPipeforceURIResolver(String baseUrl, String username, String password, RestTemplate template) {
+    public ClientPipeforceURIResolver(String baseUrl, String username, String password, RestTemplate template) {
         Assert.notNullOrEmpty(baseUrl, "Base URL may not be null or empty");
         Assert.notNull(template, "RestTemplate may not be null");
 

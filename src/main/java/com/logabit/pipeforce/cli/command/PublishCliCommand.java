@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver.Method.POST_PARAMS_URLENCODED;
+import static com.logabit.pipeforce.cli.uri.ClientPipeforceURIResolver.Method.POST_PARAMS_URLENCODED;
 import static com.logabit.pipeforce.common.property.IProperty.FIELD_PATH;
 import static com.logabit.pipeforce.common.util.UriUtil.getMapAsQuery;
 

@@ -6,7 +6,7 @@ import com.logabit.pipeforce.common.util.UriUtil;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver.Method.GET;
+import static com.logabit.pipeforce.cli.uri.ClientPipeforceURIResolver.Method.GET;
 
 /**
  * Executes a single command.

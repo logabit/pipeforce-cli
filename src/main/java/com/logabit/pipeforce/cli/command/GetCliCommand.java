@@ -16,7 +16,7 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import static com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver.Method.GET;
+import static com.logabit.pipeforce.cli.uri.ClientPipeforceURIResolver.Method.GET;
 
 /**
  * Downloads a given set of properties.

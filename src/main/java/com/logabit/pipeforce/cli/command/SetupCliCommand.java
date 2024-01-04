@@ -2,11 +2,11 @@ package com.logabit.pipeforce.cli.command;
 
 import com.logabit.pipeforce.cli.CommandArgs;
 import com.logabit.pipeforce.cli.config.CliConfig;
-import com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver;
+import com.logabit.pipeforce.cli.uri.ClientPipeforceURIResolver;
 import com.logabit.pipeforce.common.util.DateTimeUtil;
 import com.logabit.pipeforce.common.util.PathUtil;
 
-import static com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver.Method.POST_PARAMS_URLENCODED;
+import static com.logabit.pipeforce.cli.uri.ClientPipeforceURIResolver.Method.POST_PARAMS_URLENCODED;
 import static com.logabit.pipeforce.common.util.Create.newMap;
 import static com.logabit.pipeforce.common.util.UriUtil.getMapAsQuery;
 
@@ -91,7 +91,7 @@ public class SetupCliCommand extends BaseCliCommand {
     private String loadApiToken(String username, String password) {
 
         getContext().getOutputService().showProgress("Checking login");
-        CliPipeforceURIResolver resolver = getContext().getResolver();
+        ClientPipeforceURIResolver resolver = getContext().getResolver();
         try {
             return resolver.resolveToObject(
                     POST_PARAMS_URLENCODED, // Sending sensitive command params in the body as url-encoded -> more secure

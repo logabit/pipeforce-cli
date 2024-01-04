@@ -2,7 +2,7 @@ package com.logabit.pipeforce.cli.service;
 
 import com.logabit.pipeforce.cli.BaseCliContextAware;
 import com.logabit.pipeforce.cli.CliException;
-import com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver;
+import com.logabit.pipeforce.cli.uri.ClientPipeforceURIResolver;
 import com.logabit.pipeforce.common.io.ChunkSplitter;
 import com.logabit.pipeforce.common.pipeline.Result;
 import com.logabit.pipeforce.common.util.JsonUtil;
@@ -14,8 +14,8 @@ import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver.Method.GET;
-import static com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver.Method.POST;
+import static com.logabit.pipeforce.cli.uri.ClientPipeforceURIResolver.Method.GET;
+import static com.logabit.pipeforce.cli.uri.ClientPipeforceURIResolver.Method.POST;
 import static com.logabit.pipeforce.common.util.BooleanUtil.toBoolean;
 
 /**
@@ -34,7 +34,7 @@ public class UploadCliService extends BaseCliContextAware {
 
         createPropertyIfNotExists(propertyKey);
 
-        CliPipeforceURIResolver resolver = getContext().getResolver();
+        ClientPipeforceURIResolver resolver = getContext().getResolver();
 
         // Create an attachment to the property
         resolver.resolveToObject(
@@ -89,7 +89,7 @@ public class UploadCliService extends BaseCliContextAware {
 
     private void createPropertyIfNotExists(String propertyKey) {
 
-        CliPipeforceURIResolver resolver = getContext().getResolver();
+        ClientPipeforceURIResolver resolver = getContext().getResolver();
 
         Boolean exists = resolver.resolveToObject(GET,
                 "$uri:command:property.exists?path=" + propertyKey,

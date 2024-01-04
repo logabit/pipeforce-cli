@@ -10,7 +10,7 @@ import com.logabit.pipeforce.common.util.JsonUtil;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver.Method.GET;
+import static com.logabit.pipeforce.cli.uri.ClientPipeforceURIResolver.Method.GET;
 
 /**
  * Creates a new resource.

@@ -12,7 +12,7 @@ import com.logabit.pipeforce.cli.service.OutputCliService;
 import com.logabit.pipeforce.cli.service.PublishCliService;
 import com.logabit.pipeforce.cli.service.UpdateCliService;
 import com.logabit.pipeforce.cli.service.UploadCliService;
-import com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver;
+import com.logabit.pipeforce.cli.uri.ClientPipeforceURIResolver;
 import com.logabit.pipeforce.common.content.service.MimeTypeService;
 import com.logabit.pipeforce.common.util.Create;
 import com.logabit.pipeforce.common.util.InputUtil;
@@ -43,7 +43,7 @@ import java.nio.file.Paths;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 
-import static com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver.Method.GET;
+import static com.logabit.pipeforce.cli.uri.ClientPipeforceURIResolver.Method.GET;
 
 /**
  * This is a lightweight approach of an application context,
@@ -95,7 +95,7 @@ public class CliContext {
 
     private UploadCliService uploadService;
 
-    private CliPipeforceURIResolver resolver;
+    private ClientPipeforceURIResolver resolver;
 
     public CliContext(String... args) {
         setArgs(args);
@@ -220,13 +220,13 @@ public class CliContext {
         return updateService;
     }
 
-    public CliPipeforceURIResolver getResolver() {
+    public ClientPipeforceURIResolver getResolver() {
 
         if (this.resolver != null) {
             return this.resolver;
         }
 
-        this.resolver = new CliPipeforceURIResolver(
+        this.resolver = new ClientPipeforceURIResolver(
                 getCurrentInstance().getHubApiUrl(null),
                 getCurrentInstance().getApiToken(),
                 getRestTemplate());

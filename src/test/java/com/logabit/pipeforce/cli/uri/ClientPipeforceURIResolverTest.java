@@ -11,18 +11,18 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
 
-import static com.logabit.pipeforce.cli.uri.CliPipeforceURIResolver.Method.GET;
+import static com.logabit.pipeforce.cli.uri.ClientPipeforceURIResolver.Method.GET;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-public class CliPipeforceURIResolverTest {
+public class ClientPipeforceURIResolverTest {
 
     @Test
     public void testPipeforceURIFromCli_GET() {
 
         RestTemplate restTemplateMock = Mockito.mock(RestTemplate.class);
 
-        CliPipeforceURIResolver resolver = new CliPipeforceURIResolver("http://localhost:8080/api/v3/",
+        ClientPipeforceURIResolver resolver = new ClientPipeforceURIResolver("http://localhost:8080/api/v3/",
                 "someUsername", "somePassword", restTemplateMock);
 
         resolver.resolveToEntity(GET, "$uri:pipeline:global/app/io.pipeforce.sniederm/pipeline/hello", Map.class);
