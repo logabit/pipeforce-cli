@@ -5,10 +5,10 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.logabit.pipeforce.cli.CliPathArg;
 import com.logabit.pipeforce.cli.CommandArgs;
 import com.logabit.pipeforce.cli.service.PublishCliService;
+import com.logabit.pipeforce.common.net.Request;
 import com.logabit.pipeforce.common.util.ListUtil;
 import com.logabit.pipeforce.common.util.PathUtil;
 
-import static com.logabit.pipeforce.cli.uri.ClientPipeforceURIResolver.Method.GET;
 import static com.logabit.pipeforce.common.property.IProperty.FIELD_PATH;
 
 /**
@@ -45,11 +45,10 @@ public class DeleteCliCommand extends BaseCliCommand {
         publishService.load();
 
         // TODO Return only keys, not all values (use property.keys, available since 7.0)
-        ArrayNode founds = getContext().getResolver().resolveToObject(
-                GET,
-                "$uri:command:property.list?filter=" + PathUtil.removeExtensions(pathArg.getRemotePattern()),
-                ArrayNode.class
-        );
+        ArrayNode founds = getContext().getResolver().resolve(
+                Request.get()
+                        .uri("$uri:command:property.list?filter=" + PathUtil.removeExtensions(pathArg.getRemotePattern())),
+                ArrayNode.class);
 
         String propHome = PathUtil.path("/pipeforce/" + getContext().getCurrentInstance().getNamespace());
 
@@ -61,8 +60,8 @@ public class DeleteCliCommand extends BaseCliCommand {
             String path = found.get(FIELD_PATH).textValue();
             out.println("Delete: " + path);
 
-            getContext().getResolver().resolveToObject(
-                    GET, "$uri:command:property.schema.delete?pattern=" + path, String.class);
+            getContext().getResolver().resolve(
+                    Request.get().uri("$uri:command:property.schema.delete?pattern=" + path), Void.class);
 
             // Remove entry from .published file
             String type = found.get("type").textValue();

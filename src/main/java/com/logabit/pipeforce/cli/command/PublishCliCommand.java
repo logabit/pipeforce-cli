@@ -7,6 +7,7 @@ import com.logabit.pipeforce.cli.CommandArgs;
 import com.logabit.pipeforce.cli.service.PublishCliService;
 import com.logabit.pipeforce.common.content.model.ContentType;
 import com.logabit.pipeforce.common.content.service.MimeTypeService;
+import com.logabit.pipeforce.common.net.Request;
 import com.logabit.pipeforce.common.util.EncodeUtil;
 import com.logabit.pipeforce.common.util.FileUtil;
 import com.logabit.pipeforce.common.util.JsonUtil;
@@ -25,9 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.logabit.pipeforce.cli.uri.ClientPipeforceURIResolver.Method.POST_PARAMS_URLENCODED;
 import static com.logabit.pipeforce.common.property.IProperty.FIELD_PATH;
-import static com.logabit.pipeforce.common.util.UriUtil.getMapAsQuery;
 
 /**
  * Publishes all resources of a given app to the server.
@@ -168,9 +167,12 @@ public class PublishCliCommand extends BaseCliCommand {
             schemaPutArgs.put("value", propertyValue);
 
 
-            JsonNode node = getContext().getResolver().resolveToObject(
-                    POST_PARAMS_URLENCODED, "$uri:command:property.schema.put",
-                    getMapAsQuery(schemaPutArgs), null, null, JsonNode.class);
+            JsonNode node = getContext().getResolver().resolve(
+                    Request.postParamsUrlEncoded()
+                            .uri("$uri:command:property.schema.put").
+                            params(schemaPutArgs),
+                    JsonNode.class);
+
 
             String action = node.get("result").textValue();
 

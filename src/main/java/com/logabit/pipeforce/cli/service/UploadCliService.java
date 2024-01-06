@@ -2,8 +2,9 @@ package com.logabit.pipeforce.cli.service;
 
 import com.logabit.pipeforce.cli.BaseCliContextAware;
 import com.logabit.pipeforce.cli.CliException;
-import com.logabit.pipeforce.cli.uri.ClientPipeforceURIResolver;
 import com.logabit.pipeforce.common.io.ChunkSplitter;
+import com.logabit.pipeforce.common.net.ClientPipeforceURIResolver;
+import com.logabit.pipeforce.common.net.Request;
 import com.logabit.pipeforce.common.pipeline.Result;
 import com.logabit.pipeforce.common.util.JsonUtil;
 import org.apache.commons.codec.binary.Hex;
@@ -14,8 +15,6 @@ import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.logabit.pipeforce.cli.uri.ClientPipeforceURIResolver.Method.GET;
-import static com.logabit.pipeforce.cli.uri.ClientPipeforceURIResolver.Method.POST;
 import static com.logabit.pipeforce.common.util.BooleanUtil.toBoolean;
 
 /**
@@ -37,9 +36,11 @@ public class UploadCliService extends BaseCliContextAware {
         ClientPipeforceURIResolver resolver = getContext().getResolver();
 
         // Create an attachment to the property
-        resolver.resolveToObject(
-                GET,
-                "$uri:command:property.attachment.put?path=" + propertyKey + "&name=" + file.getName(),
+        resolver.resolve(
+                Request.get()
+                        .uri("$uri:command:property.attachment.put")
+                        .param("path", propertyKey)
+                        .param("name", file.getName()),
                 Void.class
         );
 
@@ -50,11 +51,12 @@ public class UploadCliService extends BaseCliContextAware {
             ChunkSplitter splitter = new ChunkSplitter();
             splitter.onEachChunk(chunk -> {
 
-                Result chunkUploadResult = resolver.resolveToObject(POST,
-                        "$uri:command:property.attachment.chunk.put?path=" + propertyKey + "&name=" + file.getName(),
-                        chunk,
-                        null,
-                        null,
+                Result chunkUploadResult = resolver.resolve(
+                        Request.post()
+                                .uri("$uri:command:property.attachment.chunk.put")
+                                .param("path", propertyKey)
+                                .param("name", file.getName())
+                                .body(chunk),
                         Result.class
                 );
 
@@ -76,10 +78,9 @@ public class UploadCliService extends BaseCliContextAware {
 
             String finalMd5 = "md5=" + new String(Hex.encodeHex(md5Digest.digest()));
 
-            resolver.resolveToObject(
-                    GET,
-                    "$uri:command:property.attachment.checksum?checksum=" + finalMd5 +
-                            "&path=" + propertyKey + "&name=" + file.getName(),
+            resolver.resolve(
+                    Request.get().uri("$uri:command:property.attachment.checksum?checksum=" + finalMd5 +
+                            "&path=" + propertyKey + "&name=" + file.getName()),
                     Void.class);
 
         } catch (Exception e) {
@@ -91,14 +92,12 @@ public class UploadCliService extends BaseCliContextAware {
 
         ClientPipeforceURIResolver resolver = getContext().getResolver();
 
-        Boolean exists = resolver.resolveToObject(GET,
-                "$uri:command:property.exists?path=" + propertyKey,
-                Boolean.class);
+        Boolean exists = resolver.resolve(
+                Request.get().uri("$uri:command:property.exists?path=" + propertyKey), Boolean.class);
 
         if (!toBoolean(exists)) {
-            resolver.resolveToObject(POST,
-                    "$uri:command:property.schema.put?path=" + propertyKey,
-                    Void.class);
+            resolver.resolve(
+                    Request.post().uri("$uri:command:property.schema.put?path=" + propertyKey), Void.class);
         }
     }
 }

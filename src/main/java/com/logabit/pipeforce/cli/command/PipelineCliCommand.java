@@ -3,9 +3,8 @@ package com.logabit.pipeforce.cli.command;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.logabit.pipeforce.cli.CliPathArg;
 import com.logabit.pipeforce.cli.CommandArgs;
+import com.logabit.pipeforce.common.net.Request;
 import com.logabit.pipeforce.common.util.JsonUtil;
-
-import static com.logabit.pipeforce.cli.uri.ClientPipeforceURIResolver.Method.POST;
 
 /**
  * Executes a pipeline and displays the result.
@@ -59,8 +58,8 @@ public class PipelineCliCommand extends BaseCliCommand {
     private void executePipelineRemote(String path) {
 
         CliPathArg arg = getContext().createPathArg(path);
-        Object result = getContext().getResolver().resolveToObject(
-                POST, "$uri:pipeline:" + arg.getRemotePattern(), String.class);
+        Object result = getContext().getResolver().resolve(
+                Request.post().uri("$uri:pipeline:" + arg.getRemotePattern()), String.class);
         out.printResult(result);
     }
 
@@ -74,8 +73,8 @@ public class PipelineCliCommand extends BaseCliCommand {
         }
 
         JsonNode node = JsonUtil.yamlStringToJsonNode(pipelineString);
-        Object result = getContext().getResolver().resolveToObject(
-                POST, "$uri:pipeline", node, null, null, String.class);
+        Object result = getContext().getResolver().resolve(
+                Request.post().uri("$uri:pipeline").body(node), String.class);
         out.printResult(result);
     }
 
