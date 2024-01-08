@@ -3,7 +3,8 @@ package com.logabit.pipeforce.cli.command;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.logabit.pipeforce.cli.CommandArgs;
-import com.logabit.pipeforce.cli.uri.ClientPipeforceURIResolver;
+import com.logabit.pipeforce.common.net.ClientPipeforceURIResolver;
+import com.logabit.pipeforce.common.net.Request;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,12 +35,12 @@ public class PipelineCliCommandTest extends BaseRepoAwareCliCommandTest {
         cliContext.callCommand();
 
         ArgumentCaptor<ClientPipeforceURIResolver.Method> methodCaptor = ArgumentCaptor.forClass(ClientPipeforceURIResolver.Method.class);
-        ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<Request> requestCaptor = ArgumentCaptor.forClass(Request.class);
         ArgumentCaptor<Class> typeCaptor = ArgumentCaptor.forClass(Class.class);
-        verify(resolver, times(1)).resolveToObject(methodCaptor.capture(), uriCaptor.capture(), typeCaptor.capture());
+        verify(resolver, times(1)).resolve(requestCaptor.capture(), typeCaptor.capture());
 
-        List<String> values = uriCaptor.getAllValues();
-        Assert.assertEquals("$uri:pipeline:global/app/myapp/pipeline/hello", values.get(0));
+        Request request = requestCaptor.getValue();
+        Assert.assertEquals("$uri:pipeline:global/app/myapp/pipeline/hello", request.getUri());
     }
 
     @Test
@@ -50,17 +51,11 @@ public class PipelineCliCommandTest extends BaseRepoAwareCliCommandTest {
         PipelineCliCommand localRun = (PipelineCliCommand) cliContext.createCommandInstance("pipeline");
         localRun.call(new CommandArgs("properties/global/app/myapp/pipeline/hello.pi.yaml"));
 
-        ArgumentCaptor<ClientPipeforceURIResolver.Method> methodCaptor = ArgumentCaptor.forClass(ClientPipeforceURIResolver.Method.class);
-        ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<JsonNode> bodyCaptor = ArgumentCaptor.forClass(JsonNode.class);
-        ArgumentCaptor<Map> headersCaptor = ArgumentCaptor.forClass(Map.class);
-        ArgumentCaptor<Map> varsCaptor = ArgumentCaptor.forClass(Map.class);
+        ArgumentCaptor<Request> requestCaptor = ArgumentCaptor.forClass(Request.class);
         ArgumentCaptor<Class> typeCaptor = ArgumentCaptor.forClass(Class.class);
+        verify(resolver, times(1)).resolve(requestCaptor.capture(), typeCaptor.capture());
 
-        verify(resolver, times(1)).resolveToObject(
-                methodCaptor.capture(), uriCaptor.capture(), bodyCaptor.capture(),
-                headersCaptor.capture(), varsCaptor.capture(), typeCaptor.capture());
-
-        Assert.assertEquals(NullNode.getInstance(), bodyCaptor.getValue().get("pipeline"));
+        Request request = requestCaptor.getValue();
+        Assert.assertEquals(NullNode.getInstance(), ((JsonNode) request.getBody()).get("pipeline"));
     }
 }

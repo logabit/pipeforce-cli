@@ -4,13 +4,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.logabit.pipeforce.cli.CommandArgs;
 import com.logabit.pipeforce.cli.config.CliConfig;
 import com.logabit.pipeforce.cli.service.ConfigCliService;
+import com.logabit.pipeforce.common.net.Request;
 import com.logabit.pipeforce.common.util.DateTimeUtil;
 import com.logabit.pipeforce.common.util.JsonUtil;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import static com.logabit.pipeforce.cli.uri.ClientPipeforceURIResolver.Method.GET;
 
 /**
  * Creates a new resource.
@@ -47,9 +46,8 @@ public class StatusCliCommand extends BaseCliCommand {
 
         try {
 
-            JsonNode info = getContext().getResolver().resolveToObject(
-                    GET, "$uri:command:server.info",
-                    null, null, null, JsonNode.class);
+            JsonNode info = getContext().getResolver().resolve(
+                    Request.get().uri("$uri:command:server.info"), JsonNode.class);
 
             Map infoMap = JsonUtil.objectToMap(info);
             status.put("server", infoMap);

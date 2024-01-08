@@ -2,13 +2,10 @@ package com.logabit.pipeforce.cli.command;
 
 import com.logabit.pipeforce.cli.CommandArgs;
 import com.logabit.pipeforce.cli.config.CliConfig;
-import com.logabit.pipeforce.cli.uri.ClientPipeforceURIResolver;
+import com.logabit.pipeforce.common.net.ClientPipeforceURIResolver;
+import com.logabit.pipeforce.common.net.Request;
 import com.logabit.pipeforce.common.util.DateTimeUtil;
 import com.logabit.pipeforce.common.util.PathUtil;
-
-import static com.logabit.pipeforce.cli.uri.ClientPipeforceURIResolver.Method.POST_PARAMS_URLENCODED;
-import static com.logabit.pipeforce.common.util.Create.newMap;
-import static com.logabit.pipeforce.common.util.UriUtil.getMapAsQuery;
 
 /**
  * Setup wizard + installs to PIPEFORCE home in case folder doesnt exist yet.
@@ -93,14 +90,14 @@ public class SetupCliCommand extends BaseCliCommand {
         getContext().getOutputService().showProgress("Checking login");
         ClientPipeforceURIResolver resolver = getContext().getResolver();
         try {
-            return resolver.resolveToObject(
-                    POST_PARAMS_URLENCODED, // Sending sensitive command params in the body as url-encoded -> more secure
-                    "$uri:command:iam.apitoken",
-                    getMapAsQuery(newMap(
-                            "username", username,
-                            "password", password
-                    )),
-                    null, null, String.class);
+
+            // Sending sensitive command params in the body as url-encoded -> more secure
+            return resolver.resolve(
+                    Request.postParamsUrlEncoded()
+                            .uri("$uri:command:iam.apitoken")
+                            .param("username", username).
+                            param("password", password),
+                    String.class);
 
         } finally {
             getContext().getOutputService().stopProgress();

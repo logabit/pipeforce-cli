@@ -5,8 +5,9 @@ import com.logabit.pipeforce.cli.CliContext;
 import com.logabit.pipeforce.cli.CommandArgs;
 import com.logabit.pipeforce.cli.config.CliConfig;
 import com.logabit.pipeforce.cli.service.ConfigCliService;
-import com.logabit.pipeforce.cli.uri.ClientPipeforceURIResolver;
 import com.logabit.pipeforce.common.model.WorkspaceConfig;
+import com.logabit.pipeforce.common.net.ClientPipeforceURIResolver;
+import com.logabit.pipeforce.common.net.Request;
 import com.logabit.pipeforce.common.util.JsonUtil;
 import com.logabit.pipeforce.common.util.ListUtil;
 import org.junit.Assert;
@@ -84,44 +85,41 @@ public class ListCliCommandTest {
 
         ArrayNode foundPropsNode = (ArrayNode) JsonUtil.jsonStringToJsonNode(foundProperties);
 
-        when(resolver.resolveToObject(any(), any(), any())).thenReturn(foundPropsNode);
+        when(resolver.resolve(any(), any())).thenReturn(foundPropsNode);
 
         ListCliCommand getCmd = (ListCliCommand) cliContext.createCommandInstance("list");
         getCmd.call(new CommandArgs("global/app/myapp/"));
 
-        ArgumentCaptor<ClientPipeforceURIResolver.Method> methodCaptor = ArgumentCaptor.forClass(ClientPipeforceURIResolver.Method.class);
-        ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<Request> requestCaptor = ArgumentCaptor.forClass(Request.class);
         ArgumentCaptor<Class> typeCaptor = ArgumentCaptor.forClass(Class.class);
-        verify(resolver, times(1)).resolveToObject(methodCaptor.capture(), uriCaptor.capture(), typeCaptor.capture());
+        verify(resolver, times(1)).resolve(requestCaptor.capture(), typeCaptor.capture());
 
-        List<String> values = uriCaptor.getAllValues();
-        Assert.assertEquals("$uri:command:property.list?pattern=global/app/myapp/**", ListUtil.lastElement(values));
+        List<Request> values = requestCaptor.getAllValues();
+        Assert.assertEquals("$uri:command:property.list?pattern=global/app/myapp/**", ListUtil.lastElement(values).getUri());
 
         // Converts global/*/myapp/** -> global/*/myapp/**
 
         getCmd = (ListCliCommand) cliContext.createCommandInstance("list");
         getCmd.call(new CommandArgs("global/*/myapp/**"));
 
-        methodCaptor = ArgumentCaptor.forClass(ClientPipeforceURIResolver.Method.class);
-        uriCaptor = ArgumentCaptor.forClass(String.class);
+        requestCaptor = ArgumentCaptor.forClass(Request.class);
         typeCaptor = ArgumentCaptor.forClass(Class.class);
-        verify(resolver, times(2)).resolveToObject(methodCaptor.capture(), uriCaptor.capture(), typeCaptor.capture());
+        verify(resolver, times(2)).resolve(requestCaptor.capture(), typeCaptor.capture());
 
-        values = uriCaptor.getAllValues();
-        Assert.assertEquals("$uri:command:property.list?pattern=global/*/myapp/**", ListUtil.lastElement(values));
+        values = requestCaptor.getAllValues();
+        Assert.assertEquals("$uri:command:property.list?pattern=global/*/myapp/**", ListUtil.lastElement(values).getUri());
 
         // Converts global/app/myapp -> global/app/myapp
 
         getCmd = (ListCliCommand) cliContext.createCommandInstance("list");
         getCmd.call(new CommandArgs("global/app/myapp"));
 
-        methodCaptor = ArgumentCaptor.forClass(ClientPipeforceURIResolver.Method.class);
-        uriCaptor = ArgumentCaptor.forClass(String.class);
+        requestCaptor = ArgumentCaptor.forClass(Request.class);
         typeCaptor = ArgumentCaptor.forClass(Class.class);
-        verify(resolver, times(3)).resolveToObject(methodCaptor.capture(), uriCaptor.capture(), typeCaptor.capture());
+        verify(resolver, times(3)).resolve(requestCaptor.capture(), typeCaptor.capture());
 
-        values = uriCaptor.getAllValues();
-        Assert.assertEquals("$uri:command:property.list?pattern=global/app/myapp", ListUtil.lastElement(values));
+        values = requestCaptor.getAllValues();
+        Assert.assertEquals("$uri:command:property.list?pattern=global/app/myapp", ListUtil.lastElement(values).getUri());
 
     }
 }

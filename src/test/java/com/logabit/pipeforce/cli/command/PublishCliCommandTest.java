@@ -3,7 +3,8 @@ package com.logabit.pipeforce.cli.command;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.logabit.pipeforce.cli.CommandArgs;
 import com.logabit.pipeforce.cli.config.CliConfig;
-import com.logabit.pipeforce.cli.uri.ClientPipeforceURIResolver;
+import com.logabit.pipeforce.common.net.ClientPipeforceURIResolver;
+import com.logabit.pipeforce.common.net.Request;
 import com.logabit.pipeforce.common.util.FileUtil;
 import com.logabit.pipeforce.common.util.JsonUtil;
 import com.logabit.pipeforce.common.util.ListUtil;
@@ -60,7 +61,7 @@ public class PublishCliCommandTest extends BaseRepoAwareCliCommandTest {
         cliContext.setCurrentInstance(instance);
 
         JsonNode resultNode = JsonUtil.mapToJsonNode(ListUtil.asMap("result", "created"));
-        Mockito.when(resolver.resolveToObject(any(), any(), any(), any(), any(), any())).thenReturn(resultNode);
+        Mockito.when(resolver.resolve(any(), any())).thenReturn(resultNode);
 
         systemInMock.provideLines("com.logabit.someapp", null, "someDescription", null);
         cliContext.setArgs("new", "app");
@@ -82,27 +83,28 @@ public class PublishCliCommandTest extends BaseRepoAwareCliCommandTest {
         PublishCliCommand publishCommand = (PublishCliCommand) cliContext.createCommandInstance("publish");
         publishCommand.call(new CommandArgs("properties/global/app/com.logabit.someapp/**"));
 
-        ArgumentCaptor<ClientPipeforceURIResolver.Method> methodCaptor = ArgumentCaptor.forClass(ClientPipeforceURIResolver.Method.class);
-        ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<String> bodyCaptor = ArgumentCaptor.forClass(String.class);
+//        ArgumentCaptor<ClientPipeforceURIResolver.Method> methodCaptor = ArgumentCaptor.forClass(ClientPipeforceURIResolver.Method.class);
+//        ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
+//        ArgumentCaptor<String> bodyCaptor = ArgumentCaptor.forClass(String.class);
+//        ArgumentCaptor<Class> typeCaptor = ArgumentCaptor.forClass(Class.class);
+//        ArgumentCaptor<Map> headersCaptor = ArgumentCaptor.forClass(Map.class);
+//        ArgumentCaptor<Map> varsCaptor = ArgumentCaptor.forClass(Map.class);
+
+        ArgumentCaptor<Request> requestCaptor = ArgumentCaptor.forClass(Request.class);
         ArgumentCaptor<Class> typeCaptor = ArgumentCaptor.forClass(Class.class);
-        ArgumentCaptor<Map> headersCaptor = ArgumentCaptor.forClass(Map.class);
-        ArgumentCaptor<Map> varsCaptor = ArgumentCaptor.forClass(Map.class);
-        verify(resolver, atLeastOnce()).resolveToObject(methodCaptor.capture(), uriCaptor.capture(),
-                bodyCaptor.capture(), headersCaptor.capture(), varsCaptor.capture(), typeCaptor.capture());
+        verify(resolver, atLeastOnce()).resolve(requestCaptor.capture(), typeCaptor.capture());
 
-        List<String> allNodes = bodyCaptor.getAllValues();
+        List<Request> allNodes = requestCaptor.getAllValues();
 
-        Map<String, String> node0 = UriUtil.getQueryAsMap(allNodes.get(0), true);
         Assert.assertEquals(new File("global/app/com.logabit.someapp/config/app"),
-                new File(node0.get(FIELD_PATH)));
+                new File(allNodes.get(0).getParams().get(FIELD_PATH) + ""));
 
-        Map<String, String> node1 = UriUtil.getQueryAsMap(allNodes.get(1), true);
-        Assert.assertEquals("application/json", node1.get("type"));
+        Assert.assertEquals("application/json", allNodes.get(1).getParams().get("type"));
 
-        Map<String, String> node4 = UriUtil.getQueryAsMap(allNodes.get(4), true);
+        Map<String, String> node4 = allNodes.get(4).getParams();
+
         Assert.assertEquals(new File("global/app/com.logabit.someapp/template/logo"),
-                new File(node4.get(FIELD_PATH)));
+                new File(allNodes.get(4).getParams().get(FIELD_PATH) + ""));
         Assert.assertEquals("image/png;encoding=base64", node4.get("type"));
 
         Assert.assertEquals(5, publishCommand.getFilesCounter());

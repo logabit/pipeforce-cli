@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.logabit.pipeforce.cli.CommandArgs;
 import com.logabit.pipeforce.cli.config.CliConfig;
 import com.logabit.pipeforce.cli.service.PublishCliService;
+import com.logabit.pipeforce.common.net.Request;
 import com.logabit.pipeforce.common.util.JsonUtil;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -18,7 +19,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.io.File;
 import java.util.List;
 
-import static com.logabit.pipeforce.cli.uri.ClientPipeforceURIResolver.Method.GET;
+import static com.logabit.pipeforce.common.net.ClientPipeforceURIResolver.Method.GET;
 import static org.junit.contrib.java.lang.system.TextFromStandardInputStream.emptyStandardInputStream;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -76,8 +77,8 @@ public class GetCliCommandTest extends BaseRepoAwareCliCommandTest {
 
         ArrayNode foundPropsNode = (ArrayNode) JsonUtil.jsonStringToJsonNode(foundProperties);
 
-        when(resolver.resolveToObject(
-                GET, "$uri:command:property.list?filter=global/app/myapp/pipeline/**", ArrayNode.class)).thenReturn(foundPropsNode);
+        when(resolver.resolve(
+                Request.get().uri("$uri:command:property.list?filter=global/app/myapp/pipeline/**"), ArrayNode.class)).thenReturn(foundPropsNode);
 
         GetCliCommand getCmd = (GetCliCommand) cliContext.createCommandInstance("get");
         getCmd.call(new CommandArgs("global/app/myapp/pipeline/**"));

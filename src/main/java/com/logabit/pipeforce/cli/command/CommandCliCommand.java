@@ -1,12 +1,10 @@
 package com.logabit.pipeforce.cli.command;
 
 import com.logabit.pipeforce.cli.CommandArgs;
-import com.logabit.pipeforce.common.util.UriUtil;
+import com.logabit.pipeforce.common.net.Request;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import static com.logabit.pipeforce.cli.uri.ClientPipeforceURIResolver.Method.GET;
 
 /**
  * Executes a single command.
@@ -30,9 +28,9 @@ public class CommandCliCommand extends BaseCliCommand {
         Map<String, String> paramsMap = new LinkedHashMap<>(args.getOptions());
         paramsMap.remove(commandName); // Already extracted above
 
-        String queryString = UriUtil.getMapAsQuery(paramsMap, null);
-        Object result = getContext().getResolver().resolveToObject(
-                GET, "$uri:command:" + commandName + "?" + queryString, String.class);
+        Object result = getContext().getResolver().resolve(
+                Request.get().uri("$uri:command:" + commandName).params(paramsMap), String.class);
+
         out.printResult(result);
 
         return 0;

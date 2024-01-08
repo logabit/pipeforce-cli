@@ -1,5 +1,7 @@
 package com.logabit.pipeforce.cli.uri;
 
+import com.logabit.pipeforce.common.net.ClientPipeforceURIResolver;
+import com.logabit.pipeforce.common.net.Request;
 import com.logabit.pipeforce.common.util.EncodeUtil;
 import org.junit.Assert;
 import org.junit.Test;
@@ -11,7 +13,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
 
-import static com.logabit.pipeforce.cli.uri.ClientPipeforceURIResolver.Method.GET;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -25,7 +26,8 @@ public class ClientPipeforceURIResolverTest {
         ClientPipeforceURIResolver resolver = new ClientPipeforceURIResolver("http://localhost:8080/api/v3/",
                 "someUsername", "somePassword", restTemplateMock);
 
-        resolver.resolveToEntity(GET, "$uri:pipeline:global/app/io.pipeforce.sniederm/pipeline/hello", Map.class);
+        resolver.resolveToResponse(
+                Request.get().uri("$uri:pipeline:global/app/io.pipeforce.sniederm/pipeline/hello"), Map.class);
 
         ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<HttpMethod> methodCaptor = ArgumentCaptor.forClass(HttpMethod.class);

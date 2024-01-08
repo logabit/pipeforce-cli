@@ -12,11 +12,11 @@ import com.logabit.pipeforce.cli.service.OutputCliService;
 import com.logabit.pipeforce.cli.service.PublishCliService;
 import com.logabit.pipeforce.cli.service.UpdateCliService;
 import com.logabit.pipeforce.cli.service.UploadCliService;
-import com.logabit.pipeforce.cli.uri.ClientPipeforceURIResolver;
+import com.logabit.pipeforce.common.net.ClientPipeforceURIResolver;
 import com.logabit.pipeforce.common.content.service.MimeTypeService;
+import com.logabit.pipeforce.common.net.Request;
 import com.logabit.pipeforce.common.util.Create;
 import com.logabit.pipeforce.common.util.InputUtil;
-import com.logabit.pipeforce.common.util.JsonUtil;
 import com.logabit.pipeforce.common.util.PathUtil;
 import com.logabit.pipeforce.common.util.ReflectionUtil;
 import com.logabit.pipeforce.common.util.StringUtil;
@@ -42,8 +42,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
-
-import static com.logabit.pipeforce.cli.uri.ClientPipeforceURIResolver.Method.GET;
 
 /**
  * This is a lightweight approach of an application context,
@@ -370,10 +368,8 @@ public class CliContext {
 
         try {
 
-            String result = getResolver().resolveToObject(
-                    GET, "$uri:command:server.info", null, null, null, String.class);
-            JsonNode node = JsonUtil.objectToJsonNode(result);
-            this.serverVersionMajor = node.get("value").get("versionMajor").intValue();
+            JsonNode result = getResolver().resolve(Request.get().uri("$uri:command:server.info"), JsonNode.class);
+            this.serverVersionMajor = result.get("value").get("versionMajor").intValue();
         } catch (Exception e) {
             this.serverVersionMajor = 7;
         }

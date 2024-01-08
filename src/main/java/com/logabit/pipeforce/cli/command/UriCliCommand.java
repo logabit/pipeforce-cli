@@ -1,8 +1,7 @@
 package com.logabit.pipeforce.cli.command;
 
 import com.logabit.pipeforce.cli.CommandArgs;
-
-import static com.logabit.pipeforce.cli.uri.ClientPipeforceURIResolver.Method.GET;
+import com.logabit.pipeforce.common.net.Request;
 
 /**
  * Executes a PIPEFORCE URI and returns the result.
@@ -23,7 +22,7 @@ public class UriCliCommand extends BaseCliCommand {
         // pi uri URI
         String uri = args.getOriginalArgs()[0];
 
-        Object r = getContext().getResolver().resolveToObject(GET, uri, null, null, null, String.class);
+        Object r = getContext().getResolver().resolve(Request.get().uri(uri), String.class);
 
         out.printResult(r);
 
