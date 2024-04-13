@@ -10,7 +10,9 @@
     <description>PIPEFORCE CLI</description>
 
     <properties>
-        <java.version>1.8</java.version>
+        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <java.version>17</java.version>
         <pipeforce.version>1.0.0-SNAPSHOT</pipeforce.version>
         <pipeforce-sdk-java.version>1.0.0-SNAPSHOT</pipeforce-sdk-java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
