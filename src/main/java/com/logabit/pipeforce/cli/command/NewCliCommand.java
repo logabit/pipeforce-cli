@@ -77,7 +77,8 @@ public class NewCliCommand extends BaseCliCommand {
                 break;
         }
 
-        out.println("Hint: When finished, run 'pi publish' to upload and activate your changes.");
+        out.println("Tip 1: When finished, run 'pi publish' to upload and activate your changes.");
+        out.println("Tip 2: Run 'code .' to open this workspace in VS Code.");
         return 0;
     }
 
