@@ -3,13 +3,12 @@ package com.logabit.pipeforce.cli.command;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.logabit.pipeforce.cli.CommandArgs;
 import com.logabit.pipeforce.cli.config.CliConfig;
-import com.logabit.pipeforce.common.net.ClientPipeforceURIResolver;
 import com.logabit.pipeforce.common.net.Request;
 import com.logabit.pipeforce.common.util.FileUtil;
 import com.logabit.pipeforce.common.util.JsonUtil;
 import com.logabit.pipeforce.common.util.ListUtil;
 import com.logabit.pipeforce.common.util.PathUtil;
-import com.logabit.pipeforce.common.util.UriUtil;
+import com.logabit.pipeforce.common.util.ThreadUtil;
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -52,7 +51,7 @@ public class PublishCliCommandTest extends BaseRepoAwareCliCommandTest {
 
 
     @Test
-    public void test_NewApp_NewPipeline_NewForm_NewObject_Publish() throws Exception {
+    public void test_NewApp_NewPipeline_NewForm_NewSchema_Publish() throws Exception {
 
         cliContext.setCurrentWorkDir(super.repoHome);
 
@@ -63,17 +62,23 @@ public class PublishCliCommandTest extends BaseRepoAwareCliCommandTest {
         JsonNode resultNode = JsonUtil.mapToJsonNode(ListUtil.asMap("result", "created"));
         Mockito.when(resolver.resolve(any(), any())).thenReturn(resultNode);
 
-        systemInMock.provideLines("com.logabit.someapp", null, "someDescription", null);
+        System.out.println("");
+        System.out.println("> new app");
         cliContext.setArgs("new", "app");
-        cliContext.callCommand();
+        systemInMock.provideLines("com.logabit.someapp", null, "someDescription", null);
+        ICliCommand out = cliContext.callCommand();
 
-        systemInMock.provideLines("com.logabit.someapp", "somepipeline");
+        System.out.println("");
+        System.out.println("> new pipeline");
         cliContext.setArgs("new", "pipeline");
-        cliContext.callCommand();
+        systemInMock.provideLines("com.logabit.someapp", "somepipeline");
+        out = cliContext.callCommand();
 
-        systemInMock.provideLines("com.logabit.someapp", "someform", "someformdesc", "1", "someobject");
+        System.out.println("");
+        System.out.println("> new form");
         cliContext.setArgs("new", "form");
-        cliContext.callCommand();
+        systemInMock.provideLines("com.logabit.someapp", "someform", "someformdesc", "1", "someobject");
+        out = cliContext.callCommand();
 
         // Copy a binary file to the app for testing
         File targetFile = new File(super.repoHome, "properties/global/app/com.logabit.someapp/template/logo.png");
@@ -122,12 +127,13 @@ public class PublishCliCommandTest extends BaseRepoAwareCliCommandTest {
         publishCommand = (PublishCliCommand) cliContext.createCommandInstance("publish");
         publishCommand.call(CommandArgs.EMPTY); // All in src folder
 
-        // Test that lower case values of "show" attribute in app config will be converted to upper case correctly
+        ThreadUtil.sleep(1000); // Make sure last modified of appConfig has changed in any case
+
+        // Change appConfig
         final File appConfig = new File(PathUtil.path(cliContext.getRepoHome(), "properties/global/app/com.logabit.someapp/config/app.json"));
         String appConfigString = FileUtil.fileToString(appConfig);
         Map<String, Object> appConfigMap = JsonUtil.jsonStringToMap(appConfigString);
-        String showValue = (String) appConfigMap.get("show");
-        appConfigMap.put("show", showValue.toLowerCase());
+        appConfigMap.put("description", "someChangedDescription");
         appConfigString = JsonUtil.objectToJsonString(appConfigMap);
         FileUtil.saveStringToFile(appConfigString, appConfig);
 
@@ -138,11 +144,6 @@ public class PublishCliCommandTest extends BaseRepoAwareCliCommandTest {
         // appConfig file have changed -> 1 to upload
         Assert.assertEquals(5, publishCommand.getFilesCounter());
         Assert.assertEquals(1, publishCommand.getPublishedCounter());
-
-        // Make sure appConfig's show attribute was converted to upper case
-        appConfigString = FileUtil.fileToString(appConfig);
-        appConfigMap = JsonUtil.jsonStringToMap(appConfigString);
-        Assert.assertEquals("CAN_APP_COM.LOGABIT.SOMEAPP", appConfigMap.get("show"));
     }
 
     @Test

@@ -77,18 +77,7 @@ public class NewCliCommandTest {
         File appHome = new File(appRepoHome, "properties/global/app/com.logabit.someapp");
         List<File> files = FileUtil.listFiles(appHome);
         files.sort(Comparator.comparing(File::getName));
-        Assert.assertEquals(10, files.size());
-
-        Assert.assertEquals("config", files.get(0).getName());
-        Assert.assertEquals("form", files.get(1).getName());
-        Assert.assertEquals("function", files.get(2).getName());
-        Assert.assertEquals("list", files.get(3).getName());
-        Assert.assertEquals("object", files.get(4).getName());
-        Assert.assertEquals("pipeline", files.get(5).getName());
-        Assert.assertEquals("resource", files.get(6).getName());
-        Assert.assertEquals("setup", files.get(7).getName());
-        Assert.assertEquals("test", files.get(8).getName());
-        Assert.assertEquals("workflow", files.get(9).getName());
+        Assert.assertEquals(1, files.size());
 
         File configFile = new File(appHome, "config/app.json");
         String configString = FileUtil.fileToString(configFile);
@@ -96,7 +85,7 @@ public class NewCliCommandTest {
 
         Assert.assertEquals("com.logabit.someapp", config.get("title").textValue());
         Assert.assertEquals("someDescription", config.get("description").textValue());
-        Assert.assertEquals("CAN_APP_com.logabit.someapp", config.get("show").textValue());
+        Assert.assertEquals("ROLE_DEVELOPER", config.get("permissions").get("read").get(0).textValue());
         Assert.assertEquals("assignment", config.get("icon").textValue());
     }
 
@@ -117,7 +106,7 @@ public class NewCliCommandTest {
 
         Assert.assertEquals("com.logabit.someapp1", appConfig.get("title").textValue());
         Assert.assertEquals("", appConfig.get("description").textValue());
-        Assert.assertEquals("CAN_APP_com.logabit.someapp1", appConfig.get("show").textValue());
+        Assert.assertEquals("ROLE_DEVELOPER", appConfig.get("permissions").get("read").get(0).textValue());
         Assert.assertEquals("someicon", appConfig.get("icon").textValue());
 
         String formString = FileUtil.fileToString(new File(appHome, "form/someform.json"));
@@ -125,14 +114,14 @@ public class NewCliCommandTest {
 
         Assert.assertEquals("someform", formConfig.get("title").textValue());
         Assert.assertEquals("someformdesc", formConfig.get("description").textValue());
-        Assert.assertEquals("property.list?filter=global/app/com.logabit.someapp1/object/someobject/v1/schema", formConfig.get("schema").textValue());
-        Assert.assertEquals("global/app/com.logabit.someapp1/object/someobject/v1/instance/%23%7Bvar.property.uuid%7D", formConfig.get("output").textValue());
+        Assert.assertEquals("$uri:property:global/app/com.logabit.someapp1/schema/someobject", formConfig.get("schema").textValue());
+        Assert.assertEquals("$uri:property:global/app/com.logabit.someapp1/data/someobject/", formConfig.get("output").textValue());
 
-        String schemaString = FileUtil.fileToString(new File(appHome, "object/someobject/v1/schema.json"));
+        String schemaString = FileUtil.fileToString(new File(appHome, "schema/someobject.json"));
         JsonNode schemaConfig = JsonUtil.jsonStringToJsonNode(schemaString);
 
         Assert.assertEquals("object", schemaConfig.get("type").textValue());
-        Assert.assertEquals("Some Number", schemaConfig.get("properties").get("someNumber").get("title").textValue());
+        Assert.assertEquals("First Name", schemaConfig.get("properties").get("firstName").get("title").textValue());
     }
 
     @Test
@@ -159,7 +148,7 @@ public class NewCliCommandTest {
 
         Assert.assertEquals("com.logabit.someapp1", appConfig.get("title").textValue());
         Assert.assertEquals("", appConfig.get("description").textValue());
-        Assert.assertEquals("CAN_APP_com.logabit.someapp1", appConfig.get("show").textValue());
+        Assert.assertEquals("ROLE_DEVELOPER", appConfig.get("permissions").get("read").get(0).textValue());
         Assert.assertEquals("someicon", appConfig.get("icon").textValue());
 
         String formString = FileUtil.fileToString(new File(appHome, "list/somelist.json"));
@@ -167,14 +156,14 @@ public class NewCliCommandTest {
 
         Assert.assertEquals("somelist", formConfig.get("title").textValue());
         Assert.assertEquals("somelistdesc", formConfig.get("description").textValue());
-        Assert.assertEquals("property.value.expression?from=global/app/com.logabit.someapp1/object/someobject/v1/instance/*", formConfig.get("input").textValue());
-        Assert.assertEquals("property.list?filter=global/app/com.logabit.someapp1/object/someobject/v1/schema", formConfig.get("schema").textValue());
+        Assert.assertEquals("$uri:command:property.value.list?pattern=global/app/com.logabit.someapp1/data/someobject/*", formConfig.get("input").textValue());
+        Assert.assertEquals("$uri:property:global/app/com.logabit.someapp1/schema/someobject", formConfig.get("schema").textValue());
 
-        String schemaString = FileUtil.fileToString(new File(appHome, "object/someobject/v1/schema.json"));
+        String schemaString = FileUtil.fileToString(new File(appHome, "schema/someobject.json"));
         JsonNode schemaConfig = JsonUtil.jsonStringToJsonNode(schemaString);
 
         Assert.assertEquals("object", schemaConfig.get("type").textValue());
-        Assert.assertEquals("Some Number", schemaConfig.get("properties").get("someNumber").get("title").textValue());
+        Assert.assertEquals("First Name", schemaConfig.get("properties").get("firstName").get("title").textValue());
     }
 
     @Test
@@ -184,11 +173,11 @@ public class NewCliCommandTest {
                 "com.logabit.someapp1",
                 null,
                 null,
-                "someicon", // New app
-                "someobject", // New object
+                "someicon",
                 "somelist",
                 "somelistdesc",
-                "0" // Do you like to load existing objects into your list? -> 0: someobject
+                "1", // New schema
+                "someobject" // Schema name
         );
 
         context.setArgs("new", "object");
@@ -204,7 +193,7 @@ public class NewCliCommandTest {
 
         Assert.assertEquals("com.logabit.someapp1", appConfig.get("title").textValue());
         Assert.assertEquals("", appConfig.get("description").textValue());
-        Assert.assertEquals("CAN_APP_com.logabit.someapp1", appConfig.get("show").textValue());
+        Assert.assertEquals("ROLE_DEVELOPER", appConfig.get("permissions").get("read").get(0).textValue());
         Assert.assertEquals("someicon", appConfig.get("icon").textValue());
 
         String listString = FileUtil.fileToString(new File(appHome, "list/somelist.json"));
@@ -212,59 +201,59 @@ public class NewCliCommandTest {
 
         Assert.assertEquals("somelist", listConfig.get("title").textValue());
         Assert.assertEquals("somelistdesc", listConfig.get("description").textValue());
-        Assert.assertEquals("property.value.expression?from=global/app/com.logabit.someapp1/object/someobject/v1/instance/*", listConfig.get("input").textValue());
-        Assert.assertEquals("property.list?filter=global/app/com.logabit.someapp1/object/someobject/v1/schema", listConfig.get("schema").textValue());
+        Assert.assertEquals("$uri:command:property.value.list?pattern=global/app/com.logabit.someapp1/data/someobject/*", listConfig.get("input").textValue());
+        Assert.assertEquals("$uri:property:global/app/com.logabit.someapp1/schema/someobject", listConfig.get("schema").textValue());
 
-        String schemaString = FileUtil.fileToString(new File(appHome, "object/someobject/v1/schema.json"));
+        String schemaString = FileUtil.fileToString(new File(appHome, "schema/someobject.json"));
         JsonNode schemaConfig = JsonUtil.jsonStringToJsonNode(schemaString);
 
         Assert.assertEquals("object", schemaConfig.get("type").textValue());
-        Assert.assertEquals("Some Number", schemaConfig.get("properties").get("someNumber").get("title").textValue());
+        Assert.assertEquals("First Name", schemaConfig.get("properties").get("firstName").get("title").textValue());
     }
 
     @Test
     public void testNewPipeline() throws Exception {
 
         systemInMock.provideLines(
-                "com.logabit.someapp1",
-                null,
-                null,
-                "someicon",
-                "4",
-                "somepipeline");
+                "4", // Create new... pipeline
+                "0", // Create new app
+                "io.pipeforce.testnewpipeline", // App name
+                null, // Default title
+                null, // No description
+                null, // Default icon
+                "somepipeline"
+        );
 
-        context.setArgs("new", "app");
-        context.callCommand();
-
+        System.out.println("> new");
         context.setArgs("new");
         context.callCommand();
 
-        File appHome = new File(appRepoHome, "properties/global/app/com.logabit.someapp1");
+        File appHome = new File(appRepoHome, "properties/global/app/io.pipeforce.testnewpipeline");
 
         String pipelineString = FileUtil.fileToString(new File(appHome, "pipeline/somepipeline.pi.yaml"));
         JsonNode pipeline = JsonUtil.yamlStringToJsonNode(pipelineString);
 
-        Assert.assertEquals("Hello World", pipeline.get("pipeline").get(0).get("body.set").get("value").textValue());
+        Assert.assertTrue(pipeline.has("pipeline"));
     }
 
     @Test
     public void testNewWorkflow() throws Exception {
 
         systemInMock.provideLines(
-                "com.logabit.someapp1",
-                null,
-                null,
-                "someicon",
-                "5",
-                "someworkflow");
+                "5", // Create new... workflow
+                "0", // Create new app
+                "io.pipeforce.testnewworkflow", // App name
+                null, // Default title
+                null, // No description
+                null, // Default icon
+                "someworkflow"
+        );
 
-        context.setArgs("new", "app");
-        context.callCommand();
-
+        System.out.println("> new");
         context.setArgs("new");
         context.callCommand();
 
-        File appHome = new File(appRepoHome, "properties/global/app/com.logabit.someapp1");
+        File appHome = new File(appRepoHome, "properties/global/app/io.pipeforce.testnewworkflow");
 
         String bpmnString = FileUtil.fileToString(new File(appHome, "workflow/someworkflow.bpmn"));
         Document bpmn = XMLUtil.toDOM(bpmnString);

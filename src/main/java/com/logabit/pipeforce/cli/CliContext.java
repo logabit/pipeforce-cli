@@ -42,6 +42,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * This is a lightweight approach of an application context,
@@ -390,7 +391,7 @@ public class CliContext {
         template.setInterceptors(Create.newList((ClientHttpRequestInterceptor) (request, body, execution) -> {
 
             HttpHeaders headers = request.getHeaders();
-            headers.add("Accept", MediaType.APPLICATION_JSON_VALUE);
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
             return execution.execute(request, body);
         }));
 

@@ -1,6 +1,12 @@
 package com.logabit.pipeforce.cli.command;
 
 import com.logabit.pipeforce.cli.CommandArgs;
+import com.logabit.pipeforce.common.skeleton.template.AppConfigTemplate;
+import com.logabit.pipeforce.common.skeleton.template.BPMNWorkflowTemplate;
+import com.logabit.pipeforce.common.skeleton.template.FormConfigTemplate;
+import com.logabit.pipeforce.common.skeleton.template.ListTemplate;
+import com.logabit.pipeforce.common.skeleton.template.PipelineYAMLTemplate;
+import com.logabit.pipeforce.common.skeleton.template.SchemaTemplate;
 import com.logabit.pipeforce.common.util.FileUtil;
 import com.logabit.pipeforce.common.util.ListUtil;
 import com.logabit.pipeforce.common.util.PathUtil;
@@ -37,7 +43,7 @@ public class NewCliCommand extends BaseCliCommand {
 
             out.println("Create new...");
             List<String> items = ListUtil.asList(
-                    "app", "form", "list", "object", "pipeline", "workflow");
+                    "app", "form", "list", "schema", "pipeline", "workflow");
             int selectedResource = in.choose(items);
 
             resource = items.get(selectedResource);
@@ -57,9 +63,9 @@ public class NewCliCommand extends BaseCliCommand {
                 appName = askForSelectedApp(null);
                 createList(appName);
                 break;
-            case "object":
+            case "schema":
                 appName = askForSelectedApp(null);
-                createObject(appName);
+                createSchema(appName);
                 break;
             case "pipeline":
                 appName = askForSelectedApp(null);
@@ -102,23 +108,8 @@ public class NewCliCommand extends BaseCliCommand {
             break;
         }
 
-        String workflowId = appName + "_" + workflowName; // Add appId to give workflow engine chance to detect app name
-        String workflowContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                "<bpmn:definitions xmlns:bpmn=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" " +
-                "xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" " +
-                "xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" " +
-                "id=\"Definitions_1ltbcnm\" targetNamespace=\"http://bpmn.io/schema/bpmn\">\n" +
-                "  <bpmn:process id=\"" + workflowId + "\" isExecutable=\"true\">\n" +
-                "    <bpmn:startEvent id=\"StartEvent_1\" />\n" +
-                "  </bpmn:process>\n" +
-                "  <bpmndi:BPMNDiagram id=\"BPMNDiagram_1\">\n" +
-                "    <bpmndi:BPMNPlane id=\"BPMNPlane_1\" bpmnElement=\"" + workflowId + "\">\n" +
-                "      <bpmndi:BPMNShape id=\"_BPMNShape_StartEvent_2\" bpmnElement=\"StartEvent_1\">\n" +
-                "        <dc:Bounds x=\"179\" y=\"79\" width=\"36\" height=\"36\" />\n" +
-                "      </bpmndi:BPMNShape>\n" +
-                "    </bpmndi:BPMNPlane>\n" +
-                "  </bpmndi:BPMNDiagram>\n" +
-                "</bpmn:definitions>";
+        BPMNWorkflowTemplate template = new BPMNWorkflowTemplate();
+        String workflowContent = template.getContent(appName, workflowName);
 
         FileUtil.saveStringToFile(workflowContent, bpmnFile.getAbsolutePath());
 
@@ -150,10 +141,8 @@ public class NewCliCommand extends BaseCliCommand {
             break;
         }
 
-        String pipelineContent = "" +
-                "pipeline:\n" +
-                "  - body.set:        \n" +
-                "      value: \"Hello World\"";
+        PipelineYAMLTemplate template = new PipelineYAMLTemplate();
+        String pipelineContent = template.getContent();
 
         FileUtil.saveStringToFile(pipelineContent, pipelineFile.getAbsolutePath());
 
@@ -187,56 +176,51 @@ public class NewCliCommand extends BaseCliCommand {
 
         String description = in.ask("Optional description of list", "");
 
-        out.println("Do you like to load existing objects into your list?");
-        File objectsRoot = new File(context.getPropertiesHomeFolder(), "global/app/" + appName + "/object");
-        List<File> objectFolders = FileUtil.listFiles(objectsRoot);
-        List<String> objectNames = objectFolders.stream().map(File::getName).collect(Collectors.toList());
-        objectNames.add("[Do not show existing object in list]");
-        objectNames.add("[Create a new object schema]");
-        Integer selectedItem = in.choose(objectNames);
-        String selectedObject = objectNames.get(selectedItem);
+        out.println("Do you like to connect a schema to your list?");
+        File schemaRoot = new File(context.getPropertiesHomeFolder(), "global/app/" + appName + "/schema");
+        List<File> schemaFiles = FileUtil.listFiles(schemaRoot);
 
-        if (selectedObject.equals("[Create a new object schema]")) {
-            selectedObject = createObject(appName);
+        List<String> schemaFileNames = schemaFiles.stream()
+                .map(file -> PathUtil.removeExtension(file.getName()))
+                .collect(Collectors.toList());
+
+        schemaFileNames.add("[Do not connect schema to list]");
+        schemaFileNames.add("[Create a new schema]");
+        Integer selectedItem = in.choose(schemaFileNames);
+        String selectedSchemaName = schemaFileNames.get(selectedItem);
+
+        if (selectedSchemaName.equals("[Create a new schema]")) {
+            selectedSchemaName = createSchema(appName);
         }
 
-        String inputPipeline = "";
-        String schemaPipeline = "";
-        if (!selectedObject.equals("[Do not show existing object in list]")) {
-            inputPipeline = "property.value.expression?from=global/app/" + appName + "/object/" + selectedObject + "/v1/instance/*";
-            schemaPipeline = "property.list?filter=global/app/" + appName + "/object/" + selectedObject + "/v1/schema";
-        }
-
-        String listConfigContent = "{\n" +
-                "  \"title\": \"" + listName + "\",\n" +
-                "  \"description\": \"" + description + "\",\n" +
-                "  \"input\": \"" + inputPipeline + "\",\n" +
-                "  \"schema\": \"" + schemaPipeline + "\"\n" +
-                "}";
+        ListTemplate listTemplate = new ListTemplate();
+        String listConfigContent = listTemplate.getContent(listName, null, description,
+                selectedSchemaName.equals("[Do not connect schema to list]") ? null : appName, selectedSchemaName);
 
         FileUtil.saveStringToFile(listConfigContent, listFile.getAbsolutePath());
 
         out.println("List created: " + listFile.getAbsolutePath());
     }
 
-    private String createObject(String appName) {
+    private String createSchema(String appName) {
 
-        String objectName;
-        File objectFolder;
+        String schemaName;
+        File schemaFile;
 
         while (true) {
-            objectName = in.ask("Object name");
+            schemaName = in.ask("Schema name");
 
-            if (!objectName.matches("([a-z0-9]+)")) {
-                out.println("Object name must be lower case and may not contain any special chars or spaces: " + objectName);
+            if (!schemaName.matches("([a-z0-9]+)")) {
+                out.println("Schema name must be lower case and may not contain any special chars or spaces: " + schemaName);
                 out.println("Select a different name.");
                 continue;
             }
 
-            objectFolder = new File(getContext().getPropertiesHomeFolder(), "global/app/" + appName + "/object/" + objectName);
+            schemaFile = new File(getContext().getPropertiesHomeFolder(),
+                    "global/app/" + appName + "/schema/" + schemaName + ".json");
 
-            if (objectFolder.exists()) {
-                out.println("Object with name [" + objectName + "] already exists: " + objectFolder.getAbsolutePath());
+            if (schemaFile.exists()) {
+                out.println("Schema with name [" + schemaName + "] already exists: " + schemaFile.getAbsolutePath());
                 out.println("Select a different name.");
                 continue;
             }
@@ -244,49 +228,13 @@ public class NewCliCommand extends BaseCliCommand {
             break;
         }
 
-        String objectSchemaContent = "{\n" +
-                "  \"type\": \"object\",\n" +
-                "  \"properties\": {\n" +
-                "    \"someNumber\": {\n" +
-                "      \"title\": \"Some Number\",\n" +
-                "      \"type\": \"number\",\n" +
-                "      \"description\": \"This is a number property.\"\n" +
-                "    },\n" +
-                "    \"someText\": {\n" +
-                "      \"title\": \"Some Text\",\n" +
-                "      \"type\": \"string\",\n" +
-                "      \"description\": \"This is a text property.\"\n" +
-                "    },\n" +
-                "    \"someBoolean\": {\n" +
-                "      \"title\": \"Some Bool\",\n" +
-                "      \"type\": \"boolean\",\n" +
-                "      \"description\": \"This is a boolean (yes/no) property.\"\n" +
-                "    },\n" +
-                "    \"someSingleList\": {\n" +
-                "      \"title\": \"Some Single List\",\n" +
-                "      \"type\": \"string\",\n" +
-                "      \"description\": \"This is a single-select list of text items.\",\n" +
-                "      \"enum\": [\"item1\", \"item2\"]\n" +
-                "    },\n" +
-                "    \"someMultiList\": {\n" +
-                "      \"title\": \"Some Multi List\",\n" +
-                "      \"type\": \"array\",\n" +
-                "      \"description\": \"This is a multi-select list.\",\n" +
-                "      \"items\": {\n" +
-                "        \"type\": \"string\",\n" +
-                "        \"enum\": [\"item1\", \"item2\", \"item3\"]\n" +
-                "      }\n" +
-                "    }\n" +
-                "  }\n" +
-                "}";
+        SchemaTemplate template = new SchemaTemplate();
+        String schemaContent = template.getContent();
 
+        FileUtil.saveStringToFile(schemaContent, schemaFile.getAbsolutePath());
 
-        File objectSchemaFile = new File(objectFolder, "v1/schema.json");
-
-        FileUtil.saveStringToFile(objectSchemaContent, objectSchemaFile.getAbsolutePath());
-
-        out.println("Object schema created: " + objectSchemaFile.getAbsolutePath());
-        return objectName;
+        out.println("Schema created: " + schemaFile.getAbsolutePath());
+        return schemaName;
     }
 
     private void createForm(String appName) {
@@ -321,35 +269,28 @@ public class NewCliCommand extends BaseCliCommand {
 
         String description = in.ask("Optional description of form", "");
 
-        out.println("Select the object schema to connect with this form:");
+        out.println("Select the schema to connect with this form:");
 
-        File objectFolder = new File(getContext().getPropertiesHomeFolder(), "global/app/" + appName + "/object");
-        List<File> objectFolders = FileUtil.listFiles(objectFolder.getAbsolutePath());
-        List<String> objectNames = objectFolders.stream().map(File::getName).collect(Collectors.toList());
-        objectNames.add("[Do not connect to object schema]");
-        objectNames.add("[Create a new object schema]");
-        Integer selectedItem = in.choose(objectNames);
-        String selectedObject = objectNames.get(selectedItem);
+        File schemaFolder = new File(getContext().getPropertiesHomeFolder(), "global/app/" + appName + "/schema");
+        List<File> schemaFiles = FileUtil.listFiles(schemaFolder.getAbsolutePath());
+        List<String> schemaFileNames = schemaFiles.stream()
+                .map(file -> PathUtil.removeExtension(file.getName()))
+                .collect(Collectors.toList());
+        schemaFileNames.add("[Do not connect to a schema]");
+        schemaFileNames.add("[Create a new schema]");
+        Integer selectedItem = in.choose(schemaFileNames);
+        String selectedSchemaName = schemaFileNames.get(selectedItem);
 
-        if (selectedObject.equals("[Create a new object schema]")) {
-            selectedObject = createObject(appName);
+        if (selectedSchemaName.equals("[Create a new schema]")) {
+            selectedSchemaName = createSchema(appName);
         }
 
-        String schemaPathPipeline = "";
-        String outputPath = "";
-        if (!selectedObject.equals("[Do not connect to object schema]")) {
-            schemaPathPipeline = "property.list?filter=global/app/" + appName + "/object/" + selectedObject + "/v1/schema";
-            outputPath = "global/app/" + appName + "/object/" + selectedObject + "/v1/instance/%23%7Bvar.property.uuid%7D";
-        }
+        FormConfigTemplate formConfigTemplate = new FormConfigTemplate();
+        String formConfigContent = formConfigTemplate.getContent(formName, null, description,
+                selectedSchemaName.equals("[Do not connect to a schema]") ? null : appName, selectedSchemaName);
 
-        String formConfigContent = "{\n" +
-                "  \"title\": \"" + formName + "\",\n" +
-                "  \"description\": \"" + description + "\",\n" +
-                "  \"schema\": \"" + schemaPathPipeline + "\",\n" +
-                "  \"output\": \"" + outputPath + "\"\n" +
-                "}";
-
-        File formConfigFile = new File(getContext().getPropertiesHomeFolder(), "global/app/" + appName + "/form/" + formName + ".json");
+        File formConfigFile = new File(getContext().getPropertiesHomeFolder(),
+                "global/app/" + appName + "/form/" + formName + ".json");
         FileUtil.saveStringToFile(formConfigContent, formConfigFile.getAbsolutePath());
 
         out.println("Form created: " + formConfigFile.getAbsolutePath());
@@ -408,25 +349,9 @@ public class NewCliCommand extends BaseCliCommand {
 
             File appConfigFolder = new File(appFolder, "config");
             FileUtil.createFolders(appConfigFolder);
-            FileUtil.createFolders(new File(appFolder, "form"));
-            FileUtil.createFolders(new File(appFolder, "function"));
-            FileUtil.createFolders(new File(appFolder, "list"));
-            FileUtil.createFolders(new File(appFolder, "object"));
-            FileUtil.createFolders(new File(appFolder, "pipeline"));
-            FileUtil.createFolders(new File(appFolder, "resource/public"));
-            FileUtil.createFolders(new File(appFolder, "setup"));
-            FileUtil.createFolders(new File(appFolder, "test"));
-            FileUtil.createFolders(new File(appFolder, "workflow"));
 
-            String appConfigContent = "{\n" +
-                    "  \"title\": \"" + title + "\",\n" +
-                    "  \"description\": \"" + description + "\",\n" +
-                    "  \"icon\": \"" + icon + "\",\n" +
-                    "  \"tags\": [\n" +
-                    "  ],\n" +
-                    "  \"show\": \"CAN_APP_" + appName + "\",\n" +
-                    "  \"editions\": [\"basic\", \"enterprise\"]\n" +
-                    "}";
+            AppConfigTemplate template = new AppConfigTemplate();
+            String appConfigContent = template.getContent(appName, description, icon, null);
 
             File appConfigFile = new File(appConfigFolder, "app.json");
             FileUtil.saveStringToFile(appConfigContent, appConfigFile.getAbsolutePath());
@@ -444,7 +369,7 @@ public class NewCliCommand extends BaseCliCommand {
                 "     pi new app - Creates a new app.\n" +
                 "     pi new form - Creates a new form.\n" +
                 "     pi new list - Creates a new list.\n" +
-                "     pi new object - Creates a new object.\n" +
+                "     pi new schema - Creates a new schema.\n" +
                 "     pi new workflow - Creates a new workflow.\n" +
                 "     pi new pipeline - Creates a new pipeline file.";
     }
@@ -462,11 +387,6 @@ public class NewCliCommand extends BaseCliCommand {
 
         if (appsRootFolder.exists()) {
             appFolders = FileUtil.listFiles(appsRootFolder);
-
-            // If only one app exists, return this.
-            if (appFolders.size() == 1) {
-                return appFolders.get(0).getName();
-            }
         }
 
         if (message == null) {
