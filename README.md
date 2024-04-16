@@ -14,7 +14,7 @@ For more information, visit the [CLI reference documentation](https://pipeforce.
 
 ## Prerequisites
 
-Install Java 8 or higher.
+Install Java 17 or higher.
 
 On Mac using Homebrew:
 
