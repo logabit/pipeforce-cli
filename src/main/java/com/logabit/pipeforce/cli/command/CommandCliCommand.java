@@ -1,6 +1,5 @@
 package com.logabit.pipeforce.cli.command;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.logabit.pipeforce.cli.CommandArgs;
 import com.logabit.pipeforce.common.net.Request;
 
@@ -29,8 +28,8 @@ public class CommandCliCommand extends BaseCliCommand {
         Map<String, String> paramsMap = new LinkedHashMap<>(args.getOptions());
         paramsMap.remove(commandName); // Already extracted above
 
-        Object result = getContext().getResolver().resolve(
-                Request.get().uri("$uri:command:" + commandName).params(paramsMap), JsonNode.class);
+        String result = getContext().getResolver().resolve(
+                Request.get().uri("$uri:command:" + commandName).params(paramsMap), String.class);
 
         out.printResult(result);
 
