@@ -88,28 +88,33 @@ For more options and documentation about the CLI tool, please visit https://docs
 
 ## Releasing the pipeforce-cli
 
+### A release candidate (RC)
+
+To automatically build, test and create a release draft **which is not considered in auto-rollout**, set a tag of
+format: `v<version>--b<build>-RCx` whereas `<version>` must be the designated backend version, `<build>` is the
+build number of the client. Example:
+
+```
+git tag v3.0.0-b1-RC1
+git push origin --tags
+```
+
 ### A stable version (RELEASE)
 
-To automatically build, test and create a stable release, set a tag of format: `v<version>-RELEASE`
+To automatically build, test and create a stable release, set a tag of format: `v<version>--b<build>-RELEASE`
 whereas `<version>`
-must be the version of the backend, this cli is compatible with.
+must be the version of the backend, this cli is compatible with and <build> is the build of the RC to be released.
 Example:
 
 ```
-git tag v3.0.0-RELEASE
+git tag v3.0.0-b1-RELEASE
 git push origin --tags
 ```
+
+*Why is there a build number required?* Because there could be minor bugfixes in the CLI targeting the same server version. 
+In this case there will be a new build number but server version will stay the same.
 
 Note: After a stable version was released, it is considered in all client-side installations as the latest version and
 roll-out will be started automatically! So be careful in setting this tag!
 
-### A release candidate (RC)
 
-To automatically build, test and create a release draft **which is not considered in auto-rollout**, set a tag of
-format: `v<version>-RCx-b<build>` whereas `<version>` must be the designated backend version, `<build>` is the
-build number of the client. Example:
-
-```
-git tag v3.0.0-RC1-b1
-git push origin --tags
-```
