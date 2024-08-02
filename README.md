@@ -90,13 +90,13 @@ For more options and documentation about the CLI tool, please visit https://docs
 
 ### A stable version (RELEASE)
 
-To automatically build, test and create a stable release, set a tag of format: `v<version>-b<build>-RELEASE`
+To automatically build, test and create a stable release, set a tag of format: `v<version>-RELEASE`
 whereas `<version>`
-must be the version of the backend, this cli is compatible with and `<build>` is the build number of the client.
+must be the version of the backend, this cli is compatible with.
 Example:
 
 ```
-git tag v3.0.0-b1-RELEASE
+git tag v3.0.0-RELEASE
 git push origin --tags
 ```
 
@@ -106,10 +106,10 @@ roll-out will be started automatically! So be careful in setting this tag!
 ### A release candidate (RC)
 
 To automatically build, test and create a release draft **which is not considered in auto-rollout**, set a tag of
-format: `v<version>-b<build>-RC` whereas `<version>` must be the designated backend version, `<build>` is the
+format: `v<version>-RCx-b<build>` whereas `<version>` must be the designated backend version, `<build>` is the
 build number of the client. Example:
 
 ```
-git tag v3.0.0-b1-RC
+git tag v3.0.0-RC1-b1
 git push origin --tags
 ```
