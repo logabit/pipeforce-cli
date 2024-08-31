@@ -108,7 +108,7 @@ public class KubectlCliService extends BaseCliContextAware {
         return pods.get(0);
     }
 
-    private String localExec(String... command) {
+    public String localExec(String... command) {
 
         Process pr;
         try {
