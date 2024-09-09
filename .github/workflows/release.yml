@@ -26,7 +26,7 @@ jobs:
         with:
           repository: logabit/pipeforce-sdk-java
           token: ${{ secrets.PIPEFORCE_SDK_JAVA }}
-          ref: master
+          ref: ${{ github.ref_name }}
       - name: Set up JDK
         uses: actions/setup-java@v2
         with:
