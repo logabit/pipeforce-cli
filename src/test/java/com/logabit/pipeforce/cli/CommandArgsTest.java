@@ -18,9 +18,9 @@ public class CommandArgsTest {
         Assert.assertEquals("value1", args.getOptionValue("param1"));
         Assert.assertEquals("value2", args.getOptionValue("param2"));
         Assert.assertEquals(null, args.getOptionValue("param3"));
-        Assert.assertEquals("v1", args.getSwitch("-o1"));
-        Assert.assertEquals("v2", args.getSwitch("-o2"));
-        Assert.assertEquals(null, args.getSwitch("-o3"));
+        Assert.assertEquals("v1", args.getSwitch("o1"));
+        Assert.assertEquals("v2", args.getSwitch("o2"));
+        Assert.assertEquals(null, args.getSwitch("o3"));
 
         args = new CommandArgs();
         Assert.assertTrue(args.getOptions().isEmpty());
