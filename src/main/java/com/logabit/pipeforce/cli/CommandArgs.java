@@ -38,13 +38,19 @@ public class CommandArgs {
 
         for (String arg : args) {
 
-            if (arg.startsWith("-") && !(arg.startsWith("--"))) {
-                String[] split = StringUtil.split(arg, ":");
+            // --name=value
+            if (arg.startsWith("--")) {
+                arg = arg.substring(1);
+            }
+
+            // -n=value
+            if (arg.startsWith("-")) {
+                String[] split = StringUtil.split(arg.substring(1), ":");
                 this.switches.put(split[0], split.length == 2 ? split[1] : null);
                 continue;
             }
 
-
+            // foo=bar
             String[] split = StringUtil.split(arg, "=");
             this.options.put(split[0], split.length == 2 ? StringUtil.removeQuotes(split[1]) : null);
         }
