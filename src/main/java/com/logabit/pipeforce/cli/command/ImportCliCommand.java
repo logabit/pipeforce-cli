@@ -242,7 +242,7 @@ public class ImportCliCommand extends BaseCliCommand {
 
                 JsonNode node = JsonUtil.jsonStringToJsonNode(propertyValue);
 
-                if (uuidLocation.equals("field")) {
+                if ((uuidLocation != null) && uuidLocation.equals("field")) {
                     uuid = node.get("uuid").textValue();
                 }
 
