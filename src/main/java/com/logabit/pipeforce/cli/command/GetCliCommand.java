@@ -5,17 +5,23 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.logabit.pipeforce.cli.CliPathArg;
 import com.logabit.pipeforce.cli.CommandArgs;
 import com.logabit.pipeforce.cli.service.PublishCliService;
+import com.logabit.pipeforce.common.command.stub.PropertyListParams;
 import com.logabit.pipeforce.common.content.model.ContentType;
 import com.logabit.pipeforce.common.content.service.MimeTypeService;
-import com.logabit.pipeforce.common.net.Request;
+import com.logabit.pipeforce.common.net.ClientPipeforceURIResolver;
 import com.logabit.pipeforce.common.property.IProperty;
 import com.logabit.pipeforce.common.util.EncodeUtil;
 import com.logabit.pipeforce.common.util.ListUtil;
 import com.logabit.pipeforce.common.util.PathUtil;
+import com.logabit.pipeforce.common.util.StringUtil;
+import com.logabit.pipeforce.common.util.VersionUtil;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+
+import static com.logabit.pipeforce.common.util.VersionUtil.givenNewerOrEqualThanRequired;
+import static com.logabit.pipeforce.common.util.VersionUtil.givenNewerThanRequired;
 
 /**
  * Downloads a given set of properties.
@@ -25,43 +31,98 @@ import java.util.List;
  */
 public class GetCliCommand extends BaseCliCommand {
 
+    private PublishCliService publishService;
+
+    private ClientPipeforceURIResolver pi;
+
+    private MimeTypeService mimeTypeService;
+
+    private int rememberOverwriteAnswer = -1;
+
+    private int filesCounter = 0;
+
+    private int updatedCounter = 0;
+
+    private int createdCounter = 0;
+
+    private int skippedCounter = 0;
+
+    private String pathPrefix;
+
+    private int[] serverVersion;
+
     @Override
     public int call(CommandArgs args) {
 
-        if (args.getLength() != 1) {
-            out.println("USAGE: " + getUsageHelp());
-            return -1;
+        File targetFolder = getContext().getPropertiesHomeFolder();
+        CliPathArg pathArg = getContext().createPathArg(args.getOptionKeyAt(0));
+
+        boolean includeData = false;
+        if (StringUtil.isEqual(args.getSwitches().get("includeData"), "true")) {
+            includeData = true;
         }
 
-        CliPathArg pathArg = getContext().createPathArg(args.getOptionKeyAt(0));
-        get(pathArg, getContext().getPropertiesHomeFolder());
+        return execute(pathArg, targetFolder, includeData);
+    }
+
+    public int execute(CliPathArg pathArg, File targetFolder, boolean includeData) {
+
+        String excludeDataPattern = "global/app/*/data/**";
+        if (includeData) {
+            excludeDataPattern = null;
+        }
+
+        publishService = getContext().getPublishService();
+        publishService.load();
+        pi = getContext().getResolver();
+        mimeTypeService = getContext().getMimeTypeService();
+        pathPrefix = PathUtil.path("/pipeforce", getContext().getCurrentInstance().getNamespace());
+        serverVersion = getContext().getServerVersion();
+        int[] requiredVersion = new int[]{10, 0, 2, 0};
+        int offset = 0;
+        ArrayNode list;
+
+        int batchIndex = 1;
+        do {
+
+            list = pi.command(
+                    new PropertyListParams()
+                            .pattern(pathArg.getRemotePattern())
+                            .excludePatterns(excludeDataPattern)
+                            .offset(offset)
+                            .limit(100),
+                    ArrayNode.class
+            );
+
+            if (list == null) {
+                break;
+            }
+
+            processReceivedProperties(list, targetFolder);
+            offset = offset + list.size();
+
+            if (list.size() > 0) {
+                out.println("Batch: " + batchIndex + " | Fetched: " + list.size() + " | Overall: " + offset);
+            }
+
+            batchIndex = batchIndex + 1;
+
+            // Server version < 10.0.2 -> No offset is supported
+            if (!(givenNewerOrEqualThanRequired(serverVersion, requiredVersion))) {
+                break;
+            }
+
+        } while (list.size() > 0);
+
+        publishService.save();
+
+        out.println("Finished get of " + filesCounter + " files. " + createdCounter +
+                " created. " + updatedCounter + " updated. " + skippedCounter + " skipped.");
 
         return 0;
     }
 
-    /**
-     * Downloads all properties matching given pattern.
-     *
-     * @param pathArg
-     * @param targetFolder The folder to download into.
-     */
-    public void get(CliPathArg pathArg, File targetFolder) {
-
-        PublishCliService publishService = getContext().getPublishService();
-        publishService.load();
-
-        MimeTypeService mimeTypeService = getContext().getMimeTypeService();
-
-        ArrayNode list = getContext().getResolver().resolve(
-                Request.get().uri("$uri:command:property.list?filter=" + pathArg.getRemotePattern()), ArrayNode.class);
-
-        int rememberOverwriteAnswer = -1;
-        int filesCounter = 0;
-        int updatedCounter = 0;
-        int createdCounter = 0;
-        int skippedCounter = 0;
-
-        String pathPrefix = PathUtil.path("/pipeforce", getContext().getCurrentInstance().getNamespace());
+    private void processReceivedProperties(ArrayNode list, File targetFolder) {
 
         for (JsonNode node : list) {
 
@@ -72,7 +133,8 @@ public class GetCliCommand extends BaseCliCommand {
             ContentType contentType = new ContentType(type);
 
             // /pipeforce/NAMESPACE/global/app... -> global/app...
-            String relLocalPath = path.substring(pathPrefix.length());
+            int prefixIndex = path.indexOf("global/app/");
+            String relLocalPath = path.substring(prefixIndex);
             String ext = mimeTypeService.getFileExtensionForMimeType(type);
             relLocalPath = relLocalPath + ext;
             out.print("Get " + relLocalPath + " : ");
@@ -149,20 +211,16 @@ public class GetCliCommand extends BaseCliCommand {
 
             publishService.add(fullLocalPath, updated);
         }
-
-        publishService.save();
-
-        out.println("Finished get of " + filesCounter + " files. " + createdCounter +
-                " created. " + updatedCounter + " updated. " + skippedCounter + " skipped.");
     }
 
     public String getUsageHelp() {
-        return "pi get <PROPERTY_PATH_PATTERN>\n" +
+        return "pi get [--includeData:true] <PROPERTY_PATH_PATTERN>\n" +
                 "   Downloads all remote properties of the pattern into its local properties home folder.\n" +
+                "   By default, app data is excluded since version >= 10.0.2.\n" +
                 "   Examples:\n" +
                 "     pi get global/app/myapp/** - Downloads all resources recursively.\n" +
                 "     pi get global/app/myapp/* - Downloads all resources. Not recursively.\n" +
                 "     pi get global/app/*/pipeline/* - Downloads all pipelines of all apps.\n" +
-                "     pi get global/app/myapp/ - Short-cut of global/app/myapp/**.";
+                "     pi get --includeData:true global/app/myapp/ - Short-cut of global/app/myapp/**.";
     }
 }
