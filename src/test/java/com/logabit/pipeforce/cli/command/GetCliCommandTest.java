@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.logabit.pipeforce.cli.CommandArgs;
 import com.logabit.pipeforce.cli.config.CliConfig;
 import com.logabit.pipeforce.cli.service.PublishCliService;
+import com.logabit.pipeforce.common.command.stub.PropertyListParams;
 import com.logabit.pipeforce.common.net.Request;
 import com.logabit.pipeforce.common.util.JsonUtil;
 import org.junit.Assert;
@@ -76,9 +77,14 @@ public class GetCliCommandTest extends BaseRepoAwareCliCommandTest {
                 "]";
 
         ArrayNode foundPropsNode = (ArrayNode) JsonUtil.jsonStringToJsonNode(foundProperties);
-
-        when(resolver.resolve(
-                Request.get().uri("$uri:command:property.list?filter=global/app/myapp/pipeline/**"), ArrayNode.class)).thenReturn(foundPropsNode);
+        when(resolver.command(
+                new PropertyListParams()
+                        .pattern("global/app/myapp/pipeline/**")
+                        .excludePatterns("global/app/*/data/**")
+                        .offset(0)
+                        .limit(100),
+                ArrayNode.class
+        )).thenReturn(foundPropsNode);
 
         GetCliCommand getCmd = (GetCliCommand) cliContext.createCommandInstance("get");
         getCmd.call(new CommandArgs("global/app/myapp/pipeline/**"));
