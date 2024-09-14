@@ -64,7 +64,8 @@ public class SyncCliCommand extends BaseCliCommand {
             // Create a local backup
             GetCliCommand getCommand = (GetCliCommand) getContext().createCommandInstance("Get");
             File backupFolder = new File(getContext().getHiddenPipeforceFolder(), "backup/sync" + System.currentTimeMillis());
-            getCommand.get(pathArg, backupFolder);
+
+            getCommand.execute(pathArg, backupFolder, true);
 
             // Delete remote all remote files
             deleteCommand.delete(pathArg);

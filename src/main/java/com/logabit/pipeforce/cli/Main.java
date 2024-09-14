@@ -86,6 +86,7 @@ public class Main {
 
                 errorMessage = e.getMessage();
                 LOG.error("Command caused error: pi " + StringUtil.concat(" ", args), e);
+                throw e;
             }
 
 
@@ -93,7 +94,6 @@ public class Main {
 
             if (errorMessage != null) {
                 out.printResult(errorMessage);
-                System.exit(-1);
             } else {
                 ctx.getConfigService().saveConfiguration();
             }

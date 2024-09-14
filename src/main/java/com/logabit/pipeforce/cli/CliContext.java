@@ -76,7 +76,7 @@ public class CliContext {
 
     private String command;
 
-    private Integer serverVersionMajor;
+    private int[] serverVersion = null;
 
     private InputUtil inputUtil;
 
@@ -361,21 +361,37 @@ public class CliContext {
         }
     }
 
-    public int getSeverVersionMajor() {
+    public int getServerVersionMajor() {
+        return getServerVersion()[0];
+    }
 
-        if (this.serverVersionMajor != null) {
-            return serverVersionMajor;
+    public int[] getServerVersion() {
+
+        if (this.serverVersion != null) {
+            return this.serverVersion;
         }
+
+        serverVersion = new int[4];
 
         try {
 
             JsonNode result = getResolver().resolve(Request.get().uri("$uri:command:server.info"), JsonNode.class);
-            this.serverVersionMajor = result.get("value").get("versionMajor").intValue();
+
+            serverVersion[0] = result.get("versionMajor").intValue();
+            serverVersion[1] = result.get("versionMinor").intValue();
+            serverVersion[2] = result.get("versionBugfix").intValue();
+            serverVersion[3] = 0; // Build number -> not used
+
         } catch (Exception e) {
-            this.serverVersionMajor = 7;
+
+            // 7.0.0.0 = default
+            this.serverVersion[0] = 7;
+            this.serverVersion[1] = 0;
+            this.serverVersion[2] = 0;
+            this.serverVersion[3] = 0;
         }
 
-        return serverVersionMajor;
+        return serverVersion;
     }
 
     public RestTemplate getRestTemplate() {
