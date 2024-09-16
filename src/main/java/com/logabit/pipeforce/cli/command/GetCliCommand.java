@@ -14,14 +14,12 @@ import com.logabit.pipeforce.common.util.EncodeUtil;
 import com.logabit.pipeforce.common.util.ListUtil;
 import com.logabit.pipeforce.common.util.PathUtil;
 import com.logabit.pipeforce.common.util.StringUtil;
-import com.logabit.pipeforce.common.util.VersionUtil;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static com.logabit.pipeforce.common.util.VersionUtil.givenNewerOrEqualThanRequired;
-import static com.logabit.pipeforce.common.util.VersionUtil.givenNewerThanRequired;
 
 /**
  * Downloads a given set of properties.
