@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static com.logabit.pipeforce.common.property.IProperty.FIELD_PATH;
 import static com.logabit.pipeforce.common.property.IProperty.FIELD_TYPE;
@@ -242,8 +243,21 @@ public class ImportCliCommand extends BaseCliCommand {
 
                 JsonNode node = JsonUtil.jsonStringToJsonNode(propertyValue);
 
-                if ((uuidLocation != null) && uuidLocation.equals("field")) {
-                    uuid = node.get("uuid").textValue();
+                // uuidLocation:field or uuidLocation:field:my_field
+                if ((uuidLocation != null) && uuidLocation.startsWith("field")) {
+
+                    String fieldName = "uuid";
+                    String[] split = uuidLocation.split(":");
+
+                    if (split.length == 2) {
+                        fieldName = split[1];
+                    }
+
+                    uuid = node.get(fieldName).textValue();
+                }
+
+                if (uuid == null) {
+                    uuid = UUID.randomUUID().toString(); // Create a new UUID since uuidLocation was not given
                 }
 
                 if (removeUuidField) {
@@ -281,7 +295,7 @@ public class ImportCliCommand extends BaseCliCommand {
 
     public String getUsageHelp() {
 
-        return "pi import [-existStrategy:update|skip|error] [-uuidLocation:filename|field] [-removeUuidField:true] " +
+        return "pi import [-existStrategy:update|skip|error] [-uuidLocation:filename|field[:name]] [-removeUuidField:true] " +
                 "[-batchSize:50] [-waitBetween:50] <PATH>\n" +
                 "   Imports all files at given path as properties, recursively.\n" +
                 "   Default exist strategy is update.\n" +
