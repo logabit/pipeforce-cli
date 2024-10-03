@@ -76,7 +76,7 @@ public class SyncCliCommand extends BaseCliCommand {
         publishService.save();
 
         // Upload all files from watch folder
-        publishCommand.publish(pathArg);
+        publishCommand.publish(pathArg, false);
 
         // See: https://github.com/gmethvin/directory-watcher
         DirectoryWatcher.builder()
@@ -124,11 +124,11 @@ public class SyncCliCommand extends BaseCliCommand {
     }
 
     private void updateRemote(Path path) throws IOException {
-        publishCommand.publish(path.toFile());
+        publishCommand.publish(new File[]{path.toFile()}, false);
     }
 
     private void createRemote(Path path) throws IOException {
-        publishCommand.publish(path.toFile());
+        publishCommand.publish(new File[]{path.toFile()}, false);
     }
 
     private boolean acceptPath(Path path) {

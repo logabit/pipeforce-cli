@@ -79,13 +79,17 @@ public class PublishCliCommand extends BaseCliCommand {
             return 0;
         }
 
-        publish(pathArg);
+        // Publish even if already uploaded before?
+        String forceString = args.getSwitch("force");
+        boolean force = "true".equals(forceString);
+
+        publish(pathArg, force);
         out.println("See your changes here: " + getContext().getCurrentInstance().getPortalUrl());
 
         return 0;
     }
 
-    public void publish(CliPathArg pathArg) throws IOException {
+    public void publish(CliPathArg pathArg, boolean force) throws IOException {
 
         PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
         Resource[] resources = resolver.getResources("file:" + pathArg.getLocalPattern());
@@ -99,10 +103,10 @@ public class PublishCliCommand extends BaseCliCommand {
                 }
         ).collect(Collectors.toList());
 
-        publish(files.toArray(new File[]{}));
+        publish(files.toArray(new File[]{}), force);
     }
 
-    public void publish(File... files) throws IOException {
+    public void publish(File[] files, boolean force) throws IOException {
 
         PublishCliService publishService = getContext().getPublishService();
         MimeTypeService mimeTypeService = getContext().getMimeTypeService();
@@ -141,7 +145,9 @@ public class PublishCliCommand extends BaseCliCommand {
 
             long lastModified = Files.getLastModifiedTime(file.toPath()).toMillis();
             if (!publishService.add(absoluteFilePath, lastModified) && appConfigValid) {
-                continue;
+                if (!force) {
+                    continue; // Ignore this resource since already in publish registry
+                }
             }
 
             String propertyType = mimeTypeService.detectMimeType(file.getName());
@@ -273,7 +279,7 @@ public class PublishCliCommand extends BaseCliCommand {
 
     public String getUsageHelp() {
 
-        return "pi publish <PATH_PATTERN>\n" +
+        return "pi publish [--force:true|false] <PATH_PATTERN>\n" +
                 "   Publishes all locally created/modified resources from inside properties to the server.\n" +
                 "   <PATH_PATTERN> must point to resources inside the properties folder.\n" +
                 "   Examples: \n" +
