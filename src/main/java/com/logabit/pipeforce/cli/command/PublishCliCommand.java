@@ -47,11 +47,6 @@ public class PublishCliCommand extends BaseCliCommand {
     @Override
     public int call(CommandArgs args) throws Exception {
 
-        if (args.getLength() > 1) {
-            out.println("USAGE: " + getUsageHelp());
-            return -1;
-        }
-
         if (!getContext().getInitService().isWorkDirInsideWorkspace()) {
             getContext().getOutputService().println("Publish must be executed in the root of a workspace folder.");
             return -1;
