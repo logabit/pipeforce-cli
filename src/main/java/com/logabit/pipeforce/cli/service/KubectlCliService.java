@@ -7,6 +7,7 @@ import com.logabit.pipeforce.common.util.StringUtil;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,7 +69,8 @@ public class KubectlCliService extends BaseCliContextAware {
     }
 
     /**
-     * Returns the all existing pod names for a given service or empty list if no pod has been found. Returns never null.
+     * Returns the names of all existing AND running pods for a given service or empty list if no pod has been found.
+     * Returns never null.
      *
      * @param serviceName
      * @return
@@ -86,13 +88,27 @@ public class KubectlCliService extends BaseCliContextAware {
                 "get",
                 "pods",
                 "-l", "pipeforce.io/app=" + serviceName,
-                "-o", "jsonpath={.items[*].metadata.name}");
+                "-o", "jsonpath='{range .items[*]}{.metadata.name},{.status.phase}:{end}'");
 
         if (result == null) {
             result = "";
         }
 
-        List<String> pods = StringUtil.splitToList(result, " ");
+        String[] results = result.split(":");
+
+        List<String> pods = new ArrayList<>();
+        for (String resultItem : results) {
+
+            if (!resultItem.contains(",")) {
+                continue;
+            }
+
+            String[] split = resultItem.split(",");
+            if (split[1].equals("Running")) {
+                pods.add(split[0]);
+            }
+        }
+
         this.serviceToPodCache.put(key, pods);
         return pods;
     }
@@ -133,8 +149,6 @@ public class KubectlCliService extends BaseCliContextAware {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
-
     }
 
     public void downloadFromService(String namespace, String service, String remotePath, String localPath) {
