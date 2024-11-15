@@ -88,7 +88,7 @@ public class KubectlCliService extends BaseCliContextAware {
                 "get",
                 "pods",
                 "-l", "pipeforce.io/app=" + serviceName,
-                "-o", "jsonpath='{range .items[*]}{.metadata.name},{.status.phase}:{end}'");
+                "-o", "jsonpath={range .items[*]}{.metadata.name},{.status.phase}:{end}");
 
         if (result == null) {
             result = "";
