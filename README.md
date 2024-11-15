@@ -10,7 +10,7 @@ PIPEFORCE CLI is a command line interface which can be used to:
 - Run and monitor tests.
 - Automate and execute business workflows.
 
-For more information, visit the [CLI reference documentation](https://pipeforce.github.io/docs/cli).
+For more information, visit the [CLI reference documentation]([https://pipeforce.github.io/docs/cli](https://logabit.atlassian.net/wiki/spaces/PA/pages/2548400334).
 
 ## Prerequisites
 
