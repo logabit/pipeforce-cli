@@ -90,29 +90,28 @@ For more options and documentation about the CLI tool, please visit https://docs
 
 ### A release candidate (RC)
 
-To automatically build, test and create a release draft **which is not considered in auto-rollout**, set a tag of
-format: `v<version>--b<build>-RCx` whereas `<version>` must be the designated backend version, `<build>` is the
-build number of the client. Example:
+On any platform release canididate, an RC tag is created on all platform modules including this module.
+
+Such a release candidate tag triggers the GitHub Action of this module which builds, tests and creates a release draft **which is not considered in auto-rollout** to clients.
+
+You can also trigger manually this GitHub Action by setting a tag of this format: `v<version>-RCx-<suffix>` whereas `<version>` must be the designated backend version and `<suffix>` identifies the manual change which usually starts with `rev` (stands for additional revision). Example:
 
 ```
-git tag v3.0.0-b1-RC1
+git tag v3.0.0-RC1-rev2
 git push origin --tags
 ```
 
 ### A stable version (RELEASE)
 
-To automatically build, test and create a stable release, set a tag of format: `v<version>--b<build>-RELEASE`
-whereas `<version>`
-must be the version of the backend, this cli is compatible with and <build> is the build of the RC to be released.
-Example:
+The release of a stable version works the same as for release candidates except that the suffix in the tag name will be `RELEASE` instead of `RC`.
+
+To manually trigger a new release build, you can do this:
 
 ```
-git tag v3.0.0-b1-RELEASE
+git tag v3.0.0-RELEASE-rev2
 git push origin --tags
 ```
-
-*Why is there a build number required?* Because there could be minor bugfixes in the CLI targeting the same server version. 
-In this case there will be a new build number but server version will stay the same.
+This will result in a release artifact name like `v3.0.0-RELEASE-rev2` for example.
 
 Note: After a stable version was released, it is considered in all client-side installations as the latest version and
 roll-out will be started automatically! So be careful in setting this tag!
