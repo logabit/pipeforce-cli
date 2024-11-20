@@ -47,6 +47,7 @@ import java.util.Collections;
 /**
  * This is a lightweight approach of an application context,
  * holding only the required objects and initializing them on request.
+ *
  */
 public class CliContext {
 
