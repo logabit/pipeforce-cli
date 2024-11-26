@@ -8,9 +8,13 @@ import com.logabit.pipeforce.common.net.Request;
 import com.logabit.pipeforce.common.pipeline.Result;
 import com.logabit.pipeforce.common.util.JsonUtil;
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.io.IOUtils;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 
-import java.io.File;
-import java.io.FileInputStream;
+
+import java.io.*;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +44,8 @@ public class UploadCliService extends BaseCliContextAware {
                 Request.get()
                         .uri("$uri:command:property.attachment.put")
                         .param("path", propertyKey)
-                        .param("name", file.getName()),
+                        .param("name", file.getName())
+                        .param("length", file.length()),
                 Void.class
         );
 
@@ -51,12 +56,17 @@ public class UploadCliService extends BaseCliContextAware {
             ChunkSplitter splitter = new ChunkSplitter();
             splitter.onEachChunk(chunk -> {
 
+                System.out.println("this is call");
+
+                byte[] chunkBytes = inputStreamToByteArray(chunk.getInputStream());
+                InputStream chunkInputStream = new ByteArrayInputStream(chunkBytes);
                 Result chunkUploadResult = resolver.resolve(
                         Request.post()
                                 .uri("$uri:command:property.attachment.chunk.put")
                                 .param("path", propertyKey)
                                 .param("name", file.getName())
-                                .body(chunk),
+                                .header("Content-Type", "application/octet-stream")
+                                .body(chunkInputStream),
                         Result.class
                 );
 
@@ -98,6 +108,17 @@ public class UploadCliService extends BaseCliContextAware {
         if (!toBoolean(exists)) {
             resolver.resolve(
                     Request.post().uri("$uri:command:property.schema.put?path=" + propertyKey), Void.class);
+        }
+    }
+
+    public static byte[] inputStreamToByteArray(InputStream inputStream) throws IOException {
+        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                byteArrayOutputStream.write(buffer, 0, bytesRead);
+            }
+            return byteArrayOutputStream.toByteArray(); // Return the byte array
         }
     }
 }
