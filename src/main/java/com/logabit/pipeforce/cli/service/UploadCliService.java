@@ -6,11 +6,16 @@ import com.logabit.pipeforce.common.io.ChunkSplitter;
 import com.logabit.pipeforce.common.net.ClientPipeforceURIResolver;
 import com.logabit.pipeforce.common.net.Request;
 import com.logabit.pipeforce.common.pipeline.Result;
+import com.logabit.pipeforce.common.util.FileUtil;
 import com.logabit.pipeforce.common.util.JsonUtil;
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.io.IOUtils;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 
-import java.io.File;
-import java.io.FileInputStream;
+
+import java.io.*;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +45,8 @@ public class UploadCliService extends BaseCliContextAware {
                 Request.get()
                         .uri("$uri:command:property.attachment.put")
                         .param("path", propertyKey)
-                        .param("name", file.getName()),
+                        .param("name", file.getName())
+                        .param("length", file.length()),
                 Void.class
         );
 
@@ -51,15 +57,21 @@ public class UploadCliService extends BaseCliContextAware {
             ChunkSplitter splitter = new ChunkSplitter();
             splitter.onEachChunk(chunk -> {
 
+                System.out.println("this is call");
+                chunk.setMaxSize(20 * FileUtil.ONE_MB);
+                System.out.println("Chunk size =" + chunk.getSize());
+                byte[] chunkBytes = inputStreamToByteArray(chunk.getInputStream(), (int) chunk.getSize());
+                ByteArrayInputStream chunkInputStream = new ByteArrayInputStream(chunkBytes);
                 Result chunkUploadResult = resolver.resolve(
                         Request.post()
                                 .uri("$uri:command:property.attachment.chunk.put")
                                 .param("path", propertyKey)
                                 .param("name", file.getName())
-                                .body(chunk),
+                                .header("Content-Type", "application/octet-stream")
+                                .body(chunkInputStream),
                         Result.class
                 );
-
+                System.out.println("this is result" + chunkUploadResult.getValue());
                 md5List.add(chunk.getChecksum());
                 System.out.println(JsonUtil.objectToJsonNode(chunkUploadResult.getValue()).toPrettyString());
             });
@@ -77,7 +89,6 @@ public class UploadCliService extends BaseCliContextAware {
             }
 
             String finalMd5 = "md5=" + new String(Hex.encodeHex(md5Digest.digest()));
-
             resolver.resolve(
                     Request.get().uri("$uri:command:property.attachment.checksum?checksum=" + finalMd5 +
                             "&path=" + propertyKey + "&name=" + file.getName()),
@@ -98,6 +109,17 @@ public class UploadCliService extends BaseCliContextAware {
         if (!toBoolean(exists)) {
             resolver.resolve(
                     Request.post().uri("$uri:command:property.schema.put?path=" + propertyKey), Void.class);
+        }
+    }
+
+    public static byte[] inputStreamToByteArray(InputStream inputStream, int readLength) throws IOException {
+        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
+            byte[] buffer = new byte[readLength];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                byteArrayOutputStream.write(buffer, 0, bytesRead);
+            }
+            return byteArrayOutputStream.toByteArray(); // Return the byte array
         }
     }
 }
