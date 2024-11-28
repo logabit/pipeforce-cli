@@ -69,7 +69,7 @@ public class UploadCliService extends BaseCliContextAware {
                                 .body(chunkInputStream),
                         Result.class
                 );
-
+                System.out.println("this is result" + chunkUploadResult.getValue());
                 md5List.add(chunk.getChecksum());
                 System.out.println(JsonUtil.objectToJsonNode(chunkUploadResult.getValue()).toPrettyString());
             });

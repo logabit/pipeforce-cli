@@ -5,6 +5,7 @@ import com.logabit.pipeforce.cli.command.ICliCommand;
 import com.logabit.pipeforce.cli.config.CliConfig;
 import com.logabit.pipeforce.cli.service.*;
 import com.logabit.pipeforce.common.converter.BooleanHttpMessageConverter;
+import com.logabit.pipeforce.common.converter.ByteArrayInputStreamHttpMessageConvertor;
 import com.logabit.pipeforce.common.net.ClientPipeforceURIResolver;
 import com.logabit.pipeforce.common.content.service.MimeTypeService;
 import com.logabit.pipeforce.common.net.Request;
@@ -27,7 +28,6 @@ import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
-
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 import java.io.File;
@@ -402,8 +402,10 @@ public class CliContext {
         RestTemplate template = new RestTemplate(requestFactory);
 
         BooleanHttpMessageConverter customConverter = new BooleanHttpMessageConverter();
+        ByteArrayInputStreamHttpMessageConvertor byteArrayConvertor = new ByteArrayInputStreamHttpMessageConvertor();
         List<HttpMessageConverter<?>> messageConverters = new ArrayList<>(template.getMessageConverters());
         messageConverters.add(customConverter);
+        messageConverters.add(byteArrayConvertor);
         template.setMessageConverters(messageConverters);
 
         template.setInterceptors(Create.newList((ClientHttpRequestInterceptor) (request, body, execution) -> {
