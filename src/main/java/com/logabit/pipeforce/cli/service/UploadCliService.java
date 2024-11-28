@@ -6,6 +6,7 @@ import com.logabit.pipeforce.common.io.ChunkSplitter;
 import com.logabit.pipeforce.common.net.ClientPipeforceURIResolver;
 import com.logabit.pipeforce.common.net.Request;
 import com.logabit.pipeforce.common.pipeline.Result;
+import com.logabit.pipeforce.common.util.FileUtil;
 import com.logabit.pipeforce.common.util.JsonUtil;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.IOUtils;
@@ -57,9 +58,10 @@ public class UploadCliService extends BaseCliContextAware {
             splitter.onEachChunk(chunk -> {
 
                 System.out.println("this is call");
-
-                byte[] chunkBytes = inputStreamToByteArray(chunk.getInputStream());
-                InputStream chunkInputStream = new ByteArrayInputStream(chunkBytes);
+                chunk.setMaxSize(20 * FileUtil.ONE_MB);
+                System.out.println("Chunk size =" + chunk.getSize());
+                byte[] chunkBytes = inputStreamToByteArray(chunk.getInputStream(), (int) chunk.getSize());
+                ByteArrayInputStream chunkInputStream = new ByteArrayInputStream(chunkBytes);
                 Result chunkUploadResult = resolver.resolve(
                         Request.post()
                                 .uri("$uri:command:property.attachment.chunk.put")
@@ -87,7 +89,6 @@ public class UploadCliService extends BaseCliContextAware {
             }
 
             String finalMd5 = "md5=" + new String(Hex.encodeHex(md5Digest.digest()));
-
             resolver.resolve(
                     Request.get().uri("$uri:command:property.attachment.checksum?checksum=" + finalMd5 +
                             "&path=" + propertyKey + "&name=" + file.getName()),
@@ -111,9 +112,9 @@ public class UploadCliService extends BaseCliContextAware {
         }
     }
 
-    public static byte[] inputStreamToByteArray(InputStream inputStream) throws IOException {
+    public static byte[] inputStreamToByteArray(InputStream inputStream, int readLength) throws IOException {
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
-            byte[] buffer = new byte[1024];
+            byte[] buffer = new byte[readLength];
             int bytesRead;
             while ((bytesRead = inputStream.read(buffer)) != -1) {
                 byteArrayOutputStream.write(buffer, 0, bytesRead);
