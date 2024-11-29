@@ -2,10 +2,13 @@ package com.logabit.pipeforce.cli.service;
 
 import com.logabit.pipeforce.cli.BaseCliContextAware;
 import com.logabit.pipeforce.cli.CliException;
-import com.logabit.pipeforce.common.command.stub.*;
+import com.logabit.pipeforce.common.command.stub.PropertyAttachmentChunkPutParams;
+import com.logabit.pipeforce.common.command.stub.PropertyAttachmentPutParams;
+import com.logabit.pipeforce.common.command.stub.PropertyAttachmentChecksumParams;
+import com.logabit.pipeforce.common.command.stub.PropertyExistsParams;
+import com.logabit.pipeforce.common.command.stub.PropertySchemaPutParams;
 import com.logabit.pipeforce.common.io.ChunkSplitter;
 import com.logabit.pipeforce.common.net.ClientPipeforceURIResolver;
-import com.logabit.pipeforce.common.net.Request;
 import com.logabit.pipeforce.common.pipeline.Result;
 import com.logabit.pipeforce.common.util.JsonUtil;
 import org.apache.commons.codec.binary.Hex;

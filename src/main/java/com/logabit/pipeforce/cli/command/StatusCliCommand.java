@@ -4,7 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.logabit.pipeforce.cli.CommandArgs;
 import com.logabit.pipeforce.cli.config.CliConfig;
 import com.logabit.pipeforce.cli.service.ConfigCliService;
-import com.logabit.pipeforce.common.net.Request;
+import com.logabit.pipeforce.common.command.stub.ServerInfoParams;
+//import com.logabit.pipeforce.common.net.Request;
 import com.logabit.pipeforce.common.util.DateTimeUtil;
 import com.logabit.pipeforce.common.util.JsonUtil;
 
@@ -46,8 +47,12 @@ public class StatusCliCommand extends BaseCliCommand {
 
         try {
 
-            JsonNode info = getContext().getResolver().resolve(
-                    Request.get().uri("$uri:command:server.info"), JsonNode.class);
+//            JsonNode info = getContext().getResolver().resolve(
+//                    Request.get().uri("$uri:command:server.info"), JsonNode.class);
+            JsonNode info = getContext().getResolver().command(
+                    new ServerInfoParams(),
+                    JsonNode.class
+            );
 
             Map infoMap = JsonUtil.objectToMap(info);
             status.put("server", infoMap);
