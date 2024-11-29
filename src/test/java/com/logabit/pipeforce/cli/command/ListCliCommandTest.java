@@ -5,6 +5,8 @@ import com.logabit.pipeforce.cli.CliContext;
 import com.logabit.pipeforce.cli.CommandArgs;
 import com.logabit.pipeforce.cli.config.CliConfig;
 import com.logabit.pipeforce.cli.service.ConfigCliService;
+import com.logabit.pipeforce.common.command.ICommandParams;
+import com.logabit.pipeforce.common.command.stub.PropertyListParams;
 import com.logabit.pipeforce.common.model.WorkspaceConfig;
 import com.logabit.pipeforce.common.net.ClientPipeforceURIResolver;
 import com.logabit.pipeforce.common.net.Request;
@@ -85,41 +87,41 @@ public class ListCliCommandTest {
 
         ArrayNode foundPropsNode = (ArrayNode) JsonUtil.jsonStringToJsonNode(foundProperties);
 
-        when(resolver.resolve(any(), any())).thenReturn(foundPropsNode);
+        when(resolver.command(any(), any())).thenReturn(foundPropsNode);
 
         ListCliCommand getCmd = (ListCliCommand) cliContext.createCommandInstance("list");
         getCmd.call(new CommandArgs("global/app/myapp/"));
 
-        ArgumentCaptor<Request> requestCaptor = ArgumentCaptor.forClass(Request.class);
+        ArgumentCaptor<PropertyListParams> commandCaptor = ArgumentCaptor.forClass(PropertyListParams.class);
         ArgumentCaptor<Class> typeCaptor = ArgumentCaptor.forClass(Class.class);
-        verify(resolver, times(1)).resolve(requestCaptor.capture(), typeCaptor.capture());
+        verify(resolver, times(1)).command((ICommandParams) commandCaptor.capture(), typeCaptor.capture());
 
-        List<Request> values = requestCaptor.getAllValues();
-        Assert.assertEquals("$uri:command:property.list?pattern=global/app/myapp/**", ListUtil.lastElement(values).getUri());
+        List<PropertyListParams> values = commandCaptor.getAllValues();
+        Assert.assertEquals("global/app/myapp/**", ListUtil.lastElement(values).getParamsMap().get("pattern"));
 
         // Converts global/*/myapp/** -> global/*/myapp/**
 
         getCmd = (ListCliCommand) cliContext.createCommandInstance("list");
         getCmd.call(new CommandArgs("global/*/myapp/**"));
 
-        requestCaptor = ArgumentCaptor.forClass(Request.class);
+        commandCaptor = ArgumentCaptor.forClass(PropertyListParams.class);
         typeCaptor = ArgumentCaptor.forClass(Class.class);
-        verify(resolver, times(2)).resolve(requestCaptor.capture(), typeCaptor.capture());
+        verify(resolver, times(2)).command((ICommandParams) commandCaptor.capture(), typeCaptor.capture());
 
-        values = requestCaptor.getAllValues();
-        Assert.assertEquals("$uri:command:property.list?pattern=global/*/myapp/**", ListUtil.lastElement(values).getUri());
+        values = commandCaptor.getAllValues();
+        Assert.assertEquals("global/*/myapp/**", ListUtil.lastElement(values).getParamsMap().get("pattern"));
 
         // Converts global/app/myapp -> global/app/myapp
 
         getCmd = (ListCliCommand) cliContext.createCommandInstance("list");
         getCmd.call(new CommandArgs("global/app/myapp"));
 
-        requestCaptor = ArgumentCaptor.forClass(Request.class);
+        commandCaptor = ArgumentCaptor.forClass(PropertyListParams.class);
         typeCaptor = ArgumentCaptor.forClass(Class.class);
-        verify(resolver, times(3)).resolve(requestCaptor.capture(), typeCaptor.capture());
+        verify(resolver, times(3)).command((ICommandParams) commandCaptor.capture(), typeCaptor.capture());
 
-        values = requestCaptor.getAllValues();
-        Assert.assertEquals("$uri:command:property.list?pattern=global/app/myapp", ListUtil.lastElement(values).getUri());
+        values = commandCaptor.getAllValues();
+        Assert.assertEquals("global/app/myapp", ListUtil.lastElement(values).getParamsMap().get("pattern"));
 
     }
 }

@@ -3,6 +3,8 @@ package com.logabit.pipeforce.cli.command;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.logabit.pipeforce.cli.CommandArgs;
 import com.logabit.pipeforce.cli.config.CliConfig;
+import com.logabit.pipeforce.common.command.ICommandParams;
+import com.logabit.pipeforce.common.command.stub.PropertySchemaPutParams;
 import com.logabit.pipeforce.common.net.Request;
 import com.logabit.pipeforce.common.util.FileUtil;
 import com.logabit.pipeforce.common.util.JsonUtil;
@@ -60,7 +62,7 @@ public class PublishCliCommandTest extends BaseRepoAwareCliCommandTest {
         cliContext.setCurrentInstance(instance);
 
         JsonNode resultNode = JsonUtil.mapToJsonNode(ListUtil.asMap("result", "created"));
-        Mockito.when(resolver.resolve(any(), any())).thenReturn(resultNode);
+        Mockito.when(resolver.command(any(), any())).thenReturn(resultNode);
 
         System.out.println("");
         System.out.println("> new app");
@@ -95,21 +97,21 @@ public class PublishCliCommandTest extends BaseRepoAwareCliCommandTest {
 //        ArgumentCaptor<Map> headersCaptor = ArgumentCaptor.forClass(Map.class);
 //        ArgumentCaptor<Map> varsCaptor = ArgumentCaptor.forClass(Map.class);
 
-        ArgumentCaptor<Request> requestCaptor = ArgumentCaptor.forClass(Request.class);
+        ArgumentCaptor<PropertySchemaPutParams> commandCaptor = ArgumentCaptor.forClass(PropertySchemaPutParams.class);
         ArgumentCaptor<Class> typeCaptor = ArgumentCaptor.forClass(Class.class);
-        verify(resolver, atLeastOnce()).resolve(requestCaptor.capture(), typeCaptor.capture());
+        verify(resolver, atLeastOnce()).command((ICommandParams) commandCaptor.capture(), typeCaptor.capture());
 
-        List<Request> allNodes = requestCaptor.getAllValues();
+        List<PropertySchemaPutParams> allNodes = commandCaptor.getAllValues();
 
         Assert.assertEquals(new File("global/app/com.logabit.someapp/config/app"),
-                new File(allNodes.get(0).getParams().get(FIELD_PATH) + ""));
+                new File(allNodes.get(0).getParamsMap().get(FIELD_PATH) + ""));
 
-        Assert.assertEquals("application/json", allNodes.get(1).getParams().get("type"));
+        Assert.assertEquals("application/json", allNodes.get(1).getParamsMap().get("type"));
 
-        Map<String, String> node4 = allNodes.get(4).getParams();
+        Map<String, Object> node4 = allNodes.get(4).getParamsMap();
 
         Assert.assertEquals(new File("global/app/com.logabit.someapp/template/logo"),
-                new File(allNodes.get(4).getParams().get(FIELD_PATH) + ""));
+                new File(allNodes.get(4).getParamsMap().get(FIELD_PATH) + ""));
         Assert.assertEquals("image/png;encoding=base64", node4.get("type"));
 
         Assert.assertEquals(5, publishCommand.getFilesCounter());
