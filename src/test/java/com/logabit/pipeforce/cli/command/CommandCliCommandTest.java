@@ -41,6 +41,11 @@ public class CommandCliCommandTest {
         verify(resolver, times(1)).resolve(requestCaptor.capture(), typeCaptor.capture());
 
         Request request = requestCaptor.getValue();
+
+        /**
+         *  The command names + params are passed as cli args so they are dynamic.
+         *  Also, abstract class cannot be passed here. So we need to keep $uri string here.
+         */
         Assert.assertEquals("$uri:command:cmdName", request.getUri());
         Assert.assertEquals("FOO", request.getParams().get("message"));
         Assert.assertEquals("text inside ticks", request.getParams().get("longtext"));
