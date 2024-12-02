@@ -2,8 +2,9 @@ package com.logabit.pipeforce.cli.command;
 
 import com.logabit.pipeforce.cli.CommandArgs;
 import com.logabit.pipeforce.cli.config.CliConfig;
+import com.logabit.pipeforce.common.command.stub.IamApitokenParams;
 import com.logabit.pipeforce.common.net.ClientPipeforceURIResolver;
-import com.logabit.pipeforce.common.net.Request;
+//import com.logabit.pipeforce.common.net.Request;
 import com.logabit.pipeforce.common.util.DateTimeUtil;
 import com.logabit.pipeforce.common.util.PathUtil;
 
@@ -92,12 +93,10 @@ public class SetupCliCommand extends BaseCliCommand {
         try {
 
             // Sending sensitive command params in the body as url-encoded -> more secure
-            return resolver.resolve(
-                    Request.postParamsUrlEncoded()
-                            .uri("$uri:command:iam.apitoken")
-                            .param("username", username).
-                            param("password", password),
-                    String.class);
+            return resolver.command(
+                    new IamApitokenParams().setBody(username, password),
+                    String.class
+            );
 
         } finally {
             getContext().getOutputService().stopProgress();

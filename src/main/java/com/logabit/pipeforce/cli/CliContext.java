@@ -12,9 +12,9 @@ import com.logabit.pipeforce.cli.service.OutputCliService;
 import com.logabit.pipeforce.cli.service.PublishCliService;
 import com.logabit.pipeforce.cli.service.UpdateCliService;
 import com.logabit.pipeforce.cli.service.UploadCliService;
+import com.logabit.pipeforce.common.command.stub.ServerInfoParams;
 import com.logabit.pipeforce.common.net.ClientPipeforceURIResolver;
 import com.logabit.pipeforce.common.content.service.MimeTypeService;
-import com.logabit.pipeforce.common.net.Request;
 import com.logabit.pipeforce.common.util.Create;
 import com.logabit.pipeforce.common.util.InputUtil;
 import com.logabit.pipeforce.common.util.PathUtil;
@@ -375,7 +375,7 @@ public class CliContext {
 
         try {
 
-            JsonNode result = getResolver().resolve(Request.get().uri("$uri:command:server.info"), JsonNode.class);
+             JsonNode result = getResolver().command(new ServerInfoParams(), JsonNode.class);
 
             serverVersion[0] = result.get("versionMajor").intValue();
             serverVersion[1] = result.get("versionMinor").intValue();

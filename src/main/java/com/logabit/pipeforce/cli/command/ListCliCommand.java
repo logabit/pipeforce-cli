@@ -4,7 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.logabit.pipeforce.cli.CliPathArg;
 import com.logabit.pipeforce.cli.CommandArgs;
-import com.logabit.pipeforce.common.net.Request;
+import com.logabit.pipeforce.common.command.stub.PropertyListParams;
+//import com.logabit.pipeforce.common.net.Request;
 import com.logabit.pipeforce.common.util.PathUtil;
 
 import java.util.ArrayList;
@@ -34,8 +35,10 @@ public class ListCliCommand extends BaseCliCommand {
 
         out.showProgress("");
         try {
-            ArrayNode list = getContext().getResolver().resolve(
-                    Request.get().uri("$uri:command:property.list?pattern=" + pathArg.getRemotePattern()), ArrayNode.class);
+            ArrayNode list = getContext().getResolver().command(
+                    new PropertyListParams().pattern(pathArg.getRemotePattern()),
+                    ArrayNode.class
+            );
 
             List<String> keys = new ArrayList<>();
             for (JsonNode node : list) {

@@ -1,11 +1,8 @@
 package com.logabit.pipeforce.cli.command;
 
 import com.logabit.pipeforce.cli.CommandArgs;
-import com.logabit.pipeforce.common.net.Request;
+import com.logabit.pipeforce.common.command.stub.LogListParams;
 import com.logabit.pipeforce.common.util.StringUtil;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 /**
  * Shows the server logs.
@@ -35,13 +32,7 @@ public class LogsCliCommand extends BaseCliCommand {
             service = "hub";
         }
 
-        Map<String, String> paramsMap = new LinkedHashMap<>();
-        paramsMap.put("lines", lines);
-        paramsMap.put("service", service);
-
-        Object result = getContext().getResolver().resolve(
-                Request.get().uri("$uri:command:log.list").params(paramsMap), String.class);
-
+        Object result = getContext().getResolver().command(new LogListParams().lines(lines).service(service), String.class);
         out.println(result + "");
 
         return 0;

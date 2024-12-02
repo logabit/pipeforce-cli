@@ -5,9 +5,9 @@ import com.logabit.pipeforce.cli.CliException;
 import com.logabit.pipeforce.cli.CliPathArg;
 import com.logabit.pipeforce.cli.CommandArgs;
 import com.logabit.pipeforce.cli.service.PublishCliService;
+import com.logabit.pipeforce.common.command.stub.PropertySchemaPutParams;
 import com.logabit.pipeforce.common.content.model.ContentType;
 import com.logabit.pipeforce.common.content.service.MimeTypeService;
-import com.logabit.pipeforce.common.net.Request;
 import com.logabit.pipeforce.common.util.EncodeUtil;
 import com.logabit.pipeforce.common.util.FileUtil;
 import com.logabit.pipeforce.common.util.JsonUtil;
@@ -21,12 +21,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.logabit.pipeforce.common.property.IProperty.FIELD_PATH;
 
 /**
  * Publishes all resources of a given app to the server.
@@ -160,20 +158,13 @@ public class PublishCliCommand extends BaseCliCommand {
                 propertyValue = StringUtil.fromFile(file);
             }
 
-            Map schemaPutArgs = new HashMap();
-            schemaPutArgs.put(FIELD_PATH, propertyKey);
-            schemaPutArgs.put("type", type.toString());
-            schemaPutArgs.put("existStrategy", "update");
-            schemaPutArgs.put("evalValue", "false");
-            schemaPutArgs.put("value", propertyValue);
 
-
-            JsonNode node = getContext().getResolver().resolve(
-                    Request.postParamsUrlEncoded()
-                            .uri("$uri:command:property.schema.put").
-                            params(schemaPutArgs),
-                    JsonNode.class);
-
+            JsonNode node = getContext().getResolver().command(
+                    new PropertySchemaPutParams().path(propertyKey)
+                            .type(type.toString()).existStrategy("update")
+                            .evalValue("false").value(propertyValue),
+                    JsonNode.class
+            );
 
             String action = node.get("result").textValue();
 

@@ -22,6 +22,10 @@ public class UriCliCommand extends BaseCliCommand {
         // pi uri URI
         String uri = args.getOriginalArgs()[0];
 
+        /**
+         *  $uri is dynamic here. So it can be $uri:command/pipeline or others.
+         *  No change done here, as stubbing with param classes requires exact command name.
+         */
         Object r = getContext().getResolver().resolve(Request.get().uri(uri), String.class);
 
         out.printResult(r);

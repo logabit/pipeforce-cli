@@ -28,6 +28,10 @@ public class CommandCliCommand extends BaseCliCommand {
         Map<String, String> paramsMap = new LinkedHashMap<>(args.getOptions());
         paramsMap.remove(commandName); // Already extracted above
 
+        /**
+         *  The command names + params are passed as cli args so they are dynamic.
+         *  Also, abstract class cannot be passed here. So we need to keep $uri string here.
+         */
         String result = getContext().getResolver().resolve(
                 Request.get().uri("$uri:command:" + commandName).params(paramsMap), String.class);
 
