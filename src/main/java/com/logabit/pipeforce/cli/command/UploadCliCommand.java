@@ -1,7 +1,7 @@
 package com.logabit.pipeforce.cli.command;
 
 import com.logabit.pipeforce.cli.CommandArgs;
-import com.logabit.pipeforce.cli.service.UploadCliService;
+import com.logabit.pipeforce.cli.service.AttachmentCliService;
 
 /**
  * Uploads a given file or folder to the server as attachments to a property.
@@ -29,17 +29,18 @@ public class UploadCliCommand extends BaseCliCommand {
 
         String filePath = args.getOptionKeyAt(0);
         String propertyPath = args.getOptionKeyAt(1);
+        String collectionName = args.getOptionKeyAt(2);
 
-        doUpload(filePath, propertyPath);
+        doUpload(filePath, propertyPath, collectionName);
 
         return 0;
     }
 
-    private void doUpload(String filePath, String propertyKey) {
+    private void doUpload(String filePath, String propertyKey, String collectionName) {
 
-        UploadCliService uploadService = getContext().getUploadService();
+        AttachmentCliService uploadService = getContext().getAttachmentService();
 
-        uploadService.upload(filePath, propertyKey);
+        uploadService.upload(filePath, propertyKey, collectionName);
     }
 
     public String getUsageHelp() {

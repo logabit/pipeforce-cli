@@ -11,8 +11,10 @@ import com.logabit.pipeforce.cli.service.KubectlCliService;
 import com.logabit.pipeforce.cli.service.OutputCliService;
 import com.logabit.pipeforce.cli.service.PublishCliService;
 import com.logabit.pipeforce.cli.service.UpdateCliService;
-import com.logabit.pipeforce.cli.service.UploadCliService;
+import com.logabit.pipeforce.cli.service.AttachmentCliService;
 import com.logabit.pipeforce.common.command.stub.ServerInfoParams;
+import com.logabit.pipeforce.common.converter.BooleanHttpMessageConverter;
+import com.logabit.pipeforce.common.converter.NumberHttpMessageConverter;
 import com.logabit.pipeforce.common.net.ClientPipeforceURIResolver;
 import com.logabit.pipeforce.common.content.service.MimeTypeService;
 import com.logabit.pipeforce.common.util.Create;
@@ -92,7 +94,7 @@ public class CliContext {
 
     private KubectlCliService kubectlService;
 
-    private UploadCliService uploadService;
+    private AttachmentCliService uploadService;
 
     private ClientPipeforceURIResolver resolver;
 
@@ -260,9 +262,9 @@ public class CliContext {
         return publishService;
     }
 
-    public UploadCliService getUploadService() {
+    public AttachmentCliService getAttachmentService() {
         if (uploadService == null) {
-            uploadService = new UploadCliService();
+            uploadService = new AttachmentCliService();
             initComponent(uploadService);
         }
 
@@ -410,6 +412,9 @@ public class CliContext {
             headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
             return execution.execute(request, body);
         }));
+
+        template.getMessageConverters().add(new BooleanHttpMessageConverter());
+        template.getMessageConverters().add(new NumberHttpMessageConverter());
 
         return template;
     }
