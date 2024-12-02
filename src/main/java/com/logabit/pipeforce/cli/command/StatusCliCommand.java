@@ -47,8 +47,6 @@ public class StatusCliCommand extends BaseCliCommand {
 
         try {
 
-//            JsonNode info = getContext().getResolver().resolve(
-//                    Request.get().uri("$uri:command:server.info"), JsonNode.class);
             JsonNode info = getContext().getResolver().command(
                     new ServerInfoParams(),
                     JsonNode.class

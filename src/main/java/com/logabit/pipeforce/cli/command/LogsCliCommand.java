@@ -32,12 +32,6 @@ public class LogsCliCommand extends BaseCliCommand {
             service = "hub";
         }
 
-//        Map<String, String> paramsMap = new LinkedHashMap<>();
-//        paramsMap.put("lines", lines);
-//        paramsMap.put("service", service);
-
-//        Object result = getContext().getResolver().resolve(
-//                Request.get().uri("$uri:command:log.list").params(paramsMap), String.class);
         Object result = getContext().getResolver().command(new LogListParams().lines(lines).service(service), String.class);
         out.println(result + "");
 

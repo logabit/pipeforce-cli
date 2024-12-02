@@ -46,10 +46,6 @@ public class DeleteCliCommand extends BaseCliCommand {
         publishService.load();
 
         // TODO Return only keys, not all values (use property.keys, available since 7.0)
-//        ArrayNode founds = getContext().getResolver().resolve(
-//                Request.get()
-//                        .uri("$uri:command:property.list?filter=" + PathUtil.removeExtensions(pathArg.getRemotePattern())),
-//                ArrayNode.class);
         ArrayNode founds = getContext().getResolver().command(
                 new PropertyListParams().filter(PathUtil.removeExtensions(pathArg.getRemotePattern())),
                 ArrayNode.class
@@ -65,8 +61,6 @@ public class DeleteCliCommand extends BaseCliCommand {
             String path = found.get(FIELD_PATH).textValue();
             out.println("Delete: " + path);
 
-//            getContext().getResolver().resolve(
-//                    Request.get().uri("$uri:command:property.schema.delete?pattern=" + path), Void.class);
             getContext().getResolver().command(new PropertySchemaDeleteParams().pattern(path), Void.class);
 
             // Remove entry from .published file

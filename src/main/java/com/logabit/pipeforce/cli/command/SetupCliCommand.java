@@ -93,14 +93,8 @@ public class SetupCliCommand extends BaseCliCommand {
         try {
 
             // Sending sensitive command params in the body as url-encoded -> more secure
-//            return resolver.resolve(
-//                    Request.postParamsUrlEncoded()
-//                            .uri("$uri:command:iam.apitoken")
-//                            .param("username", username).
-//                            param("password", password),
-//                    String.class);
             return resolver.command(
-                    new IamApitokenParams().username(username).password(password),
+                    new IamApitokenParams().setBody(username, password),
                     String.class
             );
 

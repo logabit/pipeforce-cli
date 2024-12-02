@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+
 /**
  * Publishes all resources of a given app to the server.
  *
@@ -157,19 +158,7 @@ public class PublishCliCommand extends BaseCliCommand {
                 propertyValue = StringUtil.fromFile(file);
             }
 
-//            Map schemaPutArgs = new HashMap();
-//            schemaPutArgs.put(FIELD_PATH, propertyKey);
-//            schemaPutArgs.put("type", type.toString());
-//            schemaPutArgs.put("existStrategy", "update");
-//            schemaPutArgs.put("evalValue", "false");
-//            schemaPutArgs.put("value", propertyValue);
 
-
-//            JsonNode node = getContext().getResolver().resolve(
-//                    Request.postParamsUrlEncoded()
-//                            .uri("$uri:command:property.schema.put").
-//                            params(schemaPutArgs),
-//                    JsonNode.class);
             JsonNode node = getContext().getResolver().command(
                     new PropertySchemaPutParams().path(propertyKey)
                             .type(type.toString()).existStrategy("update")

@@ -35,8 +35,6 @@ public class ListCliCommand extends BaseCliCommand {
 
         out.showProgress("");
         try {
-//            ArrayNode list = getContext().getResolver().resolve(
-//                    Request.get().uri("$uri:command:property.list?pattern=" + pathArg.getRemotePattern()), ArrayNode.class);
             ArrayNode list = getContext().getResolver().command(
                     new PropertyListParams().pattern(pathArg.getRemotePattern()),
                     ArrayNode.class
