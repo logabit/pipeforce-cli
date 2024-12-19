@@ -37,6 +37,7 @@ java -jar pipeforce-cli.jar setup
 
 3. By default the installation location will be `$USER_HOME/pipeforce/pipeforce-cli`.
 4. Add the `$USER_HOME/pipeforce/pipeforce-cli/bin/pi` script to your path variables of your operating system.
+5. On Mac you can do so with this command: `echo 'export PATH="$PATH:$HOME/pipeforce/pipeforce-cli/bin/"' >> ~/.zshrc && source ~/.zshrc`. Also make sure to set execution permission to the pi script: `chmod +x pi`
 
 ## Init a folder as app repo
 
