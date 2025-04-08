@@ -1,3 +1,5 @@
+# This Repository has been moved to a private one. Latest release artifacts are being automatically uploaded here.
+
 # PIPEFORCE CLI    
 
 PIPEFORCE CLI is a command line interface which can be used to:
