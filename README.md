@@ -1,4 +1,6 @@
-# This Repository has been moved to a private one. Latest release artifacts are being automatically uploaded here.
+# Public Repo Note
+### This Repository has been moved to a private one. Latest release artifacts are being automatically uploaded here.
+### To create a new release here, go to the private repo (https://github.com/logabit/pipeforce-platform) and add a new tag there. Any tag that starts with "v" will generate a new jar. Tags starting with "v" and ending with RELEASE will create a released jar here.
 
 # PIPEFORCE CLI    
 
